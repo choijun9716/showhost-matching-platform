@@ -51,21 +51,9 @@ const Navbar = ({ activeTab, setActiveTab }) => {
           style={{ 
             display: 'flex', 
             alignItems: 'center', 
-            gap: '8px', 
             cursor: 'pointer' 
           }}
         >
-          <div className="bg-gradient-primary" style={{
-            width: '36px',
-            height: '36px',
-            borderRadius: '10px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            boxShadow: '0 4px 12px rgba(110, 80, 250, 0.4)'
-          }}>
-            <Sparkles size={18} color="white" />
-          </div>
           <span style={{ 
             fontSize: '1.25rem', 
             fontWeight: 800, 
