@@ -5,7 +5,7 @@ import ShowhostCard from '../components/ShowhostCard';
 import MatchingModal from '../components/MatchingModal';
 import { Search, Filter, Sparkles, Star, Calendar, CircleDollarSign, Video, CheckCircle, AlertCircle, ArrowLeft, Lock, ShieldAlert } from 'lucide-react';
 
-const CATEGORIES = ['식품', '뷰티', '가전', '테크', '패션', '건기식', '키즈', '여행', '리빙'];
+const CATEGORIES = ['전체', '식품', '뷰티', '가전', '테크', '패션', '건기식', '키즈', '여행', '리빙'];
 
 const Home = ({ onNavigateToLogin }) => {
   const { user, updateUserPaidStatus } = useAuth();
@@ -348,16 +348,23 @@ const Home = ({ onNavigateToLogin }) => {
                 scrollbarWidth: 'none',
               }}>
                 {CATEGORIES.map(category => {
-                  const isSelected = selectedCategories.includes(category);
+                  const isSelected = category === '전체' 
+                    ? selectedCategories.length === 0 
+                    : selectedCategories.includes(category);
+                  
                   return (
                     <button
                       key={category}
                       onClick={() => {
-                        setSelectedCategories(prev => 
-                          isSelected
-                            ? prev.filter(c => c !== category)
-                            : [...prev, category]
-                        );
+                        if (category === '전체') {
+                          setSelectedCategories([]);
+                        } else {
+                          setSelectedCategories(prev => 
+                            isSelected
+                              ? prev.filter(c => c !== category)
+                              : [...prev, category]
+                          );
+                        }
                       }}
                       className="btn"
                       style={{

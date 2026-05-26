@@ -88,10 +88,6 @@ const ShowhostCard = ({ host, onSelect }) => {
             <CircleDollarSign size={14} color="#ffffff" />
             <span>{host.pay}</span>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <Calendar size={14} color="#ffffff" />
-            <span>{host.time}</span>
-          </div>
         </div>
       </div>
       
