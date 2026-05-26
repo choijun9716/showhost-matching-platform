@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../supabaseClient';
-import { Save, User, Award, CircleDollarSign, Calendar, FileText, Video, Sparkles, Image, CheckCircle, AlertCircle } from 'lucide-react';
+import { Save, User, Award, CircleDollarSign, FileText, Video, Sparkles, Image, CheckCircle, AlertCircle } from 'lucide-react';
 
 const CATEGORIES = ['패션', '뷰티', '푸드', 'IT/가전', '기타'];
 const CAREER_OPTIONS = ['신입', '1년', '2년', '3년', '4년', '5년', '7년 이상', '10년 이상'];
@@ -422,36 +422,19 @@ const ProfileEdit = () => {
           />
         </div>
 
-        {/* Financial & Time Specs */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '20px' }} className="specs-grid-mobile">
-          <div>
-            <label htmlFor="edit-pay">희망 페이 (단가)</label>
-            <div style={{ position: 'relative' }}>
-              <CircleDollarSign size={16} color="hsl(var(--foreground-muted))" style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)' }} />
-              <input
-                id="edit-pay"
-                type="text"
-                placeholder="예: 시간당 20만 - 35만원 (협의)"
-                value={pay}
-                onChange={(e) => setPay(e.target.value)}
-                style={{ paddingLeft: '44px' }}
-              />
-            </div>
-          </div>
-
-          <div>
-            <label htmlFor="edit-time">진행 가능 시간대</label>
-            <div style={{ position: 'relative' }}>
-              <Calendar size={16} color="hsl(var(--foreground-muted))" style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)' }} />
-              <input
-                id="edit-time"
-                type="text"
-                placeholder="예: 평일 야간, 주말 상시 가능"
-                value={time}
-                onChange={(e) => setTime(e.target.value)}
-                style={{ paddingLeft: '44px' }}
-              />
-            </div>
+        {/* Financial Specs */}
+        <div>
+          <label htmlFor="edit-pay">희망 페이 (단가)</label>
+          <div style={{ position: 'relative' }}>
+            <CircleDollarSign size={16} color="hsl(var(--foreground-muted))" style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)' }} />
+            <input
+              id="edit-pay"
+              type="text"
+              placeholder="예: 시간당 20만 - 35만원 (협의)"
+              value={pay}
+              onChange={(e) => setPay(e.target.value)}
+              style={{ paddingLeft: '44px' }}
+            />
           </div>
         </div>
 

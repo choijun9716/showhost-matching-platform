@@ -575,9 +575,6 @@ const Home = ({ onNavigateToLogin }) => {
 
                 {/* Quick Stats Grid */}
                 <div style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-                  gap: '16px',
                   background: 'rgba(255, 255, 255, 0.02)',
                   padding: '20px',
                   borderRadius: '12px',
@@ -590,16 +587,6 @@ const Home = ({ onNavigateToLogin }) => {
                     <div>
                       <span style={{ fontSize: '0.75rem', color: 'hsl(var(--foreground-muted))', display: 'block' }}>희망 페이</span>
                       <span style={{ fontSize: '0.9rem', fontWeight: 600 }}>{selectedHost.pay}</span>
-                    </div>
-                  </div>
-
-                  <div style={{ display: 'flex', gap: '12px' }}>
-                    <div className="bg-gradient-primary" style={{ width: '36px', height: '36px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyCenter: 'center', display: 'inline-flex', justifyContent: 'center' }}>
-                      <Calendar size={18} color="white" style={{ alignSelf: 'center' }} />
-                    </div>
-                    <div>
-                      <span style={{ fontSize: '0.75rem', color: 'hsl(var(--foreground-muted))', display: 'block' }}>진행 가능 시간</span>
-                      <span style={{ fontSize: '0.9rem', fontWeight: 600 }}>{selectedHost.time}</span>
                     </div>
                   </div>
                 </div>
