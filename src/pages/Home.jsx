@@ -15,6 +15,7 @@ const Home = ({ onNavigateToLogin }) => {
   const [selectedCategories, setSelectedCategories] = useState([]); // 중복 선택을 위한 배열
   const [payRangeFilter, setPayRangeFilter] = useState('전체'); // 금액대 필터
   const [searchQuery, setSearchQuery] = useState('');
+  const [searchInput, setSearchInput] = useState('');
   const [selectedHost, setSelectedHost] = useState(null);
   const [showMatchingModal, setShowMatchingModal] = useState(false);
   const [matchingSuccess, setMatchingSuccess] = useState(false);
@@ -314,19 +315,29 @@ const Home = ({ onNavigateToLogin }) => {
             gap: '20px'
           }}>
             {/* Search Input */}
-            <div style={{ position: 'relative' }}>
-              <Search 
-                size={18} 
-                color="hsl(var(--foreground-muted))" 
-                style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)' }} 
-              />
-              <input 
-                type="text" 
-                placeholder="쇼호스트의 이름을 검색해 보세요..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                style={{ paddingLeft: '48px', height: '50px', borderRadius: '12px' }}
-              />
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <div style={{ position: 'relative', flex: 1 }}>
+                <Search 
+                  size={18} 
+                  color="hsl(var(--foreground-muted))" 
+                  style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)' }} 
+                />
+                <input 
+                  type="text" 
+                  placeholder="쇼호스트의 이름을 검색해 보세요..."
+                  value={searchInput}
+                  onChange={(e) => setSearchInput(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && setSearchQuery(searchInput)}
+                  style={{ paddingLeft: '48px', height: '50px', borderRadius: '12px', width: '100%' }}
+                />
+              </div>
+              <button 
+                onClick={() => setSearchQuery(searchInput)}
+                className="btn btn-primary"
+                style={{ height: '50px', borderRadius: '12px', padding: '0 24px', whiteSpace: 'nowrap' }}
+              >
+                검색
+              </button>
             </div>
 
             {/* Category Tabs & Filters */}
