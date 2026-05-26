@@ -2,39 +2,16 @@ import React from 'react';
 import { ArrowLeft, Printer, Sparkles, Link as LinkIcon, ExternalLink } from 'lucide-react';
 
 const PortfolioView = ({ host, onClose, onMatchRequest }) => {
-  // 확장 포트폴리오 데이터 파싱 (안전한 예외 처리)
-  let extraData = {};
-  try {
-    if (host.portfolioData) {
-      extraData = typeof host.portfolioData === 'string' 
-        ? JSON.parse(host.portfolioData) 
-        : host.portfolioData;
-    }
-  } catch (err) {
-    console.error('Error parsing portfolio data:', err);
-  }
-
-  // 기본값 설정
-  const birth = extraData.birth || '정보없음';
-  const company = extraData.company || '소속사 없음';
-  const education = extraData.education || '정보없음';
-  const shoeSize = extraData.shoeSize || '정보없음';
-  
-  // 키워드 태그 파싱
+  const birth = host.birth || '정보없음';
+  const company = '소속사 없음';
+  const education = '정보없음';
+  const shoeSize = '정보없음';
   let keywords = [];
-  if (extraData.keywords) {
-    keywords = Array.isArray(extraData.keywords) 
-      ? extraData.keywords 
-      : String(extraData.keywords).split(',').map(k => k.trim()).filter(Boolean);
-  }
 
   // 방송 데이터 (필모그래피)
   let broadcasts = [];
-  if (extraData.broadcasts && Array.isArray(extraData.broadcasts)) {
-    broadcasts = extraData.broadcasts;
-  } else {
-    // 하위 호환성: 기존 데이터의 대표 방송 링크
-    if (host.broadcastLink) {
+  // 하위 호환성: 기존 데이터의 대표 방송 링크
+  if (host.broadcastLink) {
       broadcasts.push({
         type: '라이브커머스',
         year: new Date().getFullYear().toString(),
@@ -43,20 +20,9 @@ const PortfolioView = ({ host, onClose, onMatchRequest }) => {
         link: host.broadcastLink
       });
     }
-  }
 
-  // 추가 갤러리 이미지
-  let photos = [];
-  if (extraData.photos && Array.isArray(extraData.photos) && extraData.photos.length > 0) {
-    photos = extraData.photos;
-  } else {
-    // 기본 이미지를 복사해 3장 채우기
-    photos = [
-      host.profileImage || 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=300&auto=format&fit=crop',
-      host.profileImage || 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=300&auto=format&fit=crop',
-      host.profileImage || 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=300&auto=format&fit=crop'
-    ];
-  }
+  // 갤러리 이미지
+  let photos = [host.profileImage, host.profileImage, host.profileImage];
 
   // QR코드 생성 API 링크 (현재 웹 링크 연동)
   const currentUrl = window.location.origin + window.location.pathname + `?hostId=${host.id || host.email}`;
@@ -137,7 +103,7 @@ const PortfolioView = ({ host, onClose, onMatchRequest }) => {
                     {host.name}
                     <span className="gender-badge">{host.gender || '쇼호스트'}</span>
                   </h1>
-                  <p className="english-name">{extraData.englishName || 'SHOWHOST'}</p>
+                  <p className="english-name">SHOWHOST</p>
                 </div>
                 
                 {/* QR코드 이미지 */}
