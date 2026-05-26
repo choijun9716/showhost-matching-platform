@@ -138,8 +138,15 @@ const Home = ({ onNavigateToLogin }) => {
     setLoading(true);
     try {
       const data = await api.profiles.list();
-      setHosts(data);
-      setFilteredHosts(data);
+      // 기존 목업 데이터의 카테고리를 새 카테고리 명칭으로 매핑
+      const mappedData = data.map(h => {
+        let newCat = h.category;
+        if (newCat === '푸드') newCat = '식품';
+        if (newCat === 'IT/가전') newCat = '가전';
+        return { ...h, category: newCat };
+      });
+      setHosts(mappedData);
+      setFilteredHosts(mappedData);
     } catch (error) {
       console.error('Error fetching hosts:', error);
     } finally {
