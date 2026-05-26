@@ -299,11 +299,11 @@ const PortfolioView = ({ host, onClose, onMatchRequest }) => {
         }
 
         .print-page {
-          background: rgba(13, 17, 28, 0.7);
-          border: 1px solid rgba(255, 255, 255, 0.05);
+          background: #050505; /* Deep black */
+          border: 1px solid rgba(255, 255, 255, 0.08);
           border-radius: 20px;
           padding: 40px;
-          box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+          box-shadow: 0 20px 60px rgba(0,0,0,0.8);
           box-sizing: border-box;
           min-height: 800px;
           display: flex;
@@ -399,10 +399,12 @@ const PortfolioView = ({ host, onClose, onMatchRequest }) => {
         }
 
         .bio-block {
-          background: rgba(255,255,255,0.02);
+          background: #0a0a0a;
           border-left: 4px solid #00f2fe;
-          padding: 16px;
-          border-radius: 0 10px 10px 0;
+          padding: 18px 20px;
+          border-radius: 0 12px 12px 0;
+          border: 1px solid rgba(255,255,255,0.05);
+          border-left: 4px solid #00f2fe;
         }
 
         .bio-text {
@@ -432,11 +434,16 @@ const PortfolioView = ({ host, onClose, onMatchRequest }) => {
         }
 
         .stat-item {
-          background: rgba(255,255,255,0.03);
-          border: 1px solid rgba(255,255,255,0.05);
-          padding: 12px 8px;
-          border-radius: 10px;
+          background: #0a0a0a;
+          border: 1px solid rgba(255,255,255,0.06);
+          padding: 14px 10px;
+          border-radius: 12px;
           text-align: center;
+          transition: transform 0.2s ease;
+        }
+        .stat-item:hover {
+          transform: translateY(-2px);
+          border-color: rgba(255,255,255,0.15);
         }
 
         .stat-label {
@@ -522,8 +529,8 @@ const PortfolioView = ({ host, onClose, onMatchRequest }) => {
           width: 100%;
           border-radius: 12px;
           overflow: hidden;
-          box-shadow: 0 8px 24px rgba(0,0,0,0.4);
-          border: 1px solid rgba(255,255,255,0.08);
+          box-shadow: 0 8px 24px rgba(0,0,0,0.6);
+          border: 1px solid rgba(255,255,255,0.1);
           aspect-ratio: 2 / 3;
         }
 

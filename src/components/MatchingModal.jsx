@@ -75,7 +75,10 @@ const MatchingModal = ({ host, onClose, onSuccess, onNavigateToLogin }) => {
           maxWidth: '550px',
           margin: '50px auto', // 상단 여백 확보 및 좌우 중앙 정렬
           overflow: 'hidden',
-          position: 'relative'
+          position: 'relative',
+          background: '#0a0a0a',
+          border: '1px solid rgba(255,255,255,0.08)',
+          boxShadow: '0 20px 60px rgba(0,0,0,0.8)'
         }}
       >
         {/* Header */}
@@ -98,12 +101,13 @@ const MatchingModal = ({ host, onClose, onSuccess, onNavigateToLogin }) => {
 
         {/* Form Content */}
         <form onSubmit={handleSubmit} style={{ padding: '24px' }}>
-          {/* Host Mini Profile */}
-          <div style={{
-            display: 'flex',
-            gap: '16px',
-            background: 'rgba(255, 255, 255, 0.03)',
-            padding: '16px',
+          {/* Host Info Box */}
+          <div style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: '16px', 
+            padding: '16px', 
+            background: '#050505', 
             borderRadius: '12px',
             border: '1px solid rgba(255, 255, 255, 0.05)',
             marginBottom: '20px'
@@ -114,17 +118,13 @@ const MatchingModal = ({ host, onClose, onSuccess, onNavigateToLogin }) => {
               style={{ width: '60px', height: '60px', borderRadius: '10px', objectFit: 'cover' }}
             />
             <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-                <span style={{ fontWeight: 700, fontSize: '1.05rem' }}>{host.name} 쇼호스트</span>
-                <span className="badge badge-cyan" style={{ fontSize: '0.7rem' }}>{host.category}</span>
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.8rem', color: 'hsl(var(--foreground-muted))' }}>
-                <span>경력 {host.career}</span>
+              <h3 style={{ fontSize: '1.1rem', fontWeight: 700, margin: '0 0 4px 0' }}>{host.name}</h3>
+              <div style={{ display: 'flex', gap: '8px', fontSize: '0.85rem', color: 'hsl(var(--foreground-muted))' }}>
+                <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                  <Star size={12} color="hsl(45, 100%, 55%)" /> {host.rating?.toFixed(1) || '5.0'}
+                </span>
                 <span>•</span>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
-                  <Star size={12} fill="hsl(45, 100%, 55%)" color="hsl(45, 100%, 55%)" />
-                  <span>{host.rating?.toFixed(1) || '5.0'}</span>
-                </div>
+                <span>{host.category}</span>
               </div>
             </div>
           </div>

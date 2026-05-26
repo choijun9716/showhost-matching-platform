@@ -114,22 +114,23 @@ const ProfileEdit = () => {
   const handleImageChange = async (e) => {
     const file = e.target.files[0];
     if (file) {
-      // 이미지 용량이 커도 압축 후 저장되므로 한도 완화(10MB)
       if (file.size > 10 * 1024 * 1024) {
         setError('이미지 크기는 10MB 이하여야 합니다.');
         return;
       }
       
-      setImageLoading(true);
+      // 가장 빠른 방법: 즉각적인 로컬 프리뷰 URL 생성
+      const instantPreviewUrl = URL.createObjectURL(file);
+      setAvatar(instantPreviewUrl);
       setError('');
+      
+      // 백그라운드에서 압축 처리 진행
       try {
         const compressedBase64 = await compressImage(file, 250, 250, 0.5);
-        setAvatar(compressedBase64);
+        setAvatar(compressedBase64); // 완료되면 DB 저장용 Base64로 조용히 교체
       } catch (err) {
         console.error('Image compression error:', err);
         setError('이미지 압축 처리 중 오류가 발생했습니다.');
-      } finally {
-        setImageLoading(false);
       }
     }
   };
@@ -278,18 +279,7 @@ const ProfileEdit = () => {
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}>
             <label style={{ alignSelf: 'flex-start' }}>프로필 사진</label>
             <div style={{ position: 'relative', width: '150px', height: '150px', borderRadius: '16px', overflow: 'hidden', border: '1px solid var(--glass-border)' }}>
-              {imageLoading ? (
-                <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.3)', color: '#ffffff' }}>
-                  <div style={{
-                    border: '2px solid rgba(255, 255, 255, 0.3)',
-                    borderTop: '2px solid #ffffff',
-                    borderRadius: '50%',
-                    width: '24px',
-                    height: '24px',
-                    animation: 'spin 1s linear infinite'
-                  }} />
-                </div>
-              ) : avatar ? (
+              {avatar ? (
                 <img src={avatar} alt="Profile preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
               ) : (
                 <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.3)', color: 'hsl(var(--foreground-muted))' }}>
