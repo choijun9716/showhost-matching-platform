@@ -13,7 +13,7 @@ const Home = ({ onNavigateToLogin }) => {
   const [hosts, setHosts] = useState([]);
   const [filteredHosts, setFilteredHosts] = useState([]);
   const [selectedCategories, setSelectedCategories] = useState([]); // 중복 선택을 위한 배열
-  const [minPayFilter, setMinPayFilter] = useState(0); // 금액별 필터 (단위: 만원)
+  const [payRangeFilter, setPayRangeFilter] = useState('전체'); // 금액대 필터
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedHost, setSelectedHost] = useState(null);
   const [showMatchingModal, setShowMatchingModal] = useState(false);
@@ -115,13 +115,19 @@ const Home = ({ onNavigateToLogin }) => {
       });
     }
 
-    // Min Pay Filter
-    if (minPayFilter > 0) {
+    // Pay Range Filter
+    if (payRangeFilter !== '전체') {
       result = result.filter(h => {
         if (!h.pay) return false;
         const match = h.pay.match(/([0-9]+)만/);
         const minPay = match ? parseInt(match[1], 10) : 0;
-        return minPay >= minPayFilter;
+        
+        if (payRangeFilter === '10만원대') return minPay >= 10 && minPay < 20;
+        if (payRangeFilter === '20만원대') return minPay >= 20 && minPay < 30;
+        if (payRangeFilter === '30만원대') return minPay >= 30 && minPay < 40;
+        if (payRangeFilter === '40만원대') return minPay >= 40 && minPay < 50;
+        if (payRangeFilter === '50만원 이상') return minPay >= 50;
+        return true;
       });
     }
 
@@ -145,7 +151,7 @@ const Home = ({ onNavigateToLogin }) => {
     });
 
     setFilteredHosts(sorted);
-  }, [selectedCategories, minPayFilter, searchQuery, hosts]);
+  }, [selectedCategories, payRangeFilter, searchQuery, hosts]);
 
   // 상세 포트폴리오(selectedHost) 진입 시 스크롤 최상단 이동
   useEffect(() => {
@@ -383,22 +389,23 @@ const Home = ({ onNavigateToLogin }) => {
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'hsl(var(--foreground-muted))', fontSize: '0.85rem' }}>
                     <Filter size={15} />
-                    <span>최소 금액:</span>
+                    <span>금액대:</span>
                   </div>
                   <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                     {[
-                      { label: '전체', value: 0 },
-                      { label: '10만+', value: 10 },
-                      { label: '20만+', value: 20 },
-                      { label: '30만+', value: 30 },
-                      { label: '50만+', value: 50 }
+                      '전체',
+                      '10만원대',
+                      '20만원대',
+                      '30만원대',
+                      '40만원대',
+                      '50만원 이상'
                     ].map(option => {
-                      const isSelected = minPayFilter === option.value;
+                      const isSelected = payRangeFilter === option;
                       return (
                         <button
-                          key={option.value}
+                          key={option}
                           type="button"
-                          onClick={() => setMinPayFilter(option.value)}
+                          onClick={() => setPayRangeFilter(option)}
                           className="btn"
                           style={{
                             background: isSelected 
@@ -414,7 +421,7 @@ const Home = ({ onNavigateToLogin }) => {
                             cursor: 'pointer'
                           }}
                         >
-                          {option.label}
+                          {option}
                         </button>
                       );
                     })}
