@@ -361,9 +361,9 @@ const Home = ({ onNavigateToLogin }) => {
                       className="btn"
                       style={{
                         background: isSelected 
-                          ? 'linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(260 85% 60%) 100%)' 
+                          ? '#ffffff' 
                           : 'rgba(255, 255, 255, 0.05)',
-                        color: isSelected ? 'white' : 'hsl(var(--foreground-muted))',
+                        color: isSelected ? '#000000' : 'hsl(var(--foreground-muted))',
                         padding: '8px 20px',
                         borderRadius: '8px',
                         fontSize: '0.85rem',
@@ -402,9 +402,9 @@ const Home = ({ onNavigateToLogin }) => {
                           className="btn"
                           style={{
                             background: isSelected 
-                              ? 'linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(260 85% 60%) 100%)' 
+                              ? '#ffffff' 
                               : 'rgba(255, 255, 255, 0.05)',
-                            color: isSelected ? 'white' : 'hsl(var(--foreground-muted))',
+                            color: isSelected ? '#000000' : 'hsl(var(--foreground-muted))',
                             padding: '6px 14px',
                             borderRadius: '20px',
                             fontSize: '0.8rem',

@@ -25,15 +25,7 @@ const ProfileEdit = () => {
   const [broadcastLink, setBroadcastLink] = useState('');
   const [portfolio, setPortfolio] = useState('');
 
-  // 확장 포트폴리오 States
-  const [englishName, setEnglishName] = useState('');
   const [birth, setBirth] = useState('');
-  const [company, setCompany] = useState('');
-  const [education, setEducation] = useState('');
-  const [shoeSize, setShoeSize] = useState('');
-  const [keywords, setKeywords] = useState('');
-  const [broadcasts, setBroadcasts] = useState([]);
-  const [galleryPhotos, setGalleryPhotos] = useState(['', '', '']);
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -65,37 +57,7 @@ const ProfileEdit = () => {
         setTime(data.time || '');
         setBroadcastLink(data.broadcastLink || '');
         setPortfolio(data.portfolio || '');
-
-        // portfolioData 복원
-        let extraData = {};
-        if (data.portfolioData) {
-          extraData = typeof data.portfolioData === 'string'
-            ? JSON.parse(data.portfolioData)
-            : data.portfolioData;
-        }
-        setEnglishName(extraData.englishName || '');
-        setBirth(extraData.birth || '');
-        setCompany(extraData.company || '');
-        setEducation(extraData.education || '');
-        setShoeSize(extraData.shoeSize || '');
-        
-        if (extraData.keywords) {
-          setKeywords(Array.isArray(extraData.keywords) 
-            ? extraData.keywords.join(', ') 
-            : extraData.keywords);
-        } else {
-          setKeywords('');
-        }
-
-        setBroadcasts(extraData.broadcasts || []);
-
-        if (extraData.photos && Array.isArray(extraData.photos)) {
-          const pts = [...extraData.photos];
-          while (pts.length < 3) pts.push('');
-          setGalleryPhotos(pts.slice(0, 3));
-        } else {
-          setGalleryPhotos(['', '', '']);
-        }
+        setBirth(data.birth || '');
       }
     } catch (err) {
       console.error('Error fetching profile:', err);
@@ -199,18 +161,8 @@ const ProfileEdit = () => {
         detail,
         pay,
         time,
-        broadcastLink,
         portfolio,
-        portfolioData: {
-          englishName,
-          birth,
-          company,
-          education,
-          shoeSize,
-          keywords: keywords.split(',').map(k => k.trim()).filter(Boolean),
-          broadcasts,
-          photos: galleryPhotos.filter(p => p.trim() !== '')
-        }
+        birth
       };
       const updatedProfile = await api.profiles.update(user.id, updatedData);
       setProfile(updatedProfile);
@@ -363,7 +315,7 @@ const ProfileEdit = () => {
 
           {/* Basic Fields Column */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', flexGrow: 1 }}>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '16px' }}>
               <div>
                 <label htmlFor="edit-name">활동명 / 이름</label>
                 <div style={{ position: 'relative' }}>
@@ -377,16 +329,6 @@ const ProfileEdit = () => {
                     style={{ paddingLeft: '44px' }}
                   />
                 </div>
-              </div>
-              <div>
-                <label htmlFor="edit-english-name">활동명 (영문)</label>
-                <input
-                  id="edit-english-name"
-                  type="text"
-                  placeholder="영문명 (예: PARK SIHYEON)"
-                  value={englishName}
-                  onChange={(e) => setEnglishName(e.target.value)}
-                />
               </div>
             </div>
 
@@ -454,8 +396,8 @@ const ProfileEdit = () => {
               </div>
             </div>
 
-            {/* 생년월일, 소속사, 학력, 발사이즈 입력 */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+            {/* 생년월일 입력 */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '16px' }}>
               <div>
                 <label htmlFor="edit-birth">생년월일</label>
                 <input
@@ -464,39 +406,6 @@ const ProfileEdit = () => {
                   placeholder="예: 2002-03-06"
                   value={birth}
                   onChange={(e) => setBirth(e.target.value)}
-                />
-              </div>
-              <div>
-                <label htmlFor="edit-company">소속사</label>
-                <input
-                  id="edit-company"
-                  type="text"
-                  placeholder="예: 소속사 없음"
-                  value={company}
-                  onChange={(e) => setCompany(e.target.value)}
-                />
-              </div>
-            </div>
-
-            <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: '16px' }}>
-              <div>
-                <label htmlFor="edit-education">학력</label>
-                <input
-                  id="edit-education"
-                  type="text"
-                  placeholder="예: 서울예대 연극과 졸업"
-                  value={education}
-                  onChange={(e) => setEducation(e.target.value)}
-                />
-              </div>
-              <div>
-                <label htmlFor="edit-shoe-size">발사이즈</label>
-                <input
-                  id="edit-shoe-size"
-                  type="text"
-                  placeholder="예: 245mm"
-                  value={shoeSize}
-                  onChange={(e) => setShoeSize(e.target.value)}
                 />
               </div>
             </div>
@@ -520,129 +429,7 @@ const ProfileEdit = () => {
           </div>
         </div>
 
-        <div>
-          <label htmlFor="edit-keywords">키워드 태그 (콤마로 구분)</label>
-          <input
-            id="edit-keywords"
-            type="text"
-            placeholder="예: 사랑스러운, 우아한, 식품완판, 하이텐션"
-            value={keywords}
-            onChange={(e) => setKeywords(e.target.value)}
-          />
-          <span style={{ fontSize: '0.75rem', color: 'hsl(var(--foreground-muted))', marginTop: '4px', display: 'block' }}>
-            포트폴리오 메인 카드에 #태그 형태로 표시됩니다.
-          </span>
-        </div>
 
-        <div>
-          <label>추가 프로필 사진 (최대 3장 URL 입력)</label>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-            {galleryPhotos.map((photo, index) => (
-              <input
-                key={index}
-                type="url"
-                placeholder={`프로필 갤러리 이미지 ${index + 1} URL (예: https://...)`}
-                value={photo}
-                onChange={(e) => {
-                  const newPhotos = [...galleryPhotos];
-                  newPhotos[index] = e.target.value;
-                  setGalleryPhotos(newPhotos);
-                }}
-              />
-            ))}
-          </div>
-          <span style={{ fontSize: '0.75rem', color: 'hsl(var(--foreground-muted))', marginTop: '4px', display: 'block' }}>
-            포트폴리오 2페이지의 3열 이미지 갤러리에 노출됩니다. (비워둘 시 기본 프로필 사진으로 대체됩니다.)
-          </span>
-        </div>
-
-        <div>
-          <label htmlFor="edit-detail">상세 자기소개 및 경력 사항</label>
-          <textarea
-            id="edit-detail"
-            rows={8}
-            placeholder="자신의 매력 포인트, 방송 이력, 전문 분야 및 특이점 등을 상세하게 기술해 주세요."
-            value={detail}
-            onChange={(e) => setDetail(e.target.value)}
-            style={{ resize: 'none' }}
-          />
-        </div>
-
-        {/* 방송 및 매칭 필모그래피 에디터 */}
-        <div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
-            <label style={{ margin: 0 }}>방송 및 매칭 필모그래피</label>
-            <button
-              type="button"
-              className="btn btn-secondary"
-              onClick={() => setBroadcasts(prev => [...prev, { brand: '', link: '' }])}
-              style={{ padding: '6px 12px', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '4px' }}
-            >
-              <span>+ 방송 이력 추가</span>
-            </button>
-          </div>
-
-          <div style={{ overflowX: 'auto', background: 'rgba(0,0,0,0.2)', padding: '16px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
-              <thead>
-                <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.5)', fontSize: '0.85rem' }}>
-                  <th style={{ padding: '8px 12px', fontWeight: 600, width: '45%' }}>브랜드 / 방송명</th>
-                  <th style={{ padding: '8px 12px', fontWeight: 600, width: '45%' }}>대표방송 링크 (URL)</th>
-                  <th style={{ padding: '8px 12px', fontWeight: 600, width: '10%', textAlign: 'center' }}>삭제</th>
-                </tr>
-              </thead>
-              <tbody>
-                {broadcasts.length === 0 ? (
-                  <tr>
-                    <td colSpan="3" style={{ textAlign: 'center', padding: '24px 0', color: 'rgba(255,255,255,0.3)', fontSize: '0.85rem' }}>
-                      추가된 방송 데이터가 없습니다. 상단의 버튼을 눌러 데이터를 작성해보세요.
-                    </td>
-                  </tr>
-                ) : (
-                  broadcasts.map((item, idx) => (
-                    <tr key={idx} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-                      <td style={{ padding: '8px 4px' }}>
-                        <input
-                          type="text"
-                          placeholder="예: 삼성전자 갤럭시 라이브"
-                          value={item.brand || ''}
-                          onChange={(e) => {
-                            const newBroadcasts = [...broadcasts];
-                            newBroadcasts[idx].brand = e.target.value;
-                            setBroadcasts(newBroadcasts);
-                          }}
-                          style={{ padding: '8px 12px', fontSize: '0.9rem' }}
-                        />
-                      </td>
-                      <td style={{ padding: '8px 4px' }}>
-                        <input
-                          type="url"
-                          placeholder="https://shoppinglive.naver.com/..."
-                          value={item.link || ''}
-                          onChange={(e) => {
-                            const newBroadcasts = [...broadcasts];
-                            newBroadcasts[idx].link = e.target.value;
-                            setBroadcasts(newBroadcasts);
-                          }}
-                          style={{ padding: '8px 12px', fontSize: '0.9rem' }}
-                        />
-                      </td>
-                      <td style={{ padding: '8px 4px', textAlign: 'center' }}>
-                        <button
-                          type="button"
-                          onClick={() => setBroadcasts(prev => prev.filter((_, i) => i !== idx))}
-                          style={{ background: 'transparent', border: 'none', color: '#ef4444', fontSize: '1.2rem', cursor: 'pointer' }}
-                        >
-                          ✕
-                        </button>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
 
         {/* Financial Specs */}
         <div>
