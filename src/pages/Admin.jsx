@@ -40,9 +40,9 @@ const Admin = () => {
   const handleToggleVisibility = async (host) => {
     try {
       const newStatus = !host.isHidden;
-      const targetId = host.id || host.email;
+      const targetId = host.id || host.email || host.name;
       await api.profiles.update(targetId, { isHidden: newStatus });
-      setHosts(prev => prev.map(h => (h.id || h.email) === targetId ? { ...h, isHidden: newStatus } : h));
+      setHosts(prev => prev.map(h => (h.id || h.email || h.name) === targetId ? { ...h, isHidden: newStatus } : h));
     } catch (error) {
       alert('상태 업데이트 실패: ' + error.message);
     }
@@ -51,19 +51,28 @@ const Admin = () => {
   const handleToggleRecommended = async (host) => {
     try {
       const newStatus = !host.isRecommended;
-      const targetId = host.id || host.email;
+      const targetId = host.id || host.email || host.name;
       await api.profiles.update(targetId, { isRecommended: newStatus });
-      setHosts(prev => prev.map(h => (h.id || h.email) === targetId ? { ...h, isRecommended: newStatus } : h));
+      setHosts(prev => prev.map(h => (h.id || h.email || h.name) === targetId ? { ...h, isRecommended: newStatus } : h));
     } catch (error) {
       alert('추천 상태 업데이트 실패: ' + error.message);
     }
   };
 
-  const handleOrderChange = async (host, newOrder) => {
+  const handleOrderChange = (host, newOrder) => {
+    const targetId = host.id || host.email || host.name;
+    const val = newOrder === '' ? '' : (parseInt(newOrder, 10) || 0);
+    setHosts(prev => prev.map(h => (h.id || h.email || h.name) === targetId ? { ...h, displayOrder: val } : h));
+  };
+
+  const handleOrderBlur = async (host) => {
     try {
-      const targetId = host.id || host.email;
-      await api.profiles.update(targetId, { displayOrder: parseInt(newOrder, 10) || 0 });
-      setHosts(prev => prev.map(h => (h.id || h.email) === targetId ? { ...h, displayOrder: parseInt(newOrder, 10) || 0 } : h));
+      const targetId = host.id || host.email || host.name;
+      const finalOrder = parseInt(host.displayOrder, 10) || 0;
+      await api.profiles.update(targetId, { displayOrder: finalOrder });
+      if (host.displayOrder === '') {
+        setHosts(prev => prev.map(h => (h.id || h.email || h.name) === targetId ? { ...h, displayOrder: 0 } : h));
+      }
     } catch (error) {
       alert('순서 업데이트 실패: ' + error.message);
     }
@@ -72,9 +81,9 @@ const Admin = () => {
   const handleDelete = async (host) => {
     if (window.confirm(`정말로 ${host.name} 쇼호스트를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.`)) {
       try {
-        const targetId = host.id || host.email;
+        const targetId = host.id || host.email || host.name;
         await api.profiles.delete(targetId);
-        setHosts(prev => prev.filter(h => (h.id || h.email) !== targetId));
+        setHosts(prev => prev.filter(h => (h.id || h.email || h.name) !== targetId));
       } catch (error) {
         alert('삭제 실패: ' + error.message);
       }
@@ -121,7 +130,7 @@ const Admin = () => {
               </tr>
             ) : (
               hosts.map((host, index) => (
-                <tr key={host.id || host.email || index} style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.05)', opacity: host.isHidden ? 0.6 : 1 }}>
+                <tr key={host.id || host.email || host.name || index} style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.05)', opacity: host.isHidden ? 0.6 : 1 }}>
                   <td style={{ padding: '12px' }}>
                     <img 
                       src={host.profileImage} 
@@ -139,8 +148,14 @@ const Admin = () => {
                   <td style={{ padding: '12px', textAlign: 'center' }}>
                     <input 
                       type="number" 
-                      value={host.displayOrder || 0}
+                      value={host.displayOrder ?? 0}
                       onChange={(e) => handleOrderChange(host, e.target.value)}
+                      onBlur={() => handleOrderBlur(host)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.target.blur();
+                        }
+                      }}
                       style={{ 
                         width: '60px',  
                         background: 'rgba(255, 255, 255, 0.1)', 

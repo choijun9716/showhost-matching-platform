@@ -20,7 +20,6 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const login = async (email, password) => {
-    setLoading(true);
     try {
       const response = await api.auth.signIn(email, password);
       setUser(response.user);
@@ -28,13 +27,10 @@ export const AuthProvider = ({ children }) => {
       return response.user;
     } catch (error) {
       throw error;
-    } finally {
-      setLoading(false);
     }
   };
 
   const signup = async (email, password, name, role) => {
-    setLoading(true);
     try {
       const response = await api.auth.signUp(email, password, name, role);
       setUser(response.user);
@@ -42,21 +38,16 @@ export const AuthProvider = ({ children }) => {
       return response.user;
     } catch (error) {
       throw error;
-    } finally {
-      setLoading(false);
     }
   };
 
   const logout = async () => {
-    setLoading(true);
     try {
       await api.auth.signOut();
       setUser(null);
       localStorage.removeItem('currentUser');
     } catch (error) {
       console.error('Logout error:', error);
-    } finally {
-      setLoading(false);
     }
   };
 

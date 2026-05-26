@@ -1,6 +1,6 @@
 import React from 'react';
 import { useAuth } from '../context/AuthContext';
-import { Sparkles, LogOut, User, LayoutDashboard, Search, FileText, Shield } from 'lucide-react';
+import { Sparkles, LogOut, User, LayoutDashboard, FileText, Shield } from 'lucide-react';
 
 const Navbar = ({ activeTab, setActiveTab }) => {
   const { user, logout } = useAuth();
@@ -66,23 +66,6 @@ const Navbar = ({ activeTab, setActiveTab }) => {
 
         {/* Navigation Menu */}
         <nav style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-          <button 
-            onClick={() => setActiveTab('home')}
-            className="btn"
-            style={{
-              background: activeTab === 'home' ? 'rgba(255, 255, 255, 0.08)' : 'transparent',
-              color: activeTab === 'home' ? '#white' : 'hsl(var(--foreground-muted))',
-              padding: '8px 16px',
-              fontSize: '0.9rem',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px'
-            }}
-          >
-            <Search size={16} />
-            <span>쇼호스트 탐색</span>
-          </button>
-
           {user && (
             <button 
               onClick={() => setActiveTab('dashboard')}

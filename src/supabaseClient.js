@@ -453,7 +453,18 @@ export const api = {
     },
     get: async (id) => {
       if (isSheetdbActive) {
-        const res = await sheetdbSearch("profiles", { id });
+        const isEmail = id && id.includes('@');
+        let params = { id };
+        if (isEmail) {
+          params = { email: id };
+        } else if (id && id.trim() !== '') {
+          if (id.startsWith('host-') || id.startsWith('user-')) {
+            params = { id };
+          } else {
+            params = { name: id };
+          }
+        }
+        const res = await sheetdbSearch("profiles", params);
         if (!res || res.length === 0) return null;
         const p = res[0];
         return {
@@ -473,7 +484,16 @@ export const api = {
       if (isSheetdbActive) {
         // 프로필 정보 업데이트
         const isEmail = id && id.includes('@');
-        const idColumn = isEmail ? "email" : "id";
+        let idColumn = "id";
+        if (isEmail) {
+          idColumn = "email";
+        } else if (!id || id.trim() === "") {
+          throw new Error("유효한 식별자가 없습니다.");
+        } else if (id.startsWith('host-') || id.startsWith('user-')) {
+          idColumn = "id";
+        } else {
+          idColumn = "name";
+        }
         await sheetdbPatch("profiles", idColumn, id, data);
         
         // 이름 변경 시 users 테이블과 동기화
@@ -494,7 +514,16 @@ export const api = {
     delete: async (id) => {
       if (isSheetdbActive) {
         const isEmail = id && id.includes('@');
-        const idColumn = isEmail ? "email" : "id";
+        let idColumn = "id";
+        if (isEmail) {
+          idColumn = "email";
+        } else if (!id || id.trim() === "") {
+          throw new Error("유효한 식별자가 없습니다.");
+        } else if (id.startsWith('host-') || id.startsWith('user-')) {
+          idColumn = "id";
+        } else {
+          idColumn = "name";
+        }
         await sheetdbDelete("profiles", idColumn, id);
         return { success: true };
       } else if (isRealSupabase) {

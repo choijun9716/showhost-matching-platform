@@ -14,7 +14,6 @@ const Home = ({ onNavigateToLogin }) => {
   const [selectedCategories, setSelectedCategories] = useState([]); // 중복 선택을 위한 배열
   const [minPayFilter, setMinPayFilter] = useState(0); // 금액별 필터 (단위: 만원)
   const [searchQuery, setSearchQuery] = useState('');
-  const [sortBy, setSortBy] = useState('pay_high');
   const [selectedHost, setSelectedHost] = useState(null);
   const [showMatchingModal, setShowMatchingModal] = useState(false);
   const [matchingSuccess, setMatchingSuccess] = useState(false);
@@ -123,28 +122,11 @@ const Home = ({ onNavigateToLogin }) => {
       // 1. displayOrder 내림차순 정렬
       const orderA = a.displayOrder || 0;
       const orderB = b.displayOrder || 0;
-      if (orderA !== orderB) {
-        return orderB - orderA;
-      }
-
-      // 2. 금액 정렬
-      const getMinPay = (payStr) => {
-        if (!payStr) return 0;
-        const match = payStr.match(/([0-9]+)만/);
-        return match ? parseInt(match[1], 10) : 0;
-      };
-
-      if (sortBy === 'pay_high') {
-        return getMinPay(b.pay) - getMinPay(a.pay);
-      }
-      if (sortBy === 'pay_low') {
-        return getMinPay(a.pay) - getMinPay(b.pay);
-      }
-      return 0;
+      return orderB - orderA;
     });
 
     setFilteredHosts(sorted);
-  }, [selectedCategories, minPayFilter, searchQuery, sortBy, hosts]);
+  }, [selectedCategories, minPayFilter, searchQuery, hosts]);
 
   const fetchHosts = async () => {
     setLoading(true);
@@ -393,54 +375,48 @@ const Home = ({ onNavigateToLogin }) => {
                 })}
               </div>
 
-              {/* Advanced Filters & Sort */}
-              <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px' }}>
-                {/* Min Pay Filter */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <Filter size={16} color="hsl(var(--foreground-muted))" />
-                  <span style={{ fontSize: '0.85rem', color: 'hsl(var(--foreground-muted))' }}>최소 금액:</span>
-                  <select
-                    value={minPayFilter}
-                    onChange={(e) => setMinPayFilter(Number(e.target.value))}
-                    style={{
-                      background: 'rgba(255, 255, 255, 0.05)',
-                      border: '1px solid rgba(255, 255, 255, 0.1)',
-                      color: 'white',
-                      padding: '8px 16px',
-                      borderRadius: '8px',
-                      fontSize: '0.85rem',
-                      outline: 'none',
-                      cursor: 'pointer'
-                    }}
-                  >
-                    <option value={0} style={{ background: '#0f172a' }}>전체 금액</option>
-                    <option value={10} style={{ background: '#0f172a' }}>10만원 이상</option>
-                    <option value={20} style={{ background: '#0f172a' }}>20만원 이상</option>
-                    <option value={30} style={{ background: '#0f172a' }}>30만원 이상</option>
-                    <option value={50} style={{ background: '#0f172a' }}>50만원 이상</option>
-                  </select>
-                </div>
-
-                {/* Sort Selector */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <span style={{ fontSize: '0.85rem', color: 'hsl(var(--foreground-muted))' }}>금액 정렬:</span>
-                  <select
-                    value={sortBy}
-                    onChange={(e) => setSortBy(e.target.value)}
-                    style={{
-                      background: 'rgba(255, 255, 255, 0.05)',
-                      border: '1px solid rgba(255, 255, 255, 0.1)',
-                      color: 'white',
-                      padding: '8px 16px',
-                      borderRadius: '8px',
-                      fontSize: '0.85rem',
-                      outline: 'none',
-                      cursor: 'pointer'
-                    }}
-                  >
-                    <option value="pay_high" style={{ background: '#0f172a' }}>금액 높은 순</option>
-                    <option value="pay_low" style={{ background: '#0f172a' }}>금액 낮은 순</option>
-                  </select>
+              {/* Advanced Filters (Min Pay Button Group, Sort Removed) */}
+              <div style={{ display: 'flex', justifyContent: 'flex-start', flexWrap: 'wrap', gap: '16px' }}>
+                {/* Min Pay Filter Buttons */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'hsl(var(--foreground-muted))', fontSize: '0.85rem' }}>
+                    <Filter size={15} />
+                    <span>최소 금액:</span>
+                  </div>
+                  <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                    {[
+                      { label: '전체', value: 0 },
+                      { label: '10만+', value: 10 },
+                      { label: '20만+', value: 20 },
+                      { label: '30만+', value: 30 },
+                      { label: '50만+', value: 50 }
+                    ].map(option => {
+                      const isSelected = minPayFilter === option.value;
+                      return (
+                        <button
+                          key={option.value}
+                          type="button"
+                          onClick={() => setMinPayFilter(option.value)}
+                          className="btn"
+                          style={{
+                            background: isSelected 
+                              ? 'linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(260 85% 60%) 100%)' 
+                              : 'rgba(255, 255, 255, 0.05)',
+                            color: isSelected ? 'white' : 'hsl(var(--foreground-muted))',
+                            padding: '6px 14px',
+                            borderRadius: '20px',
+                            fontSize: '0.8rem',
+                            border: isSelected ? 'none' : '1px solid rgba(255,255,255,0.08)',
+                            transition: 'all 0.2s ease',
+                            fontWeight: isSelected ? 700 : 500,
+                            cursor: 'pointer'
+                          }}
+                        >
+                          {option.label}
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
               </div>
             </div>
