@@ -135,6 +135,13 @@ const Home = ({ onNavigateToLogin }) => {
     setFilteredHosts(sorted);
   }, [selectedCategories, minPayFilter, searchQuery, hosts]);
 
+  // 상세 포트폴리오(selectedHost) 진입 시 스크롤 최상단 이동
+  useEffect(() => {
+    if (selectedHost) {
+      window.scrollTo({ top: 0, behavior: 'instant' });
+    }
+  }, [selectedHost]);
+
   const fetchHosts = async () => {
     setLoading(true);
     try {

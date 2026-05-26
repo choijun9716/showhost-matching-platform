@@ -54,10 +54,11 @@ const MatchingModal = ({ host, onClose, onSuccess, onNavigateToLogin }) => {
       backgroundColor: 'rgba(5, 7, 13, 0.85)',
       backdropFilter: 'blur(8px)',
       display: 'flex',
-      alignItems: 'center',
+      alignItems: 'flex-start',
       justifyContent: 'center',
       zIndex: 1000,
-      padding: '20px'
+      padding: '60px 20px',
+      overflowY: 'auto'
     }}>
       <div 
         className="glass-panel animate-scale-in" 
