@@ -274,30 +274,33 @@ const PortfolioView = ({ host, onClose, onMatchRequest }) => {
             <table className="filmo-table">
               <thead>
                 <tr>
-                  <th style={{ width: '15%' }}>구분</th>
-                  <th style={{ width: '15%' }}>제작년도</th>
-                  <th style={{ width: '35%' }}>브랜드 / 방송명</th>
-                  <th style={{ width: '20%' }}>역할</th>
-                  <th style={{ width: '15%', textAlign: 'center' }} className="no-print-col">링크</th>
+                  <th style={{ width: '45%' }}>브랜드 / 방송명</th>
+                  <th style={{ width: '55%' }}>대표방송 링크 (클릭 가능)</th>
                 </tr>
               </thead>
               <tbody>
                 {broadcasts.length > 0 ? broadcasts.map((item, idx) => (
                   <tr key={idx}>
-                    <td className="bold-text">{item.type || '라이브커머스'}</td>
-                    <td>{item.year || '2024'}</td>
-                    <td className="brand-text">{item.brand}</td>
-                    <td>{item.role || '진행'}</td>
-                    <td className="link-cell no-print-col" style={{ textAlign: 'center' }}>
+                    <td className="brand-text bold-text">{item.brand}</td>
+                    <td className="link-cell">
                       {item.link ? (
                         <a 
                           href={item.link} 
                           target="_blank" 
                           rel="noopener noreferrer" 
-                          className="filmo-link-btn"
+                          style={{
+                            color: '#38bdf8', 
+                            textDecoration: 'underline',
+                            wordBreak: 'break-all',
+                            fontSize: '0.85rem',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '4px'
+                          }}
                           title="방송 보기"
                         >
-                          <ExternalLink size={14} />
+                          <span>{item.link}</span>
+                          <ExternalLink size={12} style={{ flexShrink: 0 }} />
                         </a>
                       ) : (
                         <span className="no-link-text">-</span>
@@ -306,7 +309,7 @@ const PortfolioView = ({ host, onClose, onMatchRequest }) => {
                   </tr>
                 )) : (
                   <tr>
-                    <td colSpan="5" style={{ textAlign: 'center', padding: '40px', color: 'rgba(255,255,255,0.4)' }}>
+                    <td colSpan="2" style={{ textAlign: 'center', padding: '40px', color: 'rgba(255,255,255,0.4)' }}>
                       등록된 상세 방송 데이터가 없습니다.
                     </td>
                   </tr>
@@ -797,6 +800,11 @@ const PortfolioView = ({ host, onClose, onMatchRequest }) => {
 
           .bold-text, .brand-text {
             color: #000000 !important;
+          }
+
+          .link-cell a {
+            color: #0284c7 !important;
+            text-decoration: underline !important;
           }
 
           .branding-logo-row {

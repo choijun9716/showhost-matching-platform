@@ -575,7 +575,7 @@ const ProfileEdit = () => {
             <button
               type="button"
               className="btn btn-secondary"
-              onClick={() => setBroadcasts(prev => [...prev, { type: '라이브커머스', year: new Date().getFullYear().toString(), brand: '', role: '', link: '' }])}
+              onClick={() => setBroadcasts(prev => [...prev, { brand: '', link: '' }])}
               style={{ padding: '6px 12px', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '4px' }}
             >
               <span>+ 방송 이력 추가</span>
@@ -583,93 +583,48 @@ const ProfileEdit = () => {
           </div>
 
           <div style={{ overflowX: 'auto', background: 'rgba(0,0,0,0.2)', padding: '16px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '700px' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
               <thead>
                 <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.5)', fontSize: '0.85rem' }}>
-                  <th style={{ padding: '8px 12px', fontWeight: 600, width: '15%' }}>구분</th>
-                  <th style={{ padding: '8px 12px', fontWeight: 600, width: '12%' }}>제작년도</th>
-                  <th style={{ padding: '8px 12px', fontWeight: 600, width: '35%' }}>브랜드 / 방송명</th>
-                  <th style={{ padding: '8px 12px', fontWeight: 600, width: '20%' }}>역할</th>
-                  <th style={{ padding: '8px 12px', fontWeight: 600, width: '13%' }}>방송 링크</th>
-                  <th style={{ padding: '8px 12px', fontWeight: 600, width: '5%', textAlign: 'center' }}>삭제</th>
+                  <th style={{ padding: '8px 12px', fontWeight: 600, width: '45%' }}>브랜드 / 방송명</th>
+                  <th style={{ padding: '8px 12px', fontWeight: 600, width: '45%' }}>대표방송 링크 (URL)</th>
+                  <th style={{ padding: '8px 12px', fontWeight: 600, width: '10%', textAlign: 'center' }}>삭제</th>
                 </tr>
               </thead>
               <tbody>
                 {broadcasts.length === 0 ? (
                   <tr>
-                    <td colSpan="6" style={{ textAlign: 'center', padding: '24px 0', color: 'rgba(255,255,255,0.3)', fontSize: '0.85rem' }}>
-                      추가된 방송 이력이 없습니다. 상단의 버튼을 눌러 이력을 작성해보세요.
+                    <td colSpan="3" style={{ textAlign: 'center', padding: '24px 0', color: 'rgba(255,255,255,0.3)', fontSize: '0.85rem' }}>
+                      추가된 방송 데이터가 없습니다. 상단의 버튼을 눌러 데이터를 작성해보세요.
                     </td>
                   </tr>
                 ) : (
                   broadcasts.map((item, idx) => (
                     <tr key={idx} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
                       <td style={{ padding: '8px 4px' }}>
-                        <select
-                          value={item.type || '라이브커머스'}
-                          onChange={(e) => {
-                            const newBroadcasts = [...broadcasts];
-                            newBroadcasts[idx].type = e.target.value;
-                            setBroadcasts(newBroadcasts);
-                          }}
-                          style={{ padding: '4px', fontSize: '0.85rem', background: '#0d111c', border: '1px solid rgba(255,255,255,0.1)', color: 'white' }}
-                        >
-                          <option value="라이브커머스">라이브커머스</option>
-                          <option value="단편영화">단편영화</option>
-                          <option value="TV광고">TV광고</option>
-                          <option value="기타방송">기타방송</option>
-                        </select>
-                      </td>
-                      <td style={{ padding: '8px 4px' }}>
                         <input
                           type="text"
-                          placeholder="2024"
-                          value={item.year || ''}
-                          onChange={(e) => {
-                            const newBroadcasts = [...broadcasts];
-                            newBroadcasts[idx].year = e.target.value;
-                            setBroadcasts(newBroadcasts);
-                          }}
-                          style={{ padding: '4px 8px', fontSize: '0.85rem', textAlign: 'center' }}
-                        />
-                      </td>
-                      <td style={{ padding: '8px 4px' }}>
-                        <input
-                          type="text"
-                          placeholder="예: 삼성전자 라이브 방송"
+                          placeholder="예: 삼성전자 갤럭시 라이브"
                           value={item.brand || ''}
                           onChange={(e) => {
                             const newBroadcasts = [...broadcasts];
                             newBroadcasts[idx].brand = e.target.value;
                             setBroadcasts(newBroadcasts);
                           }}
-                          style={{ padding: '4px 8px', fontSize: '0.85rem' }}
-                        />
-                      </td>
-                      <td style={{ padding: '8px 4px' }}>
-                        <input
-                          type="text"
-                          placeholder="예: 메인 진행"
-                          value={item.role || ''}
-                          onChange={(e) => {
-                            const newBroadcasts = [...broadcasts];
-                            newBroadcasts[idx].role = e.target.value;
-                            setBroadcasts(newBroadcasts);
-                          }}
-                          style={{ padding: '4px 8px', fontSize: '0.85rem' }}
+                          style={{ padding: '8px 12px', fontSize: '0.9rem' }}
                         />
                       </td>
                       <td style={{ padding: '8px 4px' }}>
                         <input
                           type="url"
-                          placeholder="https://..."
+                          placeholder="https://shoppinglive.naver.com/..."
                           value={item.link || ''}
                           onChange={(e) => {
                             const newBroadcasts = [...broadcasts];
                             newBroadcasts[idx].link = e.target.value;
                             setBroadcasts(newBroadcasts);
                           }}
-                          style={{ padding: '4px 8px', fontSize: '0.85rem' }}
+                          style={{ padding: '8px 12px', fontSize: '0.9rem' }}
                         />
                       </td>
                       <td style={{ padding: '8px 4px', textAlign: 'center' }}>
