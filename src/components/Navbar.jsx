@@ -12,8 +12,14 @@ const Navbar = ({ activeTab, setActiveTab }) => {
     }
     
     const tossPayments = window.TossPayments("test_ck_D53n977G19Mdf5oGM08j3k6B1xvl");
-    tossPayments.requestPayment('카드', {
-      amount: 15000,
+    const payment = tossPayments.payment({ customerKey: user ? user.id : 'anonymous' });
+    
+    payment.requestPayment({
+      method: 'CARD',
+      amount: {
+        currency: 'KRW',
+        value: 15000,
+      },
       orderId: 'order-' + Date.now(),
       orderName: 'SHOWLAB 프리미엄 멤버십 (포트폴리오 무제한 열람)',
       customerName: user ? user.name : '브랜드 담당자',
