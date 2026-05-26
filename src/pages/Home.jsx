@@ -134,11 +134,7 @@ const Home = ({ onNavigateToLogin }) => {
     // Search Query Filter
     if (searchQuery.trim() !== '') {
       const query = searchQuery.toLowerCase();
-      result = result.filter(h => 
-        h.name.toLowerCase().includes(query) || 
-        h.bio.toLowerCase().includes(query) || 
-        h.category.toLowerCase().includes(query)
-      );
+      result = result.filter(h => h.name.toLowerCase().includes(query));
     }
 
     // Sort Logic
@@ -207,24 +203,22 @@ const Home = ({ onNavigateToLogin }) => {
               Premium Live Commerce Matching
             </div>
             <h1 style={{ 
-              fontSize: '3rem', 
+              fontSize: '2.5rem', 
               fontWeight: 800, 
               lineHeight: '1.2', 
-              marginBottom: '20px',
+              marginBottom: '10px',
               fontFamily: 'Outfit, sans-serif'
             }}>
-              브랜드의 가치를 높일 <br />
-              <span className="text-gradient-rainbow">최고의 쇼호스트</span>를 만나보세요
+              <span className="text-gradient-rainbow">전문 쇼호스트</span>를 찾아보세요
             </h1>
             <p style={{ 
               color: 'hsl(var(--foreground-muted))', 
               maxWidth: '600px', 
               margin: '0 auto',
-              fontSize: '1.05rem',
-              lineHeight: '1.6'
+              fontSize: '1rem',
+              lineHeight: '1.5'
             }}>
-              카테고리별 전문 검증된 쇼호스트들의 프로필을 살펴보고, <br />
-              원하는 일정과 제안으로 직접 매칭을 요청할 수 있습니다.
+              검증된 쇼호스트 프로필을 확인하고 직접 매칭을 요청하세요.
             </p>
           </section>
 
@@ -324,7 +318,7 @@ const Home = ({ onNavigateToLogin }) => {
               />
               <input 
                 type="text" 
-                placeholder="쇼호스트 이름, 전문 키워드 등을 검색해 보세요..."
+                placeholder="쇼호스트의 이름을 검색해 보세요..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 style={{ paddingLeft: '48px', height: '50px', borderRadius: '12px' }}

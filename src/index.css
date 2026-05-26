@@ -273,67 +273,73 @@ label {
 
 @media (max-width: 768px) {
   .showhost-grid {
-    grid-template-columns: repeat(4, 1fr); /* Force 4 columns on mobile */
-    gap: 6px; /* Ultra-thin gaps on mobile */
+    grid-template-columns: repeat(2, 1fr); /* 2 columns on mobile */
+    gap: 12px; /* Better spacing for 2 columns */
   }
   
   .host-card {
-    border-radius: 8px !important;
+    border-radius: 12px !important;
   }
   
   .host-card-img-wrapper {
-    padding-top: 100% !important; /* Square 1:1 image ratio on mobile */
+    padding-top: 120% !important; /* Slight vertical rectangle for better portraits */
   }
   
   .host-card-badges {
-    bottom: 4px !important;
-    left: 4px !important;
-    gap: 2px !important;
+    bottom: 8px !important;
+    left: 8px !important;
+    gap: 4px !important;
   }
-  
+
   .host-card-badges .badge {
-    padding: 1px 4px !important;
-    font-size: 0.55rem !important;
-    border-radius: 4px !important;
+    padding: 2px 6px !important;
+    font-size: 0.65rem !important;
+    border-radius: 6px !important;
   }
   
   .host-card-details {
-    padding: 8px !important;
-    gap: 4px !important;
+    padding: 12px !important;
   }
   
-  .host-card-header {
-    flex-direction: column;
-    align-items: flex-start !important;
-    gap: 2px;
+  .host-card-name {
+    font-size: 0.95rem !important;
+    margin-bottom: 4px !important;
   }
   
-  .host-card-header h3 {
-    font-size: 0.75rem !important; /* Extremely small text for name */
-    line-height: 1.1;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    width: 100%;
+  .host-card-category {
+    font-size: 0.75rem !important;
+    margin-bottom: 6px !important;
+  }
+  
+  .host-card-pay {
+    font-size: 0.8rem !important;
   }
   
   .host-card-header div {
-    gap: 2px !important;
+    gap: 4px !important;
   }
   
   .host-card-header span {
-    font-size: 0.65rem !important;
+    font-size: 0.75rem !important;
   }
   
   .host-card-header svg {
-    width: 10px !important;
-    height: 10px !important;
+    width: 12px !important;
+    height: 12px !important;
   }
   
-  /* Hide unnecessary details to prevent card layout collapse on mobile 4-columns */
-  .host-card-bio,
+  .host-card-bio {
+    font-size: 0.75rem !important;
+    -webkit-line-clamp: 2 !important;
+  }
+  
   .host-card-info,
   .host-card-action {
-    display: none !important;
+    display: flex !important;
+  }
+  
+  .host-card-action button {
+    padding: 8px !important;
+    font-size: 0.85rem !important;
   }
 }
