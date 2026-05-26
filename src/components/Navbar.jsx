@@ -1,38 +1,10 @@
 import React from 'react';
 import { useAuth } from '../context/AuthContext';
-import { Sparkles, LogOut, User, LayoutDashboard, FileText, Shield, Zap } from 'lucide-react';
+import { LogOut, User, LayoutDashboard, Shield, Zap } from 'lucide-react';
 
 const Navbar = ({ activeTab, setActiveTab }) => {
   const { user, logout } = useAuth();
 
-  const handleNavbarTossPayment = () => {
-    if (typeof window.TossPayments !== 'function') {
-      alert('토스페이먼츠 라이브러리가 아직 로드되지 않았습니다. 잠시 후 다시 시도해 주세요.');
-      return;
-    }
-    
-    const tossPayments = window.TossPayments("test_ck_D53n977G19Mdf5oGM08j3k6B1xvl");
-    const payment = tossPayments.payment({ customerKey: user ? user.id : 'anonymous' });
-    
-    payment.requestPayment({
-      method: 'CARD',
-      amount: {
-        currency: 'KRW',
-        value: 15000,
-      },
-      orderId: 'order-' + Date.now(),
-      orderName: 'SHOWLAB 프리미엄 멤버십 (포트폴리오 무제한 열람)',
-      customerName: user ? user.name : '브랜드 담당자',
-      successUrl: window.location.origin + window.location.pathname + '?payment=success',
-      failUrl: window.location.origin + window.location.pathname + '?payment=fail',
-    }).catch((error) => {
-      if (error.code === 'USER_CANCEL') {
-        console.log('사용자가 결제를 취소했습니다.');
-      } else {
-        alert('결제 요청 중 오류가 발생했습니다: ' + error.message);
-      }
-    });
-  };
 
   return (
     <header className="glass-panel" style={{
@@ -161,46 +133,6 @@ const Navbar = ({ activeTab, setActiveTab }) => {
                   }}>
                     {(parseInt(user.points) || 0).toLocaleString()} C
                   </span>
-                </div>
-              )}
-              {/* Premium Membership Button for Unpaid Clients */}
-              {user.role === 'client' && user.isPaid !== 'true' && (
-                <button
-                  onClick={handleNavbarTossPayment}
-                  className="btn"
-                  style={{
-                    padding: '6px 12px',
-                    borderRadius: '8px',
-                    fontSize: '0.75rem',
-                    fontWeight: 700,
-                    border: '1px solid rgba(110, 80, 250, 0.4)',
-                    background: 'linear-gradient(135deg, rgba(110, 80, 250, 0.15) 0%, rgba(0, 242, 254, 0.15) 100%)',
-                    color: 'white',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '4px',
-                    cursor: 'pointer'
-                  }}
-                >
-                  <Sparkles size={12} color="#ffffff" />
-                  <span>멤버십 결제 (1.5만)</span>
-                </button>
-              )}
-
-              {/* Premium Badge for Paid Clients */}
-              {user.role === 'client' && user.isPaid === 'true' && (
-                <div
-                  style={{
-                    padding: '4px 8px',
-                    borderRadius: '6px',
-                    fontSize: '0.65rem',
-                    fontWeight: 800,
-                    background: 'linear-gradient(135deg, #ffffff 0%, #cccccc 100%)',
-                    color: '#0d0d0d',
-                    letterSpacing: '0.05em'
-                  }}
-                >
-                  PREMIUM
                 </div>
               )}
 

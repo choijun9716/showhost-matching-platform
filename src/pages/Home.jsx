@@ -9,7 +9,7 @@ import { Search, Filter, Sparkles, Star, Calendar, CircleDollarSign, Video, Chec
 const CATEGORIES = ['전체', '식품', '뷰티', '가전', '테크', '패션', '건기식', '키즈', '여행', '리빙'];
 
 const Home = ({ onNavigateToLogin }) => {
-  const { user, updateUserPaidStatus } = useAuth();
+  const { user } = useAuth();
   const [hosts, setHosts] = useState([]);
   const [filteredHosts, setFilteredHosts] = useState([]);
   const [selectedCategories, setSelectedCategories] = useState([]); // 중복 선택을 위한 배열
@@ -25,84 +25,6 @@ const Home = ({ onNavigateToLogin }) => {
     fetchHosts();
   }, []);
 
-  // Toss Payments Callback URL Handler
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const paymentStatus = params.get('payment');
-
-    if (paymentStatus === 'success') {
-      const updatePayment = async () => {
-        if (user && user.id) {
-          setLoading(true);
-          try {
-            await api.auth.updatePaidStatus(user.id, "true");
-            updateUserPaidStatus("true");
-            alert('🎉 멤버십 결제가 성공적으로 완료되었습니다! 이제 모든 포트폴리오를 자유롭게 열람하실 수 있습니다.');
-          } catch (error) {
-            console.error('결제 상태 갱신 실패:', error);
-            alert('결제 처리는 완료되었으나 회원 정보 갱신 중 오류가 발생했습니다. 고객센터에 문의해 주세요.');
-          } finally {
-            setLoading(false);
-          }
-        } else {
-          alert('로그인 세션이 만료되었습니다. 다시 로그인하시면 결제 권한이 활성화됩니다.');
-        }
-        // Clear URL parameters
-        window.history.replaceState(null, '', window.location.pathname);
-      };
-      updatePayment();
-    } else if (paymentStatus === 'fail') {
-      alert('❌ 결제에 실패하였습니다. 다시 시도해 주시기 바랍니다.');
-      window.history.replaceState(null, '', window.location.pathname);
-    }
-  }, [user]);
-
-  // URL Query 'hostId' Handler
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const hostId = params.get('hostId');
-    if (hostId && hosts.length > 0) {
-      const target = hosts.find(h => h.id === hostId || h.email === hostId);
-      if (target) {
-        setSelectedHost(target);
-      }
-    }
-  }, [hosts]);
-
-  // Handle Toss Payments Popup Call
-  const handleTossPayment = () => {
-    if (!user) {
-      alert('로그인이 필요한 서비스입니다.');
-      onNavigateToLogin();
-      return;
-    }
-    if (typeof window.TossPayments !== 'function') {
-      alert('토스페이먼츠 라이브러리가 아직 로드되지 않았습니다. 잠시 후 다시 시도해 주세요.');
-      return;
-    }
-    
-    const tossPayments = window.TossPayments("test_ck_D53n977G19Mdf5oGM08j3k6B1xvl");
-    const payment = tossPayments.payment({ customerKey: user.id });
-    
-    payment.requestPayment({
-      method: 'CARD',
-      amount: {
-        currency: 'KRW',
-        value: 15000,
-      },
-      orderId: 'order-' + Date.now(),
-      orderName: 'SHOWLAB 프리미엄 멤버십 (포트폴리오 무제한 열람)',
-      customerName: user.name || '브랜드 담당자',
-      successUrl: window.location.origin + window.location.pathname + '?payment=success',
-      failUrl: window.location.origin + window.location.pathname + '?payment=fail',
-    }).catch((error) => {
-      if (error.code === 'USER_CANCEL') {
-        console.log('사용자가 결제를 취소했습니다.');
-      } else {
-        alert('결제 요청 중 오류가 발생했습니다: ' + error.message);
-      }
-    });
-  };
 
   useEffect(() => {
     let result = hosts.filter(h => !h.isHidden);
