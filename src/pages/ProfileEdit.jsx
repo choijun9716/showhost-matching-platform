@@ -65,7 +65,7 @@ const ProfileEdit = () => {
   };
 
   // HTML5 Canvas 기반 이미지 압축 및 리사이징 유틸리티
-  const compressImage = (file, maxWidth = 400, maxHeight = 400, quality = 0.7) => {
+  const compressImage = (file, maxWidth = 250, maxHeight = 250, quality = 0.5) => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.readAsDataURL(file);
@@ -119,7 +119,7 @@ const ProfileEdit = () => {
       setLoading(true);
       setError('');
       try {
-        const compressedBase64 = await compressImage(file, 400, 400, 0.7);
+        const compressedBase64 = await compressImage(file, 250, 250, 0.5);
         setAvatar(compressedBase64);
       } catch (err) {
         console.error('Image compression error:', err);
