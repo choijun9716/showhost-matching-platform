@@ -459,11 +459,13 @@ export const api = {
     update: async (id, data) => {
       if (isSheetdbActive) {
         // 프로필 정보 업데이트
-        await sheetdbPatch("profiles", "id", id, data);
+        const isEmail = id && id.includes('@');
+        const idColumn = isEmail ? "email" : "id";
+        await sheetdbPatch("profiles", idColumn, id, data);
         
         // 이름 변경 시 users 테이블과 동기화
         if (data.name) {
-          await sheetdbPatch("users", "id", id, { name: data.name });
+          await sheetdbPatch("users", idColumn, id, { name: data.name });
         }
         
         // 최종 데이터 반환
@@ -478,7 +480,9 @@ export const api = {
     },
     delete: async (id) => {
       if (isSheetdbActive) {
-        await sheetdbDelete("profiles", "id", id);
+        const isEmail = id && id.includes('@');
+        const idColumn = isEmail ? "email" : "id";
+        await sheetdbDelete("profiles", idColumn, id);
         return { success: true };
       } else if (isRealSupabase) {
         const { error } = await supabase.from('profiles').delete().eq('id', id);

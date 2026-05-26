@@ -40,8 +40,9 @@ const Admin = () => {
   const handleToggleVisibility = async (host) => {
     try {
       const newStatus = !host.isHidden;
-      await api.profiles.update(host.id, { isHidden: newStatus });
-      setHosts(prev => prev.map(h => h.id === host.id ? { ...h, isHidden: newStatus } : h));
+      const targetId = host.id || host.email;
+      await api.profiles.update(targetId, { isHidden: newStatus });
+      setHosts(prev => prev.map(h => (h.id || h.email) === targetId ? { ...h, isHidden: newStatus } : h));
     } catch (error) {
       alert('상태 업데이트 실패: ' + error.message);
     }
@@ -50,17 +51,19 @@ const Admin = () => {
   const handleToggleRecommended = async (host) => {
     try {
       const newStatus = !host.isRecommended;
-      await api.profiles.update(host.id, { isRecommended: newStatus });
-      setHosts(prev => prev.map(h => h.id === host.id ? { ...h, isRecommended: newStatus } : h));
+      const targetId = host.id || host.email;
+      await api.profiles.update(targetId, { isRecommended: newStatus });
+      setHosts(prev => prev.map(h => (h.id || h.email) === targetId ? { ...h, isRecommended: newStatus } : h));
     } catch (error) {
       alert('추천 상태 업데이트 실패: ' + error.message);
     }
   };
 
-  const handleOrderChange = async (hostId, newOrder) => {
+  const handleOrderChange = async (host, newOrder) => {
     try {
-      await api.profiles.update(hostId, { displayOrder: parseInt(newOrder, 10) || 0 });
-      setHosts(prev => prev.map(h => h.id === hostId ? { ...h, displayOrder: parseInt(newOrder, 10) || 0 } : h));
+      const targetId = host.id || host.email;
+      await api.profiles.update(targetId, { displayOrder: parseInt(newOrder, 10) || 0 });
+      setHosts(prev => prev.map(h => (h.id || h.email) === targetId ? { ...h, displayOrder: parseInt(newOrder, 10) || 0 } : h));
     } catch (error) {
       alert('순서 업데이트 실패: ' + error.message);
     }
@@ -69,8 +72,9 @@ const Admin = () => {
   const handleDelete = async (host) => {
     if (window.confirm(`정말로 ${host.name} 쇼호스트를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.`)) {
       try {
-        await api.profiles.delete(host.id);
-        setHosts(prev => prev.filter(h => h.id !== host.id));
+        const targetId = host.id || host.email;
+        await api.profiles.delete(targetId);
+        setHosts(prev => prev.filter(h => (h.id || h.email) !== targetId));
       } catch (error) {
         alert('삭제 실패: ' + error.message);
       }
@@ -116,8 +120,8 @@ const Admin = () => {
                 </td>
               </tr>
             ) : (
-              hosts.map(host => (
-                <tr key={host.id} style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.05)', opacity: host.isHidden ? 0.6 : 1 }}>
+              hosts.map((host, index) => (
+                <tr key={host.id || host.email || index} style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.05)', opacity: host.isHidden ? 0.6 : 1 }}>
                   <td style={{ padding: '12px' }}>
                     <img 
                       src={host.profileImage} 
@@ -136,9 +140,9 @@ const Admin = () => {
                     <input 
                       type="number" 
                       value={host.displayOrder || 0}
-                      onChange={(e) => handleOrderChange(host.id, e.target.value)}
+                      onChange={(e) => handleOrderChange(host, e.target.value)}
                       style={{ 
-                        width: '60px', 
+                        width: '60px',  
                         background: 'rgba(255, 255, 255, 0.1)', 
                         border: '1px solid rgba(255, 255, 255, 0.2)',
                         color: 'white',
