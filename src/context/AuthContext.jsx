@@ -14,7 +14,14 @@ export const AuthProvider = ({ children }) => {
     // 기존 세션 복원 (로컬 스토리지에 저장된 현재 유저)
     const savedUser = localStorage.getItem('currentUser');
     if (savedUser) {
-      setUser(JSON.parse(savedUser));
+      const parsed = JSON.parse(savedUser);
+      // 최신 크레딧 정보 동기화
+      const users = JSON.parse(localStorage.getItem('users') || '[]');
+      const freshUser = users.find(u => u.id === parsed.id);
+      if (freshUser) {
+        parsed.points = parseInt(freshUser.points) || 0;
+      }
+      setUser(parsed);
     }
     setLoading(false);
   }, []);
@@ -67,8 +74,17 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  // 크레딧 업데이트 (차감 또는 충전 후 호출)
+  const updateCredits = (newCredits) => {
+    if (user) {
+      const updatedUser = { ...user, points: parseInt(newCredits) || 0 };
+      setUser(updatedUser);
+      localStorage.setItem('currentUser', JSON.stringify(updatedUser));
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, loading, login, signup, logout, updateCurrentUserProfile, updateUserPaidStatus }}>
+    <AuthContext.Provider value={{ user, loading, login, signup, logout, updateCurrentUserProfile, updateUserPaidStatus, updateCredits }}>
       {!loading && children}
     </AuthContext.Provider>
   );

@@ -1,14 +1,19 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../supabaseClient';
-import { X, Send, AlertCircle, Calendar, Star } from 'lucide-react';
+import { X, Send, AlertCircle, Star, Zap } from 'lucide-react';
+
+const MATCH_COST = 10; // 매칭 1건당 차감 크레딧
 
 const MatchingModal = ({ host, onClose, onSuccess, onNavigateToLogin }) => {
-  const { user } = useAuth();
+  const { user, updateCredits } = useAuth();
   const [message, setMessage] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
   const backdropRef = useRef(null);
+
+  const credits = parseInt(user?.points) || 0;
+  const hasEnoughCredits = credits >= MATCH_COST;
 
   // 모달이 열릴 때 자동으로 모달 컨테이너 스크롤을 최상단으로 리셋
   useEffect(() => {
@@ -27,6 +32,10 @@ const MatchingModal = ({ host, onClose, onSuccess, onNavigateToLogin }) => {
       setError('쇼호스트 계정으로는 매칭 신청이 불가합니다. 브랜드 계정으로 가입해 주세요.');
       return;
     }
+    if (!hasEnoughCredits) {
+      setError(`크레딧이 부족합니다. (보유: ${credits}크레딧, 필요: ${MATCH_COST}크레딧)`);
+      return;
+    }
     if (!message.trim()) {
       setError('제안 메시지를 입력해 주세요.');
       return;
@@ -36,13 +45,16 @@ const MatchingModal = ({ host, onClose, onSuccess, onNavigateToLogin }) => {
     setError('');
 
     try {
-      await api.matches.request(
+      const result = await api.matches.request(
         user.id,
         user.name || '브랜드 담당자',
         host.id,
         host.name,
         message
       );
+      // 차감 후 남은 크레딧 업데이트
+      const remaining = credits - MATCH_COST;
+      updateCredits(remaining);
       onSuccess();
     } catch (err) {
       console.error('Matching request error:', err);
@@ -73,7 +85,7 @@ const MatchingModal = ({ host, onClose, onSuccess, onNavigateToLogin }) => {
         style={{
           width: '100%',
           maxWidth: '550px',
-          margin: '50px auto', // 상단 여백 확보 및 좌우 중앙 정렬
+          margin: '50px auto',
           overflow: 'hidden',
           position: 'relative',
           background: '#0a0a0a',
@@ -159,6 +171,64 @@ const MatchingModal = ({ host, onClose, onSuccess, onNavigateToLogin }) => {
           ) : (
             /* Brand account view - Form inputs */
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+
+              {/* 크레딧 표시 배너 */}
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                padding: '14px 16px',
+                background: hasEnoughCredits
+                  ? 'rgba(99, 102, 241, 0.08)'
+                  : 'rgba(239, 68, 68, 0.08)',
+                border: `1px solid ${hasEnoughCredits ? 'rgba(99, 102, 241, 0.25)' : 'rgba(239, 68, 68, 0.25)'}`,
+                borderRadius: '10px'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <Zap size={16} color={hasEnoughCredits ? '#818cf8' : '#ef4444'} />
+                  <span style={{ fontSize: '0.9rem', color: 'hsl(var(--foreground-muted))' }}>
+                    보유 크레딧
+                  </span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <span style={{
+                    fontSize: '1.1rem',
+                    fontWeight: 700,
+                    color: hasEnoughCredits ? '#818cf8' : '#ef4444'
+                  }}>
+                    {credits.toLocaleString()} C
+                  </span>
+                  <span style={{
+                    fontSize: '0.8rem',
+                    padding: '3px 10px',
+                    borderRadius: '20px',
+                    background: hasEnoughCredits ? 'rgba(99,102,241,0.15)' : 'rgba(239,68,68,0.15)',
+                    color: hasEnoughCredits ? '#818cf8' : '#ef4444',
+                    border: `1px solid ${hasEnoughCredits ? 'rgba(99,102,241,0.3)' : 'rgba(239,68,68,0.3)'}`
+                  }}>
+                    -{MATCH_COST}C 차감
+                  </span>
+                </div>
+              </div>
+
+              {/* 크레딧 부족 경고 */}
+              {!hasEnoughCredits && (
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  background: 'rgba(239, 68, 68, 0.08)',
+                  border: '1px solid rgba(239, 68, 68, 0.2)',
+                  color: '#ef4444',
+                  padding: '12px',
+                  borderRadius: '8px',
+                  fontSize: '0.85rem'
+                }}>
+                  <AlertCircle size={16} />
+                  <span>크레딧이 부족합니다. 관리자에게 크레딧 충전을 요청해 주세요.</span>
+                </div>
+              )}
+
               <div>
                 <label htmlFor="proposal-message">방송 제안 및 상세 안내</label>
                 <textarea
@@ -168,6 +238,7 @@ const MatchingModal = ({ host, onClose, onSuccess, onNavigateToLogin }) => {
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
                   style={{ resize: 'none' }}
+                  disabled={!hasEnoughCredits}
                 />
               </div>
 
@@ -204,13 +275,17 @@ const MatchingModal = ({ host, onClose, onSuccess, onNavigateToLogin }) => {
                 <button 
                   type="submit" 
                   className="btn btn-primary" 
-                  disabled={submitting}
-                  style={{ flex: 2 }}
+                  disabled={submitting || !hasEnoughCredits}
+                  style={{ 
+                    flex: 2,
+                    opacity: (!hasEnoughCredits) ? 0.5 : 1,
+                    cursor: (!hasEnoughCredits) ? 'not-allowed' : 'pointer'
+                  }}
                 >
                   {submitting ? '전송 중...' : (
                     <>
                       <Send size={16} />
-                      <span>매칭 제안서 발송</span>
+                      <span>매칭 제안서 발송 ({MATCH_COST}C)</span>
                     </>
                   )}
                 </button>

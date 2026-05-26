@@ -1,6 +1,6 @@
 import React from 'react';
 import { useAuth } from '../context/AuthContext';
-import { Sparkles, LogOut, User, LayoutDashboard, FileText, Shield } from 'lucide-react';
+import { Sparkles, LogOut, User, LayoutDashboard, FileText, Shield, Zap } from 'lucide-react';
 
 const Navbar = ({ activeTab, setActiveTab }) => {
   const { user, logout } = useAuth();
@@ -135,6 +135,34 @@ const Navbar = ({ activeTab, setActiveTab }) => {
           {/* User Section / Login Button */}
           {user ? (
             <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+              {/* 크레딧 배지 - 브랜드 계정만 */}
+              {user.role === 'client' && (
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '5px',
+                  padding: '5px 11px',
+                  borderRadius: '8px',
+                  background: (parseInt(user.points) || 0) > 0
+                    ? 'rgba(99, 102, 241, 0.1)'
+                    : 'rgba(239, 68, 68, 0.1)',
+                  border: `1px solid ${
+                    (parseInt(user.points) || 0) > 0
+                      ? 'rgba(99, 102, 241, 0.3)'
+                      : 'rgba(239, 68, 68, 0.3)'
+                  }`,
+                  whiteSpace: 'nowrap'
+                }}>
+                  <Zap size={13} color={(parseInt(user.points) || 0) > 0 ? '#818cf8' : '#ef4444'} />
+                  <span style={{
+                    fontSize: '0.8rem',
+                    fontWeight: 700,
+                    color: (parseInt(user.points) || 0) > 0 ? '#818cf8' : '#ef4444'
+                  }}>
+                    {(parseInt(user.points) || 0).toLocaleString()} C
+                  </span>
+                </div>
+              )}
               {/* Premium Membership Button for Unpaid Clients */}
               {user.role === 'client' && user.isPaid !== 'true' && (
                 <button

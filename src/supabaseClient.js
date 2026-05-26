@@ -166,17 +166,21 @@ const INITIAL_MOCK_PROFILES = [
 export const initMockDatabase = () => {
   if (!localStorage.getItem('users')) {
     localStorage.setItem('users', JSON.stringify([
-      { id: 'admin-1', email: 'admin@test.com', password: 'password123', name: '관리자', role: 'admin', isPaid: 'true' },
-      { id: 'client-1', email: 'client@test.com', password: 'password123', name: '테스트 브랜드', role: 'client', isPaid: 'false' },
+      { id: 'admin-1', email: 'admin@test.com', password: 'password123', name: '관리자', role: 'admin', isPaid: 'true', points: 9999 },
+      { id: 'client-1', email: 'client@test.com', password: 'password123', name: '테스트 브랜드', role: 'client', isPaid: 'false', points: 30 },
       ...INITIAL_MOCK_PROFILES.map(host => ({
         id: host.id,
         email: host.email,
         password: 'password123',
         name: host.name,
         role: 'showhost',
-        isPaid: 'false'
+        isPaid: 'false',
+        points: 0
       }))
     ]));
+  }
+  if (!localStorage.getItem('pointHistory')) {
+    localStorage.setItem('pointHistory', JSON.stringify([]));
   }
   if (!localStorage.getItem('profiles')) {
     const initializedProfiles = INITIAL_MOCK_PROFILES.map(p => ({
@@ -212,7 +216,7 @@ export const mockDb = {
     if (users.find(u => u.email === email)) {
       throw new Error('이미 존재하는 이메일입니다.');
     }
-    const newUser = { id: 'user-' + Date.now(), email, password, name, role, isPaid: 'false' };
+    const newUser = { id: 'user-' + Date.now(), email, password, name, role, isPaid: 'false', points: 0 };
     users.push(newUser);
     localStorage.setItem('users', JSON.stringify(users));
 
@@ -245,7 +249,7 @@ export const mockDb = {
       localStorage.setItem('profiles', JSON.stringify(profiles));
     }
     
-    return { user: { id: newUser.id, email: newUser.email, name: newUser.name, role: newUser.role } };
+    return { user: { id: newUser.id, email: newUser.email, name: newUser.name, role: newUser.role, points: newUser.points } };
   },
 
   signIn: async (email, password) => {
@@ -255,7 +259,7 @@ export const mockDb = {
     if (!user) {
       throw new Error('이메일 또는 비밀번호가 올바르지 않습니다.');
     }
-    return { user: { id: user.id, email: user.email, name: user.name, role: user.role, isPaid: user.isPaid || 'false' } };
+    return { user: { id: user.id, email: user.email, name: user.name, role: user.role, isPaid: user.isPaid || 'false', points: parseInt(user.points) || 0 } };
   },
 
   // 프로필 조회 및 수정
@@ -300,9 +304,82 @@ export const mockDb = {
     return { success: true };
   },
 
+  // 포인트 기능
+  getPoints: async (userId) => {
+    initMockDatabase();
+    const users = JSON.parse(localStorage.getItem('users') || '[]');
+    const user = users.find(u => u.id === userId);
+    return parseInt(user?.points) || 0;
+  },
+
+  chargePoints: async (userId, amount, memo = '관리자 충전') => {
+    initMockDatabase();
+    const users = JSON.parse(localStorage.getItem('users') || '[]');
+    const index = users.findIndex(u => u.id === userId);
+    if (index === -1) throw new Error('사용자를 찾을 수 없습니다.');
+    const before = parseInt(users[index].points) || 0;
+    users[index].points = before + parseInt(amount);
+    localStorage.setItem('users', JSON.stringify(users));
+
+    // 히스토리 기록
+    const history = JSON.parse(localStorage.getItem('pointHistory') || '[]');
+    history.push({
+      id: 'ph-' + Date.now(),
+      userId,
+      type: 'charge',
+      amount: parseInt(amount),
+      before,
+      after: users[index].points,
+      memo,
+      createdAt: new Date().toISOString()
+    });
+    localStorage.setItem('pointHistory', JSON.stringify(history));
+    return users[index].points;
+  },
+
+  deductPoints: async (userId, amount = 10, memo = '매칭 신청') => {
+    initMockDatabase();
+    const users = JSON.parse(localStorage.getItem('users') || '[]');
+    const index = users.findIndex(u => u.id === userId);
+    if (index === -1) throw new Error('사용자를 찾을 수 없습니다.');
+    const before = parseInt(users[index].points) || 0;
+    if (before < amount) throw new Error(`크레딧이 부족합니다. (보유: ${before}크레딧, 필요: ${amount}크레딧)`);
+    users[index].points = before - parseInt(amount);
+    localStorage.setItem('users', JSON.stringify(users));
+
+    // 히스토리 기록
+    const history = JSON.parse(localStorage.getItem('pointHistory') || '[]');
+    history.push({
+      id: 'ph-' + Date.now(),
+      userId,
+      type: 'deduct',
+      amount: -parseInt(amount),
+      before,
+      after: users[index].points,
+      memo,
+      createdAt: new Date().toISOString()
+    });
+    localStorage.setItem('pointHistory', JSON.stringify(history));
+    return users[index].points;
+  },
+
+  getPointHistory: async (userId) => {
+    initMockDatabase();
+    const history = JSON.parse(localStorage.getItem('pointHistory') || '[]');
+    return history.filter(h => h.userId === userId).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  },
+
+  getAllUsers: async () => {
+    initMockDatabase();
+    return JSON.parse(localStorage.getItem('users') || '[]');
+  },
+
   // 매칭 기능
   requestMatch: async (clientId, clientName, hostId, hostName, message) => {
     initMockDatabase();
+    // 크레딧 지감 (부족 시 에러)
+    await mockDb.deductPoints(clientId, 10, `${hostName}에게 매칭 신청`);
+
     const matches = JSON.parse(localStorage.getItem('matches') || '[]');
     const newMatch = {
       id: 'match-' + Date.now(),
@@ -316,7 +393,7 @@ export const mockDb = {
     };
     matches.push(newMatch);
     localStorage.setItem('matches', JSON.stringify(matches));
-    return newMatch;
+    return { ...newMatch, remainingPoints: (parseInt((JSON.parse(localStorage.getItem('users')||'[]').find(u=>u.id===clientId)||{}).points)||0) };
   },
 
   getMatchesForClient: async (clientId) => {
@@ -345,6 +422,7 @@ export const mockDb = {
 };
 
 // 통합 API
+// (SheetDB/Supabase 환경에서의 포인트 API는 mockDb와 동일 인터페이스로 추가 예정)
 export const api = {
   auth: {
     signUp: async (email, password, name, role) => {
@@ -535,9 +613,39 @@ export const api = {
       }
     }
   },
+  points: {
+    get: async (userId) => {
+      // SheetDB/Supabase는 추후 확장, 현재는 mockDb 사용
+      return mockDb.getPoints(userId);
+    },
+    charge: async (userId, amount, memo) => {
+      return mockDb.chargePoints(userId, amount, memo);
+    },
+    deduct: async (userId, amount, memo) => {
+      return mockDb.deductPoints(userId, amount, memo);
+    },
+    history: async (userId) => {
+      return mockDb.getPointHistory(userId);
+    }
+  },
+  users: {
+    list: async () => {
+      return mockDb.getAllUsers();
+    },
+    chargePoints: async (userId, amount, memo) => {
+      if (isSheetdbActive) {
+        // SheetDB 지원 시 확장
+        return mockDb.chargePoints(userId, amount, memo);
+      } else {
+        return mockDb.chargePoints(userId, amount, memo);
+      }
+    }
+  },
   matches: {
     request: async (clientId, clientName, hostId, hostName, message) => {
       if (isSheetdbActive) {
+        // 크레딧 차감 먼저 (10크레딧)
+        await mockDb.deductPoints(clientId, 10, `${hostName}에게 매칭 신청`);
         const newMatchId = "match-" + Date.now();
         const createdAt = new Date().toISOString();
         const newMatch = {
@@ -553,6 +661,8 @@ export const api = {
         await sheetdbPost("matches", [newMatch]);
         return newMatch;
       } else if (isRealSupabase) {
+        // 크레딧 차감 먼저 (10크레딧)
+        await mockDb.deductPoints(clientId, 10, `${hostName}에게 매칭 신청`);
         const { data, error } = await supabase.from('matches').insert([{
           client_id: clientId,
           client_name: clientName,
