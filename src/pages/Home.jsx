@@ -8,7 +8,7 @@ import { Search, Filter, Sparkles, Star, Calendar, CircleDollarSign, Video, Chec
 const CATEGORIES = ['전체', '패션', '뷰티', '푸드', 'IT/가전', '기타'];
 
 const Home = ({ onNavigateToLogin }) => {
-  const { user } = useAuth();
+  const { user, updateUserPaidStatus } = useAuth();
   const [hosts, setHosts] = useState([]);
   const [filteredHosts, setFilteredHosts] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState('전체');
@@ -22,6 +22,67 @@ const Home = ({ onNavigateToLogin }) => {
   useEffect(() => {
     fetchHosts();
   }, []);
+
+  // Toss Payments Callback URL Handler
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const paymentStatus = params.get('payment');
+
+    if (paymentStatus === 'success') {
+      const updatePayment = async () => {
+        if (user && user.id) {
+          setLoading(true);
+          try {
+            await api.auth.updatePaidStatus(user.id, "true");
+            updateUserPaidStatus("true");
+            alert('🎉 멤버십 결제가 성공적으로 완료되었습니다! 이제 모든 포트폴리오를 자유롭게 열람하실 수 있습니다.');
+          } catch (error) {
+            console.error('결제 상태 갱신 실패:', error);
+            alert('결제 처리는 완료되었으나 회원 정보 갱신 중 오류가 발생했습니다. 고객센터에 문의해 주세요.');
+          } finally {
+            setLoading(false);
+          }
+        } else {
+          alert('로그인 세션이 만료되었습니다. 다시 로그인하시면 결제 권한이 활성화됩니다.');
+        }
+        // Clear URL parameters
+        window.history.replaceState(null, '', window.location.pathname);
+      };
+      updatePayment();
+    } else if (paymentStatus === 'fail') {
+      alert('❌ 결제에 실패하였습니다. 다시 시도해 주시기 바랍니다.');
+      window.history.replaceState(null, '', window.location.pathname);
+    }
+  }, [user]);
+
+  // Handle Toss Payments Popup Call
+  const handleTossPayment = () => {
+    if (!user) {
+      alert('로그인이 필요한 서비스입니다.');
+      onNavigateToLogin();
+      return;
+    }
+    if (typeof window.TossPayments !== 'function') {
+      alert('토스페이먼츠 라이브러리가 아직 로드되지 않았습니다. 잠시 후 다시 시도해 주세요.');
+      return;
+    }
+    
+    const tossPayments = window.TossPayments("test_ck_D53n977G19Mdf5oGM08j3k6B1xvl");
+    tossPayments.requestPayment('카드', {
+      amount: 15000,
+      orderId: 'order-' + Date.now(),
+      orderName: 'SHOWLINK 프리미엄 멤버십 (포트폴리오 무제한 열람)',
+      customerName: user.name || '브랜드 담당자',
+      successUrl: window.location.origin + window.location.pathname + '?payment=success',
+      failUrl: window.location.origin + window.location.pathname + '?payment=fail',
+    }).catch((error) => {
+      if (error.code === 'USER_CANCEL') {
+        console.log('사용자가 결제를 취소했습니다.');
+      } else {
+        alert('결제 요청 중 오류가 발생했습니다: ' + error.message);
+      }
+    });
+  };
 
   useEffect(() => {
     let result = hosts;
@@ -500,51 +561,110 @@ const Home = ({ onNavigateToLogin }) => {
 
                 {/* 방송 및 포트폴리오 섹션 */}
                 {(selectedHost.broadcastLink || selectedHost.portfolio) && (
-                  <div>
-                    <h3 style={{ fontSize: '1.25rem', marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <Video size={18} color="hsl(var(--secondary))" />
-                      <span>대표 방송 & 포트폴리오</span>
-                    </h3>
-                    <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-                      {selectedHost.broadcastLink && (
-                        <a 
-                          href={selectedHost.broadcastLink} 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          className="btn btn-accent"
-                          style={{
-                            padding: '12px 20px',
-                            fontSize: '0.9rem',
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            gap: '8px'
-                          }}
-                        >
-                          <Sparkles size={16} />
-                          <span>대표 방송 보러가기</span>
-                        </a>
-                      )}
-                      {selectedHost.portfolio && (
-                        <a 
-                          href={selectedHost.portfolio} 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          className="btn btn-secondary"
-                          style={{
-                            padding: '12px 20px',
-                            fontSize: '0.9rem',
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            gap: '8px'
-                          }}
-                        >
-                          <Video size={16} />
-                          <span>포트폴리오 보러가기</span>
-                        </a>
-                      )}
-                    </div>
-                  </div>
-                )}
+                   <div>
+                     <h3 style={{ fontSize: '1.25rem', marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                       <Video size={18} color="hsl(var(--secondary))" />
+                       <span>대표 방송 & 포트폴리오</span>
+                     </h3>
+                     
+                     {user && user.isPaid === 'true' ? (
+                       /* 결제 완료 유저 */
+                       <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+                         {selectedHost.broadcastLink && (
+                           <a 
+                             href={selectedHost.broadcastLink} 
+                             target="_blank" 
+                             rel="noopener noreferrer"
+                             className="btn btn-accent"
+                             style={{
+                               padding: '12px 20px',
+                               fontSize: '0.9rem',
+                               display: 'inline-flex',
+                               alignItems: 'center',
+                               gap: '8px'
+                             }}
+                           >
+                             <Sparkles size={16} />
+                             <span>대표 방송 보러가기</span>
+                           </a>
+                         )}
+                         {selectedHost.portfolio && (
+                           <a 
+                             href={selectedHost.portfolio} 
+                             target="_blank" 
+                             rel="noopener noreferrer"
+                             className="btn btn-secondary"
+                             style={{
+                               padding: '12px 20px',
+                               fontSize: '0.9rem',
+                               display: 'inline-flex',
+                               alignItems: 'center',
+                               gap: '8px'
+                             }}
+                           >
+                             <Video size={16} />
+                             <span>포트폴리오 보러가기</span>
+                           </a>
+                         )}
+                       </div>
+                     ) : (
+                       /* 미결제 유저: 블러 처리 및 결제 유도 */
+                       <div style={{ position: 'relative', borderRadius: '12px', overflow: 'hidden', minHeight: '80px' }}>
+                         {/* 블러링된 더미 버튼 */}
+                         <div style={{
+                           display: 'flex',
+                           gap: '12px',
+                           flexWrap: 'wrap',
+                           filter: 'blur(5px)',
+                           pointerEvents: 'none',
+                           userSelect: 'none',
+                           opacity: 0.3
+                         }}>
+                           <button className="btn btn-accent" style={{ padding: '12px 20px', fontSize: '0.9rem' }}>대표 방송 보러가기</button>
+                           <button className="btn btn-secondary" style={{ padding: '12px 20px', fontSize: '0.9rem' }}>포트폴리오 보러가기</button>
+                         </div>
+                         
+                         {/* 잠금 해제 안내 오버레이 */}
+                         <div style={{
+                           position: 'absolute',
+                           top: 0,
+                           left: 0,
+                           width: '100%',
+                           height: '100%',
+                           display: 'flex',
+                           flexDirection: 'column',
+                           alignItems: 'center',
+                           justifyContent: 'center',
+                           background: 'rgba(15, 23, 42, 0.65)',
+                           borderRadius: '8px',
+                           padding: '16px',
+                           textAlign: 'center',
+                           border: '1px solid rgba(255, 255, 255, 0.05)',
+                           boxSizing: 'border-box'
+                         }}>
+                           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
+                             <Lock size={16} color="hsl(var(--primary-hover))" />
+                             <span style={{ fontSize: '0.9rem', fontWeight: 600, color: 'white' }}>
+                               포트폴리오 및 방송 링크는 멤버십 결제 후 열람 가능합니다.
+                             </span>
+                           </div>
+                           <button 
+                             onClick={handleTossPayment}
+                             className="btn btn-primary"
+                             style={{ 
+                               padding: '8px 18px', 
+                               fontSize: '0.8rem',
+                               fontWeight: 700,
+                               boxShadow: '0 4px 14px rgba(110, 80, 250, 0.4)' 
+                             }}
+                           >
+                             멤버십 결제하고 잠금 해제 (15,000원)
+                           </button>
+                         </div>
+                       </div>
+                     )}
+                   </div>
+                 )}
               </div>
             </div>
           </div>

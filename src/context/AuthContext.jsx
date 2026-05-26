@@ -68,8 +68,16 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const updateUserPaidStatus = (isPaidStatus) => {
+    if (user) {
+      const updatedUser = { ...user, isPaid: isPaidStatus };
+      setUser(updatedUser);
+      localStorage.setItem('currentUser', JSON.stringify(updatedUser));
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, loading, login, signup, logout, updateCurrentUserProfile }}>
+    <AuthContext.Provider value={{ user, loading, login, signup, logout, updateCurrentUserProfile, updateUserPaidStatus }}>
       {!loading && children}
     </AuthContext.Provider>
   );

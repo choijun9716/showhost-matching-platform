@@ -153,13 +153,14 @@ const INITIAL_MOCK_PROFILES = [
 export const initMockDatabase = () => {
   if (!localStorage.getItem('users')) {
     localStorage.setItem('users', JSON.stringify([
-      { id: 'client-1', email: 'client@test.com', password: 'password123', name: '테스트 브랜드', role: 'client' },
+      { id: 'client-1', email: 'client@test.com', password: 'password123', name: '테스트 브랜드', role: 'client', isPaid: 'false' },
       ...INITIAL_MOCK_PROFILES.map(host => ({
         id: host.id,
         email: host.email,
         password: 'password123',
         name: host.name,
-        role: 'showhost'
+        role: 'showhost',
+        isPaid: 'false'
       }))
     ]));
   }
@@ -191,7 +192,7 @@ export const mockDb = {
     if (users.find(u => u.email === email)) {
       throw new Error('이미 존재하는 이메일입니다.');
     }
-    const newUser = { id: 'user-' + Date.now(), email, password, name, role };
+    const newUser = { id: 'user-' + Date.now(), email, password, name, role, isPaid: 'false' };
     users.push(newUser);
     localStorage.setItem('users', JSON.stringify(users));
 
@@ -231,7 +232,7 @@ export const mockDb = {
     if (!user) {
       throw new Error('이메일 또는 비밀번호가 올바르지 않습니다.');
     }
-    return { user: { id: user.id, email: user.email, name: user.name, role: user.role } };
+    return { user: { id: user.id, email: user.email, name: user.name, role: user.role, isPaid: user.isPaid || 'false' } };
   },
 
   // 프로필 조회 및 수정
@@ -325,7 +326,7 @@ export const api = {
         
         const newUserId = "user-" + Date.now();
         // users 테이블에 추가
-        await sheetdbPost("users", [{ id: newUserId, email, password, name, role }]);
+        await sheetdbPost("users", [{ id: newUserId, email, password, name, role, isPaid: "false" }]);
         
         // 쇼호스트일 경우 profiles 테이블에도 초기 데이터 생성
         if (role === "showhost") {
@@ -350,7 +351,7 @@ export const api = {
             reviews: 0
           }]);
         }
-        return { user: { id: newUserId, email, name, role } };
+        return { user: { id: newUserId, email, name, role, isPaid: "false" } };
       } else if (isRealSupabase) {
         const { data, error } = await supabase.auth.signUp({ email, password, options: { data: { name, role } } });
         if (error) throw error;
@@ -366,7 +367,7 @@ export const api = {
           throw new Error("이메일 또는 비밀번호가 올바르지 않습니다.");
         }
         const user = res[0];
-        return { user: { id: user.id, email: user.email, name: user.name, role: user.role } };
+        return { user: { id: user.id, email: user.email, name: user.name, role: user.role, isPaid: user.isPaid || 'false' } };
       } else if (isRealSupabase) {
         const { data, error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
@@ -380,6 +381,25 @@ export const api = {
     signOut: async () => {
       if (isRealSupabase) {
         await supabase.auth.signOut();
+      }
+    },
+    updatePaidStatus: async (userId, isPaidStatus = "true") => {
+      if (isSheetdbActive) {
+        await sheetdbPatch("users", "id", userId, { isPaid: isPaidStatus });
+        const res = await sheetdbSearch("users", { id: userId });
+        if (!res || res.length === 0) throw new Error("사용자를 찾을 수 없습니다.");
+        const user = res[0];
+        return { user: { id: user.id, email: user.email, name: user.name, role: user.role, isPaid: user.isPaid || 'false' } };
+      } else if (isRealSupabase) {
+        return { user: { id: userId, isPaid: isPaidStatus } };
+      } else {
+        const users = JSON.parse(localStorage.getItem('users') || '[]');
+        const index = users.findIndex(u => u.id === userId);
+        if (index === -1) throw new Error("사용자를 찾을 수 없습니다.");
+        users[index].isPaid = isPaidStatus;
+        localStorage.setItem('users', JSON.stringify(users));
+        const user = users[index];
+        return { user: { id: user.id, email: user.email, name: user.name, role: user.role, isPaid: user.isPaid || 'false' } };
       }
     }
   },
