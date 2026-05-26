@@ -395,11 +395,7 @@ const Home = ({ onNavigateToLogin }) => {
               `}</style>
             </div>
           ) : filteredHosts.length > 0 ? (
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
-              gap: '30px'
-            }}>
+            <div className="showhost-grid">
               {filteredHosts.map(host => (
                 <ShowhostCard 
                   key={host.id} 

@@ -4,7 +4,7 @@ import { Star, Award, Calendar, CircleDollarSign } from 'lucide-react';
 const ShowhostCard = ({ host, onSelect }) => {
   return (
     <div 
-      className="glass-card animate-fade-in"
+      className="glass-card host-card animate-fade-in"
       style={{
         display: 'flex',
         flexDirection: 'column',
@@ -15,7 +15,7 @@ const ShowhostCard = ({ host, onSelect }) => {
       onClick={() => onSelect(host)}
     >
       {/* Host Avatar Image Container */}
-      <div style={{ position: 'relative', width: '100%', paddingTop: '110%', overflow: 'hidden' }}>
+      <div className="host-card-img-wrapper" style={{ position: 'relative', width: '100%', paddingTop: '110%', overflow: 'hidden' }}>
         <img 
           src={host.profileImage} 
           alt={host.name}
@@ -31,7 +31,7 @@ const ShowhostCard = ({ host, onSelect }) => {
           className="host-image-hover"
         />
         {/* Category & Career Overlay Badges */}
-        <div style={{ 
+        <div className="host-card-badges" style={{ 
           position: 'absolute', 
           bottom: '12px', 
           left: '12px', 
@@ -47,9 +47,9 @@ const ShowhostCard = ({ host, onSelect }) => {
       </div>
 
       {/* Details Section */}
-      <div style={{ padding: '20px', flexGrow: 1, display: 'flex', flexDirection: 'column', gap: '12px' }}>
+      <div className="host-card-details" style={{ padding: '20px', flexGrow: 1, display: 'flex', flexDirection: 'column', gap: '12px' }}>
         {/* Name and Rating */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div className="host-card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <h3 style={{ fontSize: '1.2rem', fontWeight: 700 }}>{host.name}</h3>
           <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
             <Star size={16} fill="hsl(45, 100%, 55%)" color="hsl(45, 100%, 55%)" />
@@ -59,7 +59,7 @@ const ShowhostCard = ({ host, onSelect }) => {
         </div>
 
         {/* Bio */}
-        <p style={{ 
+        <p className="host-card-bio" style={{ 
           fontSize: '0.9rem', 
           color: 'hsl(var(--foreground-muted))',
           lineHeight: '1.4',
@@ -74,7 +74,7 @@ const ShowhostCard = ({ host, onSelect }) => {
         </p>
 
         {/* Info Rows */}
-        <div style={{ 
+        <div className="host-card-info" style={{ 
           marginTop: 'auto', 
           paddingTop: '12px', 
           borderTop: '1px solid rgba(255, 255, 255, 0.05)',
@@ -96,7 +96,7 @@ const ShowhostCard = ({ host, onSelect }) => {
       </div>
       
       {/* Bottom Button Action */}
-      <div style={{ padding: '0 20px 20px 20px' }}>
+      <div className="host-card-action" style={{ padding: '0 20px 20px 20px' }}>
         <button 
           className="btn btn-secondary" 
           style={{ width: '100%', padding: '10px', fontSize: '0.85rem' }}
