@@ -342,4 +342,8 @@ label {
     padding: 8px !important;
     font-size: 0.85rem !important;
   }
+  
+  .nav-text-hide {
+    display: none !important;
+  }
 }

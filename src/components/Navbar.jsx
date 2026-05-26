@@ -87,7 +87,7 @@ const Navbar = ({ activeTab, setActiveTab }) => {
               }}
             >
               <LayoutDashboard size={16} />
-              <span>매칭 대시보드</span>
+              <span className="nav-text-hide">매칭 대시보드</span>
             </button>
           )}
 
@@ -106,7 +106,7 @@ const Navbar = ({ activeTab, setActiveTab }) => {
               }}
             >
               <User size={16} />
-              <span>내 프로필 관리</span>
+              <span className="nav-text-hide">내 프로필 관리</span>
             </button>
           )}
 
@@ -125,7 +125,7 @@ const Navbar = ({ activeTab, setActiveTab }) => {
               }}
             >
               <Shield size={16} />
-              <span>관리자 패널</span>
+              <span className="nav-text-hide">관리자 패널</span>
             </button>
           )}
 
@@ -176,7 +176,7 @@ const Navbar = ({ activeTab, setActiveTab }) => {
                 </div>
               )}
 
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', whiteSpace: 'nowrap' }}>
                 <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>{user.name}님</span>
                 <span style={{ 
                   fontSize: '0.7rem', 
