@@ -13,6 +13,7 @@ const Home = ({ onNavigateToLogin }) => {
   const [filteredHosts, setFilteredHosts] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState('전체');
   const [searchQuery, setSearchQuery] = useState('');
+  const [sortBy, setSortBy] = useState('rating');
   const [selectedHost, setSelectedHost] = useState(null);
   const [showMatchingModal, setShowMatchingModal] = useState(false);
   const [matchingSuccess, setMatchingSuccess] = useState(false);
@@ -40,8 +41,29 @@ const Home = ({ onNavigateToLogin }) => {
       );
     }
 
-    setFilteredHosts(result);
-  }, [selectedCategory, searchQuery, hosts]);
+    // Sort Logic
+    const sorted = [...result];
+    sorted.sort((a, b) => {
+      if (sortBy === 'rating') {
+        return (b.rating || 0) - (a.rating || 0);
+      }
+      if (sortBy === 'reviews') {
+        return (b.reviews || 0) - (a.reviews || 0);
+      }
+      if (sortBy === 'career') {
+        const getYears = (c) => {
+          if (!c) return 0;
+          if (c.includes('신입')) return 0;
+          const parsed = parseInt(c.replace(/[^0-9]/g, ''), 10);
+          return isNaN(parsed) ? 0 : parsed;
+        };
+        return getYears(b.career) - getYears(a.career);
+      }
+      return 0;
+    });
+
+    setFilteredHosts(sorted);
+  }, [selectedCategory, searchQuery, sortBy, hosts]);
 
   const fetchHosts = async () => {
     setLoading(true);
@@ -226,33 +248,67 @@ const Home = ({ onNavigateToLogin }) => {
               />
             </div>
 
-            {/* Category Tabs */}
+            {/* Category Tabs & Sort Selector */}
             <div style={{ 
               display: 'flex', 
-              gap: '10px', 
-              overflowX: 'auto', 
-              paddingBottom: '5px',
-              scrollbarWidth: 'none' // Firefox
+              justifyContent: 'space-between', 
+              alignItems: 'center', 
+              flexWrap: 'wrap', 
+              gap: '16px' 
             }}>
-              {CATEGORIES.map(category => (
-                <button
-                  key={category}
-                  onClick={() => setSelectedCategory(category)}
-                  className="btn"
+              <div style={{ 
+                display: 'flex', 
+                gap: '10px', 
+                overflowX: 'auto', 
+                paddingBottom: '5px',
+                scrollbarWidth: 'none', // Firefox
+                flexGrow: 1
+              }}>
+                {CATEGORIES.map(category => (
+                  <button
+                    key={category}
+                    onClick={() => setSelectedCategory(category)}
+                    className="btn"
+                    style={{
+                      background: selectedCategory === category 
+                        ? 'linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(260 85% 60%) 100%)' 
+                        : 'rgba(255, 255, 255, 0.05)',
+                      color: selectedCategory === category ? 'white' : 'hsl(var(--foreground-muted))',
+                      padding: '8px 20px',
+                      borderRadius: '8px',
+                      fontSize: '0.85rem',
+                      whiteSpace: 'nowrap'
+                    }}
+                  >
+                    {category}
+                  </button>
+                ))}
+              </div>
+
+              {/* Sort Selector */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{ fontSize: '0.85rem', color: 'hsl(var(--foreground-muted))' }}>정렬 기준:</span>
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
                   style={{
-                    background: selectedCategory === category 
-                      ? 'linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(260 85% 60%) 100%)' 
-                      : 'rgba(255, 255, 255, 0.05)',
-                    color: selectedCategory === category ? 'white' : 'hsl(var(--foreground-muted))',
-                    padding: '8px 20px',
+                    background: 'rgba(255, 255, 255, 0.05)',
+                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                    color: 'white',
+                    padding: '8px 16px',
                     borderRadius: '8px',
                     fontSize: '0.85rem',
-                    whiteSpace: 'nowrap'
+                    outline: 'none',
+                    cursor: 'pointer',
+                    minWidth: '120px',
+                    fontFamily: 'inherit'
                   }}
                 >
-                  {category}
-                </button>
-              ))}
+                  <option value="rating" style={{ background: '#0f172a' }}>평점 높은 순</option>
+                  <option value="reviews" style={{ background: '#0f172a' }}>리뷰 많은 순</option>
+                  <option value="career" style={{ background: '#0f172a' }}>경력 높은 순</option>
+                </select>
+              </div>
             </div>
           </div>
 
