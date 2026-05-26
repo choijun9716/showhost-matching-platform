@@ -30,6 +30,25 @@ const ShowhostCard = ({ host, onSelect }) => {
           }}
           className="host-image-hover"
         />
+        {/* Recommendation Badge */}
+        {host.isRecommended && (
+          <div style={{
+            position: 'absolute',
+            top: '12px',
+            right: '12px',
+            background: 'linear-gradient(135deg, #FFD700 0%, #FFA500 100%)',
+            color: '#000',
+            fontWeight: 800,
+            fontSize: '0.75rem',
+            padding: '4px 8px',
+            borderRadius: '6px',
+            boxShadow: '0 2px 10px rgba(255, 215, 0, 0.3)',
+            zIndex: 2,
+            letterSpacing: '0.05em'
+          }}>
+            ✨ 추천
+          </div>
+        )}
         {/* Category & Career Overlay Badges */}
         <div className="host-card-badges" style={{ 
           position: 'absolute', 

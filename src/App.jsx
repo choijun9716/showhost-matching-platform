@@ -5,6 +5,7 @@ import Home from './pages/Home';
 import Login from './pages/Login';
 import ProfileEdit from './pages/ProfileEdit';
 import Dashboard from './pages/Dashboard';
+import Admin from './pages/Admin';
 
 function AppContent() {
   const [activeTab, setActiveTab] = useState('home');
@@ -20,6 +21,8 @@ function AppContent() {
   // Render Page based on active tab
   const renderPage = () => {
     switch (activeTab) {
+      case 'admin':
+        return <Admin />;
       case 'dashboard':
         return <Dashboard />;
       case 'profile-edit':

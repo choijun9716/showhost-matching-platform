@@ -86,7 +86,7 @@ const Home = ({ onNavigateToLogin }) => {
   };
 
   useEffect(() => {
-    let result = hosts;
+    let result = hosts.filter(h => !h.isHidden);
 
     // Category Filter (Multi-select)
     if (selectedCategories.length > 0) {
@@ -120,6 +120,14 @@ const Home = ({ onNavigateToLogin }) => {
     // Sort Logic
     const sorted = [...result];
     sorted.sort((a, b) => {
+      // 1. displayOrder 내림차순 정렬
+      const orderA = a.displayOrder || 0;
+      const orderB = b.displayOrder || 0;
+      if (orderA !== orderB) {
+        return orderB - orderA;
+      }
+
+      // 2. 금액 정렬
       const getMinPay = (payStr) => {
         if (!payStr) return 0;
         const match = payStr.match(/([0-9]+)만/);

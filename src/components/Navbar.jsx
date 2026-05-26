@@ -1,6 +1,6 @@
 import React from 'react';
 import { useAuth } from '../context/AuthContext';
-import { Sparkles, LogOut, User, LayoutDashboard, Search, FileText } from 'lucide-react';
+import { Sparkles, LogOut, User, LayoutDashboard, Search, FileText, Shield } from 'lucide-react';
 
 const Navbar = ({ activeTab, setActiveTab }) => {
   const { user, logout } = useAuth();
@@ -121,6 +121,25 @@ const Navbar = ({ activeTab, setActiveTab }) => {
             </button>
           )}
 
+          {user && user.role === 'admin' && (
+            <button 
+              onClick={() => setActiveTab('admin')}
+              className="btn"
+              style={{
+                background: activeTab === 'admin' ? 'rgba(255, 255, 255, 0.08)' : 'transparent',
+                color: activeTab === 'admin' ? '#white' : 'hsl(var(--foreground-muted))',
+                padding: '8px 16px',
+                fontSize: '0.9rem',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px'
+              }}
+            >
+              <Shield size={16} />
+              <span>관리자 패널</span>
+            </button>
+          )}
+
           {/* Divider */}
           <div style={{ height: '20px', width: '1px', background: 'rgba(255, 255, 255, 0.1)', margin: '0 8px' }} />
 
@@ -172,11 +191,11 @@ const Navbar = ({ activeTab, setActiveTab }) => {
                 <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>{user.name}님</span>
                 <span style={{ 
                   fontSize: '0.7rem', 
-                  color: user.role === 'showhost' ? '#ffffff' : 'hsl(var(--primary-hover))',
+                  color: user.role === 'showhost' ? '#ffffff' : (user.role === 'admin' ? '#f59e0b' : 'hsl(var(--primary-hover))'),
                   fontWeight: 700,
                   textTransform: 'uppercase'
                 }}>
-                  {user.role === 'showhost' ? '쇼호스트' : '브랜드 담당자'}
+                  {user.role === 'showhost' ? '쇼호스트' : (user.role === 'admin' ? '관리자' : '브랜드 담당자')}
                 </span>
               </div>
               <button 

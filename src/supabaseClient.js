@@ -153,6 +153,7 @@ const INITIAL_MOCK_PROFILES = [
 export const initMockDatabase = () => {
   if (!localStorage.getItem('users')) {
     localStorage.setItem('users', JSON.stringify([
+      { id: 'admin-1', email: 'admin@test.com', password: 'password123', name: '관리자', role: 'admin', isPaid: 'true' },
       { id: 'client-1', email: 'client@test.com', password: 'password123', name: '테스트 브랜드', role: 'client', isPaid: 'false' },
       ...INITIAL_MOCK_PROFILES.map(host => ({
         id: host.id,
@@ -165,7 +166,13 @@ export const initMockDatabase = () => {
     ]));
   }
   if (!localStorage.getItem('profiles')) {
-    localStorage.setItem('profiles', JSON.stringify(INITIAL_MOCK_PROFILES));
+    const initializedProfiles = INITIAL_MOCK_PROFILES.map(p => ({
+      ...p,
+      isHidden: false,
+      displayOrder: 0,
+      isRecommended: false
+    }));
+    localStorage.setItem('profiles', JSON.stringify(initializedProfiles));
   }
   if (!localStorage.getItem('matches')) {
     localStorage.setItem('matches', JSON.stringify([
@@ -216,7 +223,10 @@ export const mockDb = {
         detail: '',
         time: '상시 협의',
         rating: 5.0,
-        reviews: 0
+        reviews: 0,
+        isHidden: false,
+        displayOrder: 0,
+        isRecommended: false
       };
       profiles.push(newProfile);
       localStorage.setItem('profiles', JSON.stringify(profiles));
@@ -267,6 +277,14 @@ export const mockDb = {
       }
     }
     return profiles[index];
+  },
+
+  deleteProfile: async (id) => {
+    initMockDatabase();
+    const profiles = JSON.parse(localStorage.getItem('profiles') || '[]');
+    const filtered = profiles.filter(p => p.id !== id);
+    localStorage.setItem('profiles', JSON.stringify(filtered));
+    return { success: true };
   },
 
   // 매칭 기능
@@ -456,6 +474,18 @@ export const api = {
         return updated;
       } else {
         return mockDb.updateProfile(id, data);
+      }
+    },
+    delete: async (id) => {
+      if (isSheetdbActive) {
+        await sheetdbDelete("profiles", "id", id);
+        return { success: true };
+      } else if (isRealSupabase) {
+        const { error } = await supabase.from('profiles').delete().eq('id', id);
+        if (error) throw error;
+        return { success: true };
+      } else {
+        return mockDb.deleteProfile(id);
       }
     }
   },
