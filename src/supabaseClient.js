@@ -371,7 +371,11 @@ export const mockDb = {
 
   getAllUsers: async () => {
     initMockDatabase();
-    return JSON.parse(localStorage.getItem('users') || '[]');
+    const users = JSON.parse(localStorage.getItem('users') || '[]');
+    // 브랜드(client) 계정만 반환
+    return users
+      .filter(u => u.role === 'client')
+      .map(u => ({ ...u, points: parseInt(u.points) || 0 }));
   },
 
   // 매칭 기능
@@ -435,7 +439,7 @@ export const api = {
         
         const newUserId = "user-" + Date.now();
         // users 테이블에 추가
-        await sheetdbPost("users", [{ id: newUserId, email, password, name, role, isPaid: "false" }]);
+        await sheetdbPost("users", [{ id: newUserId, email, password, name, role, isPaid: "false", points: 0 }]);
         
         // 쇼호스트일 경우 profiles 테이블에도 초기 데이터 생성
         if (role === "showhost") {
@@ -460,7 +464,7 @@ export const api = {
             reviews: 0
           }]);
         }
-        return { user: { id: newUserId, email, name, role, isPaid: "false" } };
+        return { user: { id: newUserId, email, name, role, isPaid: "false", points: 0 } };
       } else if (isRealSupabase) {
         const { data, error } = await supabase.auth.signUp({ email, password, options: { data: { name, role } } });
         if (error) throw error;
@@ -476,7 +480,7 @@ export const api = {
           throw new Error("이메일 또는 비밀번호가 올바르지 않습니다.");
         }
         const user = res[0];
-        return { user: { id: user.id, email: user.email, name: user.name, role: user.role, isPaid: user.isPaid || 'false' } };
+        return { user: { id: user.id, email: user.email, name: user.name, role: user.role, isPaid: user.isPaid || 'false', points: parseInt(user.points) || 0 } };
       } else if (isRealSupabase) {
         const { data, error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
@@ -615,13 +619,35 @@ export const api = {
   },
   points: {
     get: async (userId) => {
-      // SheetDB/Supabase는 추후 확장, 현재는 mockDb 사용
+      if (isSheetdbActive) {
+        const res = await sheetdbSearch("users", { id: userId });
+        if (!res || res.length === 0) return 0;
+        return parseInt(res[0].points) || 0;
+      }
       return mockDb.getPoints(userId);
     },
     charge: async (userId, amount, memo) => {
+      if (isSheetdbActive) {
+        // SheetDB에서 현재 크레딧 조회 후 충전
+        const res = await sheetdbSearch("users", { id: userId });
+        if (!res || res.length === 0) throw new Error("사용자를 찾을 수 없습니다.");
+        const before = parseInt(res[0].points) || 0;
+        const newTotal = before + parseInt(amount);
+        await sheetdbPatch("users", "id", userId, { points: newTotal });
+        return newTotal;
+      }
       return mockDb.chargePoints(userId, amount, memo);
     },
-    deduct: async (userId, amount, memo) => {
+    deduct: async (userId, amount = 10, memo) => {
+      if (isSheetdbActive) {
+        const res = await sheetdbSearch("users", { id: userId });
+        if (!res || res.length === 0) throw new Error("사용자를 찾을 수 없습니다.");
+        const before = parseInt(res[0].points) || 0;
+        if (before < amount) throw new Error(`크레딧이 부족합니다. (보유: ${before}C, 필요: ${amount}C)`);
+        const newTotal = before - parseInt(amount);
+        await sheetdbPatch("users", "id", userId, { points: newTotal });
+        return newTotal;
+      }
       return mockDb.deductPoints(userId, amount, memo);
     },
     history: async (userId) => {
@@ -629,23 +655,34 @@ export const api = {
     }
   },
   users: {
+    // 브랜드(client) 계정만 반환
     list: async () => {
+      if (isSheetdbActive) {
+        const allUsers = await sheetdbGet("users");
+        return allUsers
+          .filter(u => u.role === 'client')
+          .map(u => ({ ...u, points: parseInt(u.points) || 0 }));
+      }
       return mockDb.getAllUsers();
     },
     chargePoints: async (userId, amount, memo) => {
       if (isSheetdbActive) {
-        // SheetDB 지원 시 확장
-        return mockDb.chargePoints(userId, amount, memo);
-      } else {
-        return mockDb.chargePoints(userId, amount, memo);
+        // SheetDB 크레딧 충전
+        const res = await sheetdbSearch("users", { id: userId });
+        if (!res || res.length === 0) throw new Error("사용자를 찾을 수 없습니다.");
+        const before = parseInt(res[0].points) || 0;
+        const newTotal = before + parseInt(amount);
+        await sheetdbPatch("users", "id", userId, { points: newTotal });
+        return newTotal;
       }
+      return mockDb.chargePoints(userId, amount, memo);
     }
   },
   matches: {
     request: async (clientId, clientName, hostId, hostName, message) => {
       if (isSheetdbActive) {
-        // 크레딧 차감 먼저 (10크레딧)
-        await mockDb.deductPoints(clientId, 10, `${hostName}에게 매칭 신청`);
+        // SheetDB 크레딧 차감 (10크레딧) - SheetDB에 직접 반영
+        await api.points.deduct(clientId, 10, `${hostName}에게 매칭 신청`);
         const newMatchId = "match-" + Date.now();
         const createdAt = new Date().toISOString();
         const newMatch = {
@@ -662,8 +699,9 @@ export const api = {
         return newMatch;
       } else if (isRealSupabase) {
         // 크레딧 차감 먼저 (10크레딧)
-        await mockDb.deductPoints(clientId, 10, `${hostName}에게 매칭 신청`);
+        await api.points.deduct(clientId, 10, `${hostName}에게 매칭 신청`);
         const { data, error } = await supabase.from('matches').insert([{
+
           client_id: clientId,
           client_name: clientName,
           host_id: hostId,
