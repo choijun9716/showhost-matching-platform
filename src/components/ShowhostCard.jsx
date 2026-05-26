@@ -113,14 +113,14 @@ const ShowhostCard = ({ host, onSelect }) => {
       {/* Bottom Button Action */}
       <div className="host-card-action" style={{ padding: '0 20px 20px 20px' }}>
         <button 
-          className="btn btn-secondary" 
+          className="btn btn-premium-glass" 
           style={{ width: '100%', padding: '10px', fontSize: '0.85rem' }}
           onClick={(e) => {
             e.stopPropagation();
             onSelect(host);
           }}
         >
-          상세 프로필 & 매칭
+          상세프로필 확인
         </button>
       </div>
     </div>

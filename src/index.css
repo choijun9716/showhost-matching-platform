@@ -190,6 +190,20 @@ label {
   transform: translateY(-2px);
 }
 
+.btn-premium-glass {
+  background: rgba(255, 255, 255, 0.05);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  transition: all 0.3s ease;
+}
+
+.btn-premium-glass:hover {
+  background: linear-gradient(135deg, rgba(110, 80, 250, 0.3) 0%, rgba(0, 242, 254, 0.3) 100%);
+  border-color: rgba(255, 255, 255, 0.4);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(0, 242, 254, 0.2);
+}
+
 .btn-accent {
   background: #ffffff;
   color: #0d0d0d;
