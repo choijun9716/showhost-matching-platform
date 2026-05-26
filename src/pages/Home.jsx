@@ -338,6 +338,14 @@ const Home = ({ onNavigateToLogin }) => {
               >
                 검색
               </button>
+              <button 
+                onClick={() => { setSearchInput(''); setSearchQuery(''); }}
+                className="btn btn-secondary"
+                style={{ height: '50px', borderRadius: '12px', padding: '0 16px', whiteSpace: 'nowrap' }}
+                title="검색 초기화"
+              >
+                초기화
+              </button>
             </div>
 
             {/* Category Tabs & Filters */}

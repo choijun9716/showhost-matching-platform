@@ -28,6 +28,7 @@ const ProfileEdit = () => {
   const [birth, setBirth] = useState('');
 
   const [loading, setLoading] = useState(true);
+  const [imageLoading, setImageLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
@@ -119,7 +120,7 @@ const ProfileEdit = () => {
         return;
       }
       
-      setLoading(true);
+      setImageLoading(true);
       setError('');
       try {
         const compressedBase64 = await compressImage(file, 250, 250, 0.5);
@@ -128,7 +129,7 @@ const ProfileEdit = () => {
         console.error('Image compression error:', err);
         setError('이미지 압축 처리 중 오류가 발생했습니다.');
       } finally {
-        setLoading(false);
+        setImageLoading(false);
       }
     }
   };
@@ -277,7 +278,18 @@ const ProfileEdit = () => {
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}>
             <label style={{ alignSelf: 'flex-start' }}>프로필 사진</label>
             <div style={{ position: 'relative', width: '150px', height: '150px', borderRadius: '16px', overflow: 'hidden', border: '1px solid var(--glass-border)' }}>
-              {avatar ? (
+              {imageLoading ? (
+                <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.3)', color: '#ffffff' }}>
+                  <div style={{
+                    border: '2px solid rgba(255, 255, 255, 0.3)',
+                    borderTop: '2px solid #ffffff',
+                    borderRadius: '50%',
+                    width: '24px',
+                    height: '24px',
+                    animation: 'spin 1s linear infinite'
+                  }} />
+                </div>
+              ) : avatar ? (
                 <img src={avatar} alt="Profile preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
               ) : (
                 <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.3)', color: 'hsl(var(--foreground-muted))' }}>
