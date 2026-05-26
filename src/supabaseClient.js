@@ -178,6 +178,31 @@ export const initMockDatabase = () => {
         points: 0
       }))
     ]));
+  } else {
+    // ✅ 마이그레이션: 기존 users에 points 필드가 없으면 자동 추가
+    const users = JSON.parse(localStorage.getItem('users') || '[]');
+    let migrated = false;
+    const updatedUsers = users.map(u => {
+      if (u.points === undefined || u.points === null || u.points === '') {
+        migrated = true;
+        // client-1 테스트 계정은 기본 30크레딧 지급
+        const defaultPoints = (u.id === 'client-1' || u.role === 'client') ? 30 : 0;
+        return { ...u, points: defaultPoints };
+      }
+      return u;
+    });
+    if (migrated) {
+      localStorage.setItem('users', JSON.stringify(updatedUsers));
+      // currentUser도 재동기화
+      const savedUser = localStorage.getItem('currentUser');
+      if (savedUser) {
+        const parsed = JSON.parse(savedUser);
+        const fresh = updatedUsers.find(u => u.id === parsed.id);
+        if (fresh && (parsed.points === undefined || parsed.points === null)) {
+          localStorage.setItem('currentUser', JSON.stringify({ ...parsed, points: parseInt(fresh.points) || 0 }));
+        }
+      }
+    }
   }
   if (!localStorage.getItem('pointHistory')) {
     localStorage.setItem('pointHistory', JSON.stringify([]));
@@ -206,6 +231,7 @@ export const initMockDatabase = () => {
     ]));
   }
 };
+
 
 // Mock DB 헬퍼 메서드
 export const mockDb = {
