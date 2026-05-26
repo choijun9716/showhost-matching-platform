@@ -161,12 +161,8 @@ const PortfolioView = ({ host, onClose, onMatchRequest }) => {
                     <span className="stat-value">{birth}</span>
                   </div>
                   <div className="stat-item">
-                    <span className="stat-label">소속사</span>
-                    <span className="stat-value">{company}</span>
-                  </div>
-                  <div className="stat-item">
-                    <span className="stat-label">학력</span>
-                    <span className="stat-value">{education}</span>
+                    <span className="stat-label">희망 페이</span>
+                    <span className="stat-value">{host.pay || '정보없음'}</span>
                   </div>
                   <div className="stat-item">
                     <span className="stat-label">키</span>
@@ -175,10 +171,6 @@ const PortfolioView = ({ host, onClose, onMatchRequest }) => {
                   <div className="stat-item">
                     <span className="stat-label">몸무게</span>
                     <span className="stat-value">{host.weight || '정보없음'}</span>
-                  </div>
-                  <div className="stat-item">
-                    <span className="stat-label">발사이즈</span>
-                    <span className="stat-value">{shoeSize}</span>
                   </div>
                 </div>
               </div>
@@ -469,7 +461,7 @@ const PortfolioView = ({ host, onClose, onMatchRequest }) => {
         /* 대표정보 그리드 */
         .stats-grid {
           display: grid;
-          grid-template-columns: repeat(3, 1fr);
+          grid-template-columns: repeat(2, 1fr);
           gap: 12px;
         }
 
