@@ -14,6 +14,7 @@ const Home = ({ onNavigateToLogin }) => {
   const [selectedCategories, setSelectedCategories] = useState([]); // 중복 선택을 위한 배열
   const [minPayFilter, setMinPayFilter] = useState(0); // 금액별 필터 (단위: 만원)
   const [searchQuery, setSearchQuery] = useState('');
+  const [sortBy, setSortBy] = useState('pay_high');
   const [selectedHost, setSelectedHost] = useState(null);
   const [showMatchingModal, setShowMatchingModal] = useState(false);
   const [matchingSuccess, setMatchingSuccess] = useState(false);
@@ -112,8 +113,26 @@ const Home = ({ onNavigateToLogin }) => {
       );
     }
 
-    setFilteredHosts(result);
-  }, [selectedCategories, minPayFilter, searchQuery, hosts]);
+    // Sort Logic
+    const sorted = [...result];
+    sorted.sort((a, b) => {
+      const getMinPay = (payStr) => {
+        if (!payStr) return 0;
+        const match = payStr.match(/([0-9]+)만/);
+        return match ? parseInt(match[1], 10) : 0;
+      };
+
+      if (sortBy === 'pay_high') {
+        return getMinPay(b.pay) - getMinPay(a.pay);
+      }
+      if (sortBy === 'pay_low') {
+        return getMinPay(a.pay) - getMinPay(b.pay);
+      }
+      return 0;
+    });
+
+    setFilteredHosts(sorted);
+  }, [selectedCategories, minPayFilter, searchQuery, sortBy, hosts]);
 
   const fetchHosts = async () => {
     setLoading(true);
@@ -372,7 +391,27 @@ const Home = ({ onNavigateToLogin }) => {
                   </select>
                 </div>
 
-
+                {/* Sort Selector */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span style={{ fontSize: '0.85rem', color: 'hsl(var(--foreground-muted))' }}>금액 정렬:</span>
+                  <select
+                    value={sortBy}
+                    onChange={(e) => setSortBy(e.target.value)}
+                    style={{
+                      background: 'rgba(255, 255, 255, 0.05)',
+                      border: '1px solid rgba(255, 255, 255, 0.1)',
+                      color: 'white',
+                      padding: '8px 16px',
+                      borderRadius: '8px',
+                      fontSize: '0.85rem',
+                      outline: 'none',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    <option value="pay_high" style={{ background: '#0f172a' }}>금액 높은 순</option>
+                    <option value="pay_low" style={{ background: '#0f172a' }}>금액 낮은 순</option>
+                  </select>
+                </div>
               </div>
             </div>
           </div>
