@@ -133,8 +133,12 @@ const Home = ({ onNavigateToLogin }) => {
 
     // Search Query Filter
     if (searchQuery.trim() !== '') {
-      const query = searchQuery.toLowerCase();
-      result = result.filter(h => h.name.toLowerCase().includes(query));
+      const query = searchQuery.toLowerCase().replace(/\s+/g, '');
+      result = result.filter(h => {
+        if (!h.name) return false;
+        const normalizedName = h.name.toLowerCase().replace(/\s+/g, '');
+        return normalizedName.includes(query);
+      });
     }
 
     // Sort Logic
