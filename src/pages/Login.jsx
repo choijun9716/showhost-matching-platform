@@ -84,7 +84,7 @@ const Login = ({ onAuthSuccess }) => {
           width: '180px',
           height: '180px',
           borderRadius: '50%',
-          background: 'radial-gradient(circle, hsl(var(--primary) / 0.25) 0%, transparent 70%)',
+          background: 'radial-gradient(circle, rgba(255, 255, 255, 0.08) 0%, transparent 70%)',
           zIndex: 0,
           pointerEvents: 'none'
         }} />
@@ -95,7 +95,7 @@ const Login = ({ onAuthSuccess }) => {
           width: '160px',
           height: '160px',
           borderRadius: '50%',
-          background: 'radial-gradient(circle, hsl(var(--secondary) / 0.15) 0%, transparent 70%)',
+          background: 'radial-gradient(circle, rgba(255, 255, 255, 0.04) 0%, transparent 70%)',
           zIndex: 0,
           pointerEvents: 'none'
         }} />
@@ -111,10 +111,10 @@ const Login = ({ onAuthSuccess }) => {
               display: 'inline-flex',
               alignItems: 'center',
               justifyContent: 'center',
-              boxShadow: '0 4px 15px rgba(110, 80, 250, 0.4)',
+              boxShadow: '0 4px 15px rgba(255, 255, 255, 0.1)',
               marginBottom: '16px'
             }}>
-              <Sparkles size={22} color="white" />
+              <Sparkles size={22} color="black" />
             </div>
             <h2 style={{ fontSize: '1.75rem', fontWeight: 800, marginBottom: '6px' }}>
               {isLoginView ? 'Welcome Back' : 'Get Started'}
@@ -235,7 +235,6 @@ const Login = ({ onAuthSuccess }) => {
                 </button>
               </div>
             </div>
-
             {/* Role Toggle Selector (Register View Only) */}
             {!isLoginView && (
               <div>
@@ -251,8 +250,8 @@ const Login = ({ onAuthSuccess }) => {
                       flex: 1,
                       padding: '16px',
                       borderRadius: '10px',
-                      border: `1px solid ${role === 'client' ? 'hsl(var(--primary))' : 'rgba(255, 255, 255, 0.05)'}`,
-                      background: role === 'client' ? 'rgba(110, 80, 250, 0.08)' : 'rgba(13, 17, 28, 0.4)',
+                      border: `1px solid ${role === 'client' ? '#ffffff' : 'rgba(255, 255, 255, 0.05)'}`,
+                      background: role === 'client' ? 'rgba(255, 255, 255, 0.08)' : 'rgba(13, 17, 28, 0.4)',
                       cursor: 'pointer',
                       textAlign: 'center',
                       transition: 'all 0.2s ease',
@@ -262,7 +261,7 @@ const Login = ({ onAuthSuccess }) => {
                       gap: '8px'
                     }}
                   >
-                    <Briefcase size={20} color={role === 'client' ? 'hsl(var(--primary-hover))' : 'hsl(var(--foreground-muted))'} />
+                    <Briefcase size={20} color={role === 'client' ? '#ffffff' : 'hsl(var(--foreground-muted))'} />
                     <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>브랜드 담당자</span>
                   </div>
 
@@ -273,8 +272,8 @@ const Login = ({ onAuthSuccess }) => {
                       flex: 1,
                       padding: '16px',
                       borderRadius: '10px',
-                      border: `1px solid ${role === 'showhost' ? 'hsl(var(--secondary))' : 'rgba(255, 255, 255, 0.05)'}`,
-                      background: role === 'showhost' ? 'rgba(0, 242, 254, 0.08)' : 'rgba(13, 17, 28, 0.4)',
+                      border: `1px solid ${role === 'showhost' ? '#ffffff' : 'rgba(255, 255, 255, 0.05)'}`,
+                      background: role === 'showhost' ? 'rgba(255, 255, 255, 0.08)' : 'rgba(13, 17, 28, 0.4)',
                       cursor: 'pointer',
                       textAlign: 'center',
                       transition: 'all 0.2s ease',
@@ -284,7 +283,7 @@ const Login = ({ onAuthSuccess }) => {
                       gap: '8px'
                     }}
                   >
-                    <User size={20} color={role === 'showhost' ? '#00f2fe' : 'hsl(var(--foreground-muted))'} />
+                    <User size={20} color={role === 'showhost' ? '#ffffff' : 'hsl(var(--foreground-muted))'} />
                     <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>쇼호스트</span>
                   </div>
                 </div>

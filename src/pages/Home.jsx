@@ -158,11 +158,12 @@ const Home = ({ onNavigateToLogin }) => {
           top: '30px',
           left: '50%',
           transform: 'translateX(-50%)',
-          background: 'linear-gradient(135deg, #00f2fe 0%, #4facfe 100%)',
-          color: '#0b0f19',
+          background: '#ffffff',
+          color: '#0d0d0d',
           padding: '16px 28px',
           borderRadius: '12px',
-          boxShadow: '0 10px 30px rgba(0, 242, 254, 0.4)',
+          boxShadow: '0 10px 30px rgba(255, 255, 255, 0.15)',
+          border: '1px solid rgba(0, 0, 0, 0.05)',
           zIndex: 1100,
           display: 'flex',
           alignItems: 'center',
@@ -563,7 +564,7 @@ const Home = ({ onNavigateToLogin }) => {
                 {(selectedHost.broadcastLink || selectedHost.portfolio) && (
                    <div>
                      <h3 style={{ fontSize: '1.25rem', marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                       <Video size={18} color="hsl(var(--secondary))" />
+                       <Video size={18} color="#ffffff" />
                        <span>대표 방송 & 포트폴리오</span>
                      </h3>
                      

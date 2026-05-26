@@ -158,7 +158,7 @@ const Navbar = ({ activeTab, setActiveTab }) => {
                     cursor: 'pointer'
                   }}
                 >
-                  <Sparkles size={12} color="#00f2fe" />
+                  <Sparkles size={12} color="#ffffff" />
                   <span>멤버십 결제 (1.5만)</span>
                 </button>
               )}
@@ -171,8 +171,8 @@ const Navbar = ({ activeTab, setActiveTab }) => {
                     borderRadius: '6px',
                     fontSize: '0.65rem',
                     fontWeight: 800,
-                    background: 'linear-gradient(135deg, #00f2fe 0%, #4facfe 100%)',
-                    color: '#0b0f19',
+                    background: 'linear-gradient(135deg, #ffffff 0%, #cccccc 100%)',
+                    color: '#0d0d0d',
                     letterSpacing: '0.05em'
                   }}
                 >
@@ -184,7 +184,7 @@ const Navbar = ({ activeTab, setActiveTab }) => {
                 <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>{user.name}님</span>
                 <span style={{ 
                   fontSize: '0.7rem', 
-                  color: user.role === 'showhost' ? '#00f2fe' : 'hsl(var(--primary-hover))',
+                  color: user.role === 'showhost' ? '#ffffff' : 'hsl(var(--primary-hover))',
                   fontWeight: 700,
                   textTransform: 'uppercase'
                 }}>

@@ -85,11 +85,11 @@ const ShowhostCard = ({ host, onSelect }) => {
           color: 'hsl(var(--foreground-muted))'
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <CircleDollarSign size={14} color="hsl(var(--secondary))" />
+            <CircleDollarSign size={14} color="#ffffff" />
             <span>{host.pay}</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <Calendar size={14} color="hsl(var(--primary-hover))" />
+            <Calendar size={14} color="#ffffff" />
             <span>{host.time}</span>
           </div>
         </div>
