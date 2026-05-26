@@ -39,8 +39,8 @@ const ShowhostCard = ({ host, onSelect }) => {
           gap: '6px',
           flexWrap: 'wrap'
         }}>
-          <span className="badge badge-cyan">{host.category}</span>
-          <span className="badge" style={{ background: 'rgba(0, 0, 0, 0.6)', color: 'white', borderColor: 'rgba(255, 255, 255, 0.1)' }}>
+          <span className="badge" style={{ background: '#000000', color: 'white', borderColor: 'rgba(255, 255, 255, 0.15)' }}>{host.category}</span>
+          <span className="badge" style={{ background: '#000000', color: 'white', borderColor: 'rgba(255, 255, 255, 0.15)' }}>
             경력 {host.career}
           </span>
         </div>

@@ -15,7 +15,7 @@ const Navbar = ({ activeTab, setActiveTab }) => {
     tossPayments.requestPayment('카드', {
       amount: 15000,
       orderId: 'order-' + Date.now(),
-      orderName: 'SHOWLINK 프리미엄 멤버십 (포트폴리오 무제한 열람)',
+      orderName: 'SHOWLAB 프리미엄 멤버십 (포트폴리오 무제한 열람)',
       customerName: user ? user.name : '브랜드 담당자',
       successUrl: window.location.origin + window.location.pathname + '?payment=success',
       failUrl: window.location.origin + window.location.pathname + '?payment=fail',
@@ -72,7 +72,7 @@ const Navbar = ({ activeTab, setActiveTab }) => {
             fontFamily: 'Outfit, sans-serif',
             letterSpacing: '-0.03em'
           }}>
-            SHOW<span className="text-gradient-cyan">LINK</span>
+            SHOW<span className="text-gradient-cyan">LAB</span>
           </span>
         </div>
 

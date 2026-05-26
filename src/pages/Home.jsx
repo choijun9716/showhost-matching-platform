@@ -71,7 +71,7 @@ const Home = ({ onNavigateToLogin }) => {
     tossPayments.requestPayment('카드', {
       amount: 15000,
       orderId: 'order-' + Date.now(),
-      orderName: 'SHOWLINK 프리미엄 멤버십 (포트폴리오 무제한 열람)',
+      orderName: 'SHOWLAB 프리미엄 멤버십 (포트폴리오 무제한 열람)',
       customerName: user.name || '브랜드 담당자',
       successUrl: window.location.origin + window.location.pathname + '?payment=success',
       failUrl: window.location.origin + window.location.pathname + '?payment=fail',
@@ -462,11 +462,11 @@ const Home = ({ onNavigateToLogin }) => {
                 />
                 <h2 style={{ fontSize: '1.8rem', fontWeight: 800, marginBottom: '6px' }}>{selectedHost.name}</h2>
                 <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', marginBottom: '12px', flexWrap: 'wrap' }}>
-                  <span className="badge badge-cyan">{selectedHost.category}</span>
-                  <span className="badge">경력 {selectedHost.career}</span>
-                  {selectedHost.gender && <span className="badge" style={{ background: 'rgba(255,255,255,0.05)', color: 'white', borderColor: 'rgba(255,255,255,0.1)' }}>{selectedHost.gender}</span>}
-                  {selectedHost.height && <span className="badge" style={{ background: 'rgba(255,255,255,0.05)', color: 'white', borderColor: 'rgba(255,255,255,0.1)' }}>{selectedHost.height}</span>}
-                  {selectedHost.weight && <span className="badge" style={{ background: 'rgba(255,255,255,0.05)', color: 'white', borderColor: 'rgba(255,255,255,0.1)' }}>{selectedHost.weight}</span>}
+                  <span className="badge" style={{ background: '#000000', color: 'white', borderColor: 'rgba(255, 255, 255, 0.15)' }}>{selectedHost.category}</span>
+                  <span className="badge" style={{ background: '#000000', color: 'white', borderColor: 'rgba(255, 255, 255, 0.15)' }}>경력 {selectedHost.career}</span>
+                  {selectedHost.gender && <span className="badge" style={{ background: '#000000', color: 'white', borderColor: 'rgba(255, 255, 255, 0.15)' }}>{selectedHost.gender}</span>}
+                  {selectedHost.height && <span className="badge" style={{ background: '#000000', color: 'white', borderColor: 'rgba(255, 255, 255, 0.15)' }}>{selectedHost.height}</span>}
+                  {selectedHost.weight && <span className="badge" style={{ background: '#000000', color: 'white', borderColor: 'rgba(255, 255, 255, 0.15)' }}>{selectedHost.weight}</span>}
                 </div>
                 
                 {/* Rating Banner */}

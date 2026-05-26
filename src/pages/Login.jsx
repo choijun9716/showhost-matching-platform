@@ -121,8 +121,8 @@ const Login = ({ onAuthSuccess }) => {
             </h2>
             <p style={{ color: 'hsl(var(--foreground-muted))', fontSize: '0.9rem' }}>
               {isLoginView 
-                ? '쇼링크에 로그인하여 매칭을 이어가세요' 
-                : '쇼링크 크루가 되어 더 많은 기회를 연결해보세요'}
+                ? 'SHOWLAB에 로그인하여 매칭을 이어가세요' 
+                : 'SHOWLAB 크루가 되어 더 많은 기회를 연결해보세요'}
             </p>
           </div>
 

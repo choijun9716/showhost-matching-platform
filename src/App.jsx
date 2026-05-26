@@ -53,7 +53,7 @@ function AppContent() {
         marginTop: 'auto'
       }}>
         <div className="container">
-          <p>© {new Date().getFullYear()} SHOWLINK. All rights reserved. Premium Showhost Live Commerce Matchmaking Hub.</p>
+          <p>© {new Date().getFullYear()} SHOWLAB. All rights reserved. Premium Showhost Live Commerce Matchmaking Hub.</p>
         </div>
       </footer>
     </div>
