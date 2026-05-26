@@ -56,6 +56,18 @@ const Home = ({ onNavigateToLogin }) => {
     }
   }, [user]);
 
+  // URL Query 'hostId' Handler
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const hostId = params.get('hostId');
+    if (hostId && hosts.length > 0) {
+      const target = hosts.find(h => h.id === hostId || h.email === hostId);
+      if (target) {
+        setSelectedHost(target);
+      }
+    }
+  }, [hosts]);
+
   // Handle Toss Payments Popup Call
   const handleTossPayment = () => {
     if (!user) {
@@ -176,32 +188,8 @@ const Home = ({ onNavigateToLogin }) => {
   };
 
   return (
-    <div className="container animate-fade-in" style={{ paddingBottom: '80px' }}>
-      
-      {/* Success Notification for Matching */}
-      {matchingSuccess && (
-        <div style={{
-          position: 'fixed',
-          top: '30px',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          background: '#ffffff',
-          color: '#0d0d0d',
-          padding: '16px 28px',
-          borderRadius: '12px',
-          boxShadow: '0 10px 30px rgba(255, 255, 255, 0.15)',
-          border: '1px solid rgba(0, 0, 0, 0.05)',
-          zIndex: 1100,
-          display: 'flex',
-          alignItems: 'center',
-          gap: '12px',
-          fontWeight: 700,
-          animation: 'scaleIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)'
-        }}>
-          <CheckCircle size={20} />
-          <span>매칭 제안서가 성공적으로 발송되었습니다!</span>
-        </div>
-      )}
+    <>
+      <div className="container animate-fade-in" style={{ paddingBottom: '80px' }}>
 
       {/* Main Layout (Split View when Showhost is Selected) */}
       {!selectedHost ? (
@@ -486,6 +474,33 @@ const Home = ({ onNavigateToLogin }) => {
         />
       )}
 
+      </div>
+
+      {/* Success Notification for Matching */}
+      {matchingSuccess && (
+        <div style={{
+          position: 'fixed',
+          top: '30px',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          background: '#ffffff',
+          color: '#0d0d0d',
+          padding: '16px 28px',
+          borderRadius: '12px',
+          boxShadow: '0 10px 30px rgba(255, 255, 255, 0.15)',
+          border: '1px solid rgba(0, 0, 0, 0.05)',
+          zIndex: 1100,
+          display: 'flex',
+          alignItems: 'center',
+          gap: '12px',
+          fontWeight: 700,
+          animation: 'scaleIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)'
+        }}>
+          <CheckCircle size={20} />
+          <span>매칭 제안서가 성공적으로 발송되었습니다!</span>
+        </div>
+      )}
+
       {/* Matching Form Modal Overlay */}
       {showMatchingModal && selectedHost && (
         <MatchingModal 
@@ -495,7 +510,7 @@ const Home = ({ onNavigateToLogin }) => {
           onNavigateToLogin={onNavigateToLogin}
         />
       )}
-    </div>
+    </>
   );
 };
 
