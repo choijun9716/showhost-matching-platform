@@ -90,7 +90,11 @@ const Home = ({ onNavigateToLogin }) => {
 
     // Category Filter (Multi-select)
     if (selectedCategories.length > 0) {
-      result = result.filter(h => selectedCategories.includes(h.category));
+      result = result.filter(h => {
+        if (!h.category) return false;
+        const hostCats = h.category.split(',').map(c => c.trim());
+        return selectedCategories.some(selected => hostCats.includes(selected));
+      });
     }
 
     // Min Pay Filter
@@ -138,11 +142,15 @@ const Home = ({ onNavigateToLogin }) => {
     setLoading(true);
     try {
       const data = await api.profiles.list();
-      // 기존 목업 데이터의 카테고리를 새 카테고리 명칭으로 매핑
+      // 기존 목업 데이터의 카테고리를 새 카테고리 명칭으로 매핑 (콤마 포함 다중 카테고리 지원)
       const mappedData = data.map(h => {
-        let newCat = h.category;
-        if (newCat === '푸드') newCat = '식품';
-        if (newCat === 'IT/가전') newCat = '가전';
+        if (!h.category) return h;
+        const newCat = h.category.split(',').map(c => {
+          let cat = c.trim();
+          if (cat === '푸드') return '식품';
+          if (cat === 'IT/가전') return '가전';
+          return cat;
+        }).join(', ');
         return { ...h, category: newCat };
       });
       setHosts(mappedData);
