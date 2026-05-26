@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../supabaseClient';
 import { X, Send, AlertCircle, Calendar, Star } from 'lucide-react';
@@ -8,6 +8,14 @@ const MatchingModal = ({ host, onClose, onSuccess, onNavigateToLogin }) => {
   const [message, setMessage] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
+  const backdropRef = useRef(null);
+
+  // 모달이 열릴 때 자동으로 모달 컨테이너 스크롤을 최상단으로 리셋
+  useEffect(() => {
+    if (backdropRef.current) {
+      backdropRef.current.scrollTop = 0;
+    }
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -45,26 +53,27 @@ const MatchingModal = ({ host, onClose, onSuccess, onNavigateToLogin }) => {
   };
 
   return (
-    <div style={{
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      backgroundColor: 'rgba(5, 7, 13, 0.85)',
-      backdropFilter: 'blur(8px)',
-      display: 'flex',
-      alignItems: 'flex-start',
-      justifyContent: 'center',
-      zIndex: 1000,
-      padding: '60px 20px',
-      overflowY: 'auto'
-    }}>
+    <div 
+      ref={backdropRef}
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: 'rgba(5, 7, 13, 0.85)',
+        backdropFilter: 'blur(8px)',
+        zIndex: 1000,
+        overflowY: 'auto',
+        padding: '20px'
+      }}
+    >
       <div 
         className="glass-panel animate-scale-in" 
         style={{
           width: '100%',
           maxWidth: '550px',
+          margin: '50px auto', // 상단 여백 확보 및 좌우 중앙 정렬
           overflow: 'hidden',
           position: 'relative'
         }}
