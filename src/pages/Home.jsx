@@ -5,15 +5,15 @@ import ShowhostCard from '../components/ShowhostCard';
 import MatchingModal from '../components/MatchingModal';
 import { Search, Filter, Sparkles, Star, Calendar, CircleDollarSign, Video, CheckCircle, AlertCircle, ArrowLeft, Lock, ShieldAlert } from 'lucide-react';
 
-const CATEGORIES = ['전체', '패션', '뷰티', '푸드', 'IT/가전', '기타'];
+const CATEGORIES = ['식품', '뷰티', '가전', '테크', '패션', '건기식', '키즈', '여행', '리빙'];
 
 const Home = ({ onNavigateToLogin }) => {
   const { user, updateUserPaidStatus } = useAuth();
   const [hosts, setHosts] = useState([]);
   const [filteredHosts, setFilteredHosts] = useState([]);
-  const [selectedCategory, setSelectedCategory] = useState('전체');
+  const [selectedCategories, setSelectedCategories] = useState([]); // 중복 선택을 위한 배열
+  const [minPayFilter, setMinPayFilter] = useState(0); // 금액별 필터 (단위: 만원)
   const [searchQuery, setSearchQuery] = useState('');
-  const [sortBy, setSortBy] = useState('rating');
   const [selectedHost, setSelectedHost] = useState(null);
   const [showMatchingModal, setShowMatchingModal] = useState(false);
   const [matchingSuccess, setMatchingSuccess] = useState(false);
@@ -87,9 +87,19 @@ const Home = ({ onNavigateToLogin }) => {
   useEffect(() => {
     let result = hosts;
 
-    // Category Filter
-    if (selectedCategory !== '전체') {
-      result = result.filter(h => h.category === selectedCategory);
+    // Category Filter (Multi-select)
+    if (selectedCategories.length > 0) {
+      result = result.filter(h => selectedCategories.includes(h.category));
+    }
+
+    // Min Pay Filter
+    if (minPayFilter > 0) {
+      result = result.filter(h => {
+        if (!h.pay) return false;
+        const match = h.pay.match(/([0-9]+)만/);
+        const minPay = match ? parseInt(match[1], 10) : 0;
+        return minPay >= minPayFilter;
+      });
     }
 
     // Search Query Filter
@@ -102,29 +112,8 @@ const Home = ({ onNavigateToLogin }) => {
       );
     }
 
-    // Sort Logic
-    const sorted = [...result];
-    sorted.sort((a, b) => {
-      if (sortBy === 'rating') {
-        return (b.rating || 0) - (a.rating || 0);
-      }
-      if (sortBy === 'reviews') {
-        return (b.reviews || 0) - (a.reviews || 0);
-      }
-      if (sortBy === 'career') {
-        const getYears = (c) => {
-          if (!c) return 0;
-          if (c.includes('신입')) return 0;
-          const parsed = parseInt(c.replace(/[^0-9]/g, ''), 10);
-          return isNaN(parsed) ? 0 : parsed;
-        };
-        return getYears(b.career) - getYears(a.career);
-      }
-      return 0;
-    });
-
-    setFilteredHosts(sorted);
-  }, [selectedCategory, searchQuery, sortBy, hosts]);
+    setFilteredHosts(result);
+  }, [selectedCategories, minPayFilter, searchQuery, hosts]);
 
   const fetchHosts = async () => {
     setLoading(true);
@@ -310,66 +299,80 @@ const Home = ({ onNavigateToLogin }) => {
               />
             </div>
 
-            {/* Category Tabs & Sort Selector */}
+            {/* Category Tabs & Filters */}
             <div style={{ 
               display: 'flex', 
-              justifyContent: 'space-between', 
-              alignItems: 'center', 
-              flexWrap: 'wrap', 
+              flexDirection: 'column',
               gap: '16px' 
             }}>
+              {/* Category Multi-select */}
               <div style={{ 
                 display: 'flex', 
                 gap: '10px', 
                 overflowX: 'auto', 
                 paddingBottom: '5px',
-                scrollbarWidth: 'none', // Firefox
-                flexGrow: 1
+                scrollbarWidth: 'none',
               }}>
-                {CATEGORIES.map(category => (
-                  <button
-                    key={category}
-                    onClick={() => setSelectedCategory(category)}
-                    className="btn"
-                    style={{
-                      background: selectedCategory === category 
-                        ? 'linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(260 85% 60%) 100%)' 
-                        : 'rgba(255, 255, 255, 0.05)',
-                      color: selectedCategory === category ? 'white' : 'hsl(var(--foreground-muted))',
-                      padding: '8px 20px',
-                      borderRadius: '8px',
-                      fontSize: '0.85rem',
-                      whiteSpace: 'nowrap'
-                    }}
-                  >
-                    {category}
-                  </button>
-                ))}
+                {CATEGORIES.map(category => {
+                  const isSelected = selectedCategories.includes(category);
+                  return (
+                    <button
+                      key={category}
+                      onClick={() => {
+                        setSelectedCategories(prev => 
+                          isSelected
+                            ? prev.filter(c => c !== category)
+                            : [...prev, category]
+                        );
+                      }}
+                      className="btn"
+                      style={{
+                        background: isSelected 
+                          ? 'linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(260 85% 60%) 100%)' 
+                          : 'rgba(255, 255, 255, 0.05)',
+                        color: isSelected ? 'white' : 'hsl(var(--foreground-muted))',
+                        padding: '8px 20px',
+                        borderRadius: '8px',
+                        fontSize: '0.85rem',
+                        whiteSpace: 'nowrap',
+                        border: isSelected ? 'none' : '1px solid rgba(255,255,255,0.1)'
+                      }}
+                    >
+                      {category}
+                    </button>
+                  );
+                })}
               </div>
 
-              {/* Sort Selector */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span style={{ fontSize: '0.85rem', color: 'hsl(var(--foreground-muted))' }}>정렬 기준:</span>
-                <select
-                  value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value)}
-                  style={{
-                    background: 'rgba(255, 255, 255, 0.05)',
-                    border: '1px solid rgba(255, 255, 255, 0.1)',
-                    color: 'white',
-                    padding: '8px 16px',
-                    borderRadius: '8px',
-                    fontSize: '0.85rem',
-                    outline: 'none',
-                    cursor: 'pointer',
-                    minWidth: '120px',
-                    fontFamily: 'inherit'
-                  }}
-                >
-                  <option value="rating" style={{ background: '#0f172a' }}>평점 높은 순</option>
-                  <option value="reviews" style={{ background: '#0f172a' }}>리뷰 많은 순</option>
-                  <option value="career" style={{ background: '#0f172a' }}>경력 높은 순</option>
-                </select>
+              {/* Advanced Filters & Sort */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px' }}>
+                {/* Min Pay Filter */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <Filter size={16} color="hsl(var(--foreground-muted))" />
+                  <span style={{ fontSize: '0.85rem', color: 'hsl(var(--foreground-muted))' }}>최소 금액:</span>
+                  <select
+                    value={minPayFilter}
+                    onChange={(e) => setMinPayFilter(Number(e.target.value))}
+                    style={{
+                      background: 'rgba(255, 255, 255, 0.05)',
+                      border: '1px solid rgba(255, 255, 255, 0.1)',
+                      color: 'white',
+                      padding: '8px 16px',
+                      borderRadius: '8px',
+                      fontSize: '0.85rem',
+                      outline: 'none',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    <option value={0} style={{ background: '#0f172a' }}>전체 금액</option>
+                    <option value={10} style={{ background: '#0f172a' }}>10만원 이상</option>
+                    <option value={20} style={{ background: '#0f172a' }}>20만원 이상</option>
+                    <option value={30} style={{ background: '#0f172a' }}>30만원 이상</option>
+                    <option value={50} style={{ background: '#0f172a' }}>50만원 이상</option>
+                  </select>
+                </div>
+
+
               </div>
             </div>
           </div>
