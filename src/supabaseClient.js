@@ -50,12 +50,25 @@ const sheetdbPost = async (sheetName, dataArray) => {
 };
 
 const sheetdbPatch = async (sheetName, idColumn, idValue, updateData) => {
-  const response = await fetch(`${sheetdbApiUrl}/${idColumn}/${idValue}?sheet=${sheetName}`, {
+  const safeIdValue = encodeURIComponent(String(idValue).trim());
+  const response = await fetch(`${sheetdbApiUrl}/${idColumn}/${safeIdValue}?sheet=${sheetName}`, {
     method: 'PATCH',
     headers: {
       'Content-Type': 'application/json'
     },
     body: JSON.stringify({ data: updateData })
+  });
+  const result = await response.json();
+  if (result.error) {
+    throw new Error(result.error);
+  }
+  return result;
+};
+
+const sheetdbDelete = async (sheetName, idColumn, idValue) => {
+  const safeIdValue = encodeURIComponent(String(idValue).trim());
+  const response = await fetch(`${sheetdbApiUrl}/${idColumn}/${safeIdValue}?sheet=${sheetName}`, {
+    method: 'DELETE'
   });
   const result = await response.json();
   if (result.error) {
