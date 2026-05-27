@@ -854,7 +854,10 @@ export const api = {
       if (isSheetdbActive) {
         const matches = await sheetdbGet("matches");
         return matches
-          .filter(m => m.campaignId === campaignId)
+          .filter(m => {
+            const mCampId = m.campaignId || m.campaignid || m.campaign_id;
+            return String(mCampId) === String(campaignId);
+          })
           .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
       }
       initMockDatabase();
