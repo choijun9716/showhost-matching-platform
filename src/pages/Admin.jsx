@@ -398,6 +398,7 @@ const Admin = ({ onNavigateToCampaignCreate }) => {
             </div>
           )}
         </div>
+      )}
       {activeTab === 'matches' && (
         <div className="glass-panel" style={{ padding: '24px' }}>
           <h2 style={{ fontSize: '1.2rem', fontWeight: 700, marginBottom: '16px' }}>총 매칭 및 제안 현황 ({allMatches.length}건)</h2>
