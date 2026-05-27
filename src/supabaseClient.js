@@ -475,7 +475,7 @@ export const mockDb = {
     if (!campaignId) {
       await mockDb.deductPoints(clientId, 10, `${hostName}에게 매칭 신청`);
     } else {
-      await mockDb.deductPoints(clientId, 10, `${hostName}에게 칊0페인 제안`);
+      await mockDb.deductPoints(clientId, 10, `${hostName}에게 캠페인 제안`);
     }
 
     const matches = JSON.parse(localStorage.getItem('matches') || '[]');
@@ -903,7 +903,7 @@ export const api = {
         // 크레딧 차감 먼저 (10크레딧)
         await api.points.deduct(clientId, 10, `${hostName}에게 매칭 신청`);
         const { data, error } = await supabase.from('matches').insert([{
-
+          campaign_id: campaignId,
           client_id: clientId,
           client_name: clientName,
           host_id: hostId,
@@ -914,7 +914,7 @@ export const api = {
         if (error) throw error;
         return data;
       } else {
-        return mockDb.requestMatch(clientId, clientName, hostId, hostName, message);
+        return mockDb.requestMatch(clientId, clientName, hostId, hostName, message, campaignId);
       }
     },
     listForClient: async (clientId) => {
