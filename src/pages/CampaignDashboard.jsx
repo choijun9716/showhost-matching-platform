@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../supabaseClient';
-import { Megaphone, Calendar, MapPin, Tag, ChevronDown, ChevronUp, CheckCircle, Clock, XCircle, Award, Plus, Zap } from 'lucide-react';
+import { Megaphone, Calendar, MapPin, Tag, ChevronDown, ChevronUp, CheckCircle, Clock, XCircle, Award, Plus, Zap, Users } from 'lucide-react';
 
 const STATUS_LABEL = {
   open: { text: '모집중', color: '#818cf8', bg: 'rgba(99,102,241,0.12)' },
