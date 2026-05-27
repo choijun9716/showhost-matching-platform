@@ -22,6 +22,7 @@ const CampaignDashboard = ({ onCreateCampaign }) => {
   const [campaigns, setCampaigns] = useState([]);
   const [proposals, setProposals] = useState({}); // { campaignId: [matches] }
   const [expanded, setExpanded] = useState(null);
+  const [hostsMap, setHostsMap] = useState({});
   const [loading, setLoading] = useState(true);
   const [confirming, setConfirming] = useState(null);
 
@@ -35,6 +36,11 @@ const CampaignDashboard = ({ onCreateCampaign }) => {
     try {
       const data = await api.campaigns.listForClient(user.id);
       setCampaigns(data);
+      
+      const profiles = await api.profiles.list();
+      const hMap = {};
+      profiles.forEach(p => hMap[p.id] = p);
+      setHostsMap(hMap);
     } catch (err) {
       console.error(err);
     } finally {
@@ -70,6 +76,16 @@ const CampaignDashboard = ({ onCreateCampaign }) => {
       alert('확정 중 오류: ' + err.message);
     } finally {
       setConfirming(null);
+    }
+  };
+
+  const handleCloseCampaign = async (campaign) => {
+    if (!window.confirm(`"${campaign.brandName}" 캠페인을 조기 마감하시겠습니까?`)) return;
+    try {
+      await api.campaigns.close(campaign.id);
+      setCampaigns(prev => prev.map(c => c.id === campaign.id ? { ...c, status: 'closed' } : c));
+    } catch (err) {
+      alert('마감 중 오류: ' + err.message);
     }
   };
 
@@ -163,6 +179,12 @@ const CampaignDashboard = ({ onCreateCampaign }) => {
                         <Tag size={13} color="#818cf8" />
                         {campaign.category}
                       </span>
+                      {campaign.endDate && (
+                        <span style={{ display: 'flex', alignItems: 'center', gap: '5px', color: '#ef4444' }}>
+                          <Clock size={13} color="#ef4444" />
+                          마감: {formatSchedule(campaign.endDate)}
+                        </span>
+                      )}
                     </div>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexShrink: 0 }}>
@@ -170,6 +192,15 @@ const CampaignDashboard = ({ onCreateCampaign }) => {
                       <div style={{ color: 'hsl(var(--foreground-muted))' }}>제안 발송</div>
                       <div style={{ fontWeight: 700, color: '#818cf8' }}>{campaign.proposalCount || 0}명</div>
                     </div>
+                    {campaign.status === 'open' && (
+                      <button
+                        onClick={(e) => { e.stopPropagation(); handleCloseCampaign(campaign); }}
+                        className="btn btn-secondary"
+                        style={{ padding: '6px 12px', fontSize: '0.8rem', border: '1px solid rgba(255,255,255,0.1)' }}
+                      >
+                        마감하기
+                      </button>
+                    )}
                     {isExpanded ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
                   </div>
                 </div>
@@ -230,13 +261,26 @@ const CampaignDashboard = ({ onCreateCampaign }) => {
                               gap: '12px',
                               flexWrap: 'wrap'
                             }}>
-                              <div style={{ flex: 1 }}>
-                                <div style={{ fontWeight: 600, fontSize: '0.95rem' }}>{proposal.hostName}</div>
-                                {proposal.message && (
-                                  <div style={{ fontSize: '0.8rem', color: 'hsl(var(--foreground-muted))', marginTop: '2px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '300px' }}>
-                                    {proposal.message}
+                              <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                {hostsMap[proposal.hostId]?.profileImage ? (
+                                  <img 
+                                    src={hostsMap[proposal.hostId].profileImage} 
+                                    alt={proposal.hostName} 
+                                    style={{ width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover', border: '1px solid rgba(255,255,255,0.1)' }}
+                                  />
+                                ) : (
+                                  <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    <Award size={18} color="rgba(255,255,255,0.3)" />
                                   </div>
                                 )}
+                                <div>
+                                  <div style={{ fontWeight: 600, fontSize: '0.95rem' }}>{proposal.hostName}</div>
+                                  {proposal.message && (
+                                    <div style={{ fontSize: '0.8rem', color: 'hsl(var(--foreground-muted))', marginTop: '2px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '300px' }}>
+                                      {proposal.message}
+                                    </div>
+                                  )}
+                                </div>
                               </div>
                               <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                                 <span style={{

@@ -796,6 +796,7 @@ export const api = {
           location: campaignData.location,
           category: campaignData.category,
           description: campaignData.description || '',
+          endDate: campaignData.endDate || '',
           status: 'open',
           confirmedHostId: '', // null 대신 빈 문자열로 구글시트 오류 방지
           confirmedHostName: '',
@@ -849,6 +850,21 @@ export const api = {
         return res[0];
       }
       return mockDb.confirmCampaignHost(campaignId, hostId, hostName);
+    },
+    close: async (campaignId) => {
+      if (isSheetdbActive) {
+        await sheetdbPatch("campaigns", "id", campaignId, { status: 'closed' });
+        
+        // 매칭 상태도 모두 마감 처리
+        const allMatches = await sheetdbGet("matches");
+        const campMatches = allMatches.filter(m => m.campaignId === campaignId && m.status !== 'confirmed');
+        for (const m of campMatches) {
+          await sheetdbPatch("matches", "id", m.id, { status: 'closed' });
+        }
+        return true;
+      }
+      // MockDB 구현 생략 (로컬 테스트용)
+      return true;
     },
     getProposals: async (campaignId) => {
       if (isSheetdbActive) {

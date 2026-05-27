@@ -10,8 +10,9 @@ const CampaignCreate = ({ onBack, onCreated }) => {
   const [form, setForm] = useState({
     brandName: '',
     schedule: '',
+    endDate: '',
     location: '',
-    category: '',
+    category: '전체',
     description: ''
   });
   const [submitting, setSubmitting] = useState(false);
@@ -24,9 +25,10 @@ const CampaignCreate = ({ onBack, onCreated }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!form.brandName.trim()) { setError('라이브 브랜드명을 입력해 주세요.'); return; }
-    if (!form.schedule.trim()) { setError('방송 일정을 입력해 주세요.'); return; }
-    if (!form.location.trim()) { setError('방송 장소를 입력해 주세요.'); return; }
+    if (!form.brandName || !form.schedule || !form.location || !form.endDate) {
+      setError('필수 항목(브랜드명, 방송 일정, 마감일, 방송 장소)을 모두 입력해 주세요.');
+      return;
+    }
     if (!form.category) { setError('카테고리를 선택해 주세요.'); return; }
 
     setSubmitting(true);
@@ -74,17 +76,33 @@ const CampaignCreate = ({ onBack, onCreated }) => {
           </div>
 
           {/* 방송 일정 */}
-          <div>
-            <label style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px', fontWeight: 600 }}>
-              <Calendar size={15} color="#818cf8" />
-              방송 일정 <span style={{ color: '#ef4444' }}>*</span>
-            </label>
-            <input
-              type="datetime-local"
-              value={form.schedule}
-              onChange={e => handleChange('schedule', e.target.value)}
-              style={{ width: '100%', colorScheme: 'dark' }}
-            />
+          <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
+            <div style={{ flex: 1, minWidth: '200px' }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px', fontWeight: 600 }}>
+                <Calendar size={15} color="#818cf8" />
+                방송 일정 <span style={{ color: '#ef4444' }}>*</span>
+              </label>
+              <input
+                type="datetime-local"
+                value={form.schedule}
+                onChange={e => handleChange('schedule', e.target.value)}
+                style={{ width: '100%', colorScheme: 'dark' }}
+              />
+            </div>
+
+            {/* 모집 마감일 */}
+            <div style={{ flex: 1, minWidth: '200px' }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px', fontWeight: 600 }}>
+                <Calendar size={15} color="#ef4444" />
+                모집 마감일 <span style={{ color: '#ef4444' }}>*</span>
+              </label>
+              <input
+                type="datetime-local"
+                value={form.endDate}
+                onChange={e => handleChange('endDate', e.target.value)}
+                style={{ width: '100%', colorScheme: 'dark' }}
+              />
+            </div>
           </div>
 
           {/* 방송 장소 */}
