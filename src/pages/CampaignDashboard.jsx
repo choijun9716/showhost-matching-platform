@@ -165,7 +165,7 @@ const CampaignDashboard = ({ onCreateCampaign }) => {
                         color: statusInfo.color
                       }}>
                         {statusInfo.text}
-                        {campaign.status === 'open' && campaign.confirmedHostId && ` (${campaign.confirmedHostId.split(',').length}/${campaign.recruitCount || 1}명 확정)`}
+                        {campaign.status === 'open' && typeof campaign.confirmedHostId === 'string' && campaign.confirmedHostId.length > 0 && ` (${campaign.confirmedHostId.split(',').length}/${campaign.recruitCount || 1}명 확정)`}
                       </span>
                       <h3 style={{ fontSize: '1.1rem', fontWeight: 700 }}>{campaign.brandName}</h3>
                     </div>
@@ -213,7 +213,7 @@ const CampaignDashboard = ({ onCreateCampaign }) => {
                 </div>
 
                 {/* 확정된 호스트 목록 */}
-                {(campaign.confirmedHostId) && (
+                {(typeof campaign.confirmedHostId === 'string' && campaign.confirmedHostId.length > 0) && (
                   <div style={{
                     marginTop: '12px',
                     display: 'flex',
