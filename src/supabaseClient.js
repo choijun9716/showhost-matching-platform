@@ -870,10 +870,13 @@ export const api = {
       if (isSheetdbActive) {
         const matches = await sheetdbGet("matches");
         return matches
-          .filter(m => {
-            const mCampId = m.campaignId || m.campaignid || m.campaign_id;
-            return String(mCampId) === String(campaignId);
-          })
+          .map(m => ({
+            ...m,
+            campaignId: m.campaignId || m.campaignid || m.campaign_id,
+            hostId: m.hostId || m.hostid || m.host_id,
+            clientId: m.clientId || m.clientid || m.client_id
+          }))
+          .filter(m => String(m.campaignId) === String(campaignId))
           .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
       }
       initMockDatabase();
@@ -940,7 +943,13 @@ export const api = {
       if (isSheetdbActive) {
         const list = await sheetdbGet("matches");
         return list
-          .filter(m => m.clientId === clientId)
+          .map(m => ({
+            ...m,
+            campaignId: m.campaignId || m.campaignid || m.campaign_id,
+            hostId: m.hostId || m.hostid || m.host_id,
+            clientId: m.clientId || m.clientid || m.client_id
+          }))
+          .filter(m => String(m.clientId) === String(clientId))
           .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
       } else if (isRealSupabase) {
         const { data, error } = await supabase.from('matches').select('*').eq('client_id', clientId).order('created_at', { ascending: false });
@@ -963,7 +972,13 @@ export const api = {
       if (isSheetdbActive) {
         const list = await sheetdbGet("matches");
         return list
-          .filter(m => m.hostId === hostId)
+          .map(m => ({
+            ...m,
+            campaignId: m.campaignId || m.campaignid || m.campaign_id,
+            hostId: m.hostId || m.hostid || m.host_id,
+            clientId: m.clientId || m.clientid || m.client_id
+          }))
+          .filter(m => String(m.hostId) === String(hostId))
           .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
       } else if (isRealSupabase) {
         const { data, error } = await supabase.from('matches').select('*').eq('host_id', hostId).order('created_at', { ascending: false });
