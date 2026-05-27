@@ -1,6 +1,6 @@
 import React from 'react';
 import { useAuth } from '../context/AuthContext';
-import { LogOut, User, LayoutDashboard, Shield, Zap } from 'lucide-react';
+import { LogOut, User, LayoutDashboard, Shield, Zap, Megaphone } from 'lucide-react';
 
 const Navbar = ({ activeTab, setActiveTab }) => {
   const { user, logout } = useAuth();
@@ -59,7 +59,9 @@ const Navbar = ({ activeTab, setActiveTab }) => {
               }}
             >
               <LayoutDashboard size={16} />
-              <span className="nav-text-hide">매칭 대시보드</span>
+              <span className="nav-text-hide">
+                {user.role === 'client' ? '컠페인 관리' : '매칭 대시보드'}
+              </span>
             </button>
           )}
 

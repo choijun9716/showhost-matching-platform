@@ -207,6 +207,9 @@ export const initMockDatabase = () => {
   if (!localStorage.getItem('pointHistory')) {
     localStorage.setItem('pointHistory', JSON.stringify([]));
   }
+  if (!localStorage.getItem('campaigns')) {
+    localStorage.setItem('campaigns', JSON.stringify([]));
+  }
   if (!localStorage.getItem('profiles')) {
     const initializedProfiles = INITIAL_MOCK_PROFILES.map(p => ({
       ...p,
@@ -404,15 +407,81 @@ export const mockDb = {
       .map(u => ({ ...u, points: parseInt(u.points) || 0 }));
   },
 
-  // 매칭 기능
-  requestMatch: async (clientId, clientName, hostId, hostName, message) => {
+  // 캠페인 기능
+  createCampaign: async (clientId, clientName, campaignData) => {
     initMockDatabase();
-    // 크레딧 지감 (부족 시 에러)
-    await mockDb.deductPoints(clientId, 10, `${hostName}에게 매칭 신청`);
+    const campaigns = JSON.parse(localStorage.getItem('campaigns') || '[]');
+    const newCampaign = {
+      id: 'camp-' + Date.now(),
+      clientId,
+      clientName,
+      brandName: campaignData.brandName,
+      schedule: campaignData.schedule,
+      location: campaignData.location,
+      category: campaignData.category,
+      description: campaignData.description || '',
+      status: 'open',
+      confirmedHostId: null,
+      confirmedHostName: null,
+      proposalCount: 0,
+      createdAt: new Date().toISOString()
+    };
+    campaigns.push(newCampaign);
+    localStorage.setItem('campaigns', JSON.stringify(campaigns));
+    return newCampaign;
+  },
+
+
+  getCampaignsForClient: async (clientId) => {
+    initMockDatabase();
+    const campaigns = JSON.parse(localStorage.getItem('campaigns') || '[]');
+    return campaigns
+      .filter(c => c.clientId === clientId)
+      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  },
+
+  getCampaign: async (campaignId) => {
+    initMockDatabase();
+    const campaigns = JSON.parse(localStorage.getItem('campaigns') || '[]');
+    return campaigns.find(c => c.id === campaignId) || null;
+  },
+
+  confirmCampaignHost: async (campaignId, hostId, hostName) => {
+    initMockDatabase();
+    const campaigns = JSON.parse(localStorage.getItem('campaigns') || '[]');
+    const campIdx = campaigns.findIndex(c => c.id === campaignId);
+    if (campIdx === -1) throw new Error('캔페인을 찾을 수 없습니다.');
+    campaigns[campIdx].status = 'confirmed';
+    campaigns[campIdx].confirmedHostId = hostId;
+    campaigns[campIdx].confirmedHostName = hostName;
+    localStorage.setItem('campaigns', JSON.stringify(campaigns));
+
+    // 다른 accepted 상태의 매칭을 closed로
+    const matches = JSON.parse(localStorage.getItem('matches') || '[]');
+    const updated = matches.map(m => {
+      if (m.campaignId !== campaignId) return m;
+      if (m.hostId === hostId) return { ...m, status: 'confirmed' };
+      if (m.status === 'accepted') return { ...m, status: 'closed' };
+      return m;
+    });
+    localStorage.setItem('matches', JSON.stringify(updated));
+    return campaigns[campIdx];
+  },
+
+  // 매칭 기능 (campaignId 포함)
+  requestMatch: async (clientId, clientName, hostId, hostName, message, campaignId = null) => {
+    initMockDatabase();
+    // 크레딧 차감 (부족 시 에러) - 캔페인 생성 시에는 이미 차감했으리기에 campaignId가 있으면 skip
+    if (!campaignId) {
+      await mockDb.deductPoints(clientId, 10, `${hostName}에게 매칭 신청`);
+    } else {
+      await mockDb.deductPoints(clientId, 10, `${hostName}에게 칊0페인 제안`);
+    }
 
     const matches = JSON.parse(localStorage.getItem('matches') || '[]');
     const newMatch = {
       id: 'match-' + Date.now(),
+      campaignId,
       clientId,
       clientName,
       hostId,
@@ -423,6 +492,17 @@ export const mockDb = {
     };
     matches.push(newMatch);
     localStorage.setItem('matches', JSON.stringify(matches));
+
+    // 칄페인 proposalCount 증가
+    if (campaignId) {
+      const campaigns = JSON.parse(localStorage.getItem('campaigns') || '[]');
+      const idx = campaigns.findIndex(c => c.id === campaignId);
+      if (idx !== -1) {
+        campaigns[idx].proposalCount = (parseInt(campaigns[idx].proposalCount) || 0) + 1;
+        localStorage.setItem('campaigns', JSON.stringify(campaigns));
+      }
+    }
+
     return { ...newMatch, remainingPoints: (parseInt((JSON.parse(localStorage.getItem('users')||'[]').find(u=>u.id===clientId)||{}).points)||0) };
   },
 
@@ -704,7 +784,29 @@ export const api = {
       return mockDb.chargePoints(userId, amount, memo);
     }
   },
+  campaigns: {
+    create: async (clientId, clientName, campaignData) => {
+      return mockDb.createCampaign(clientId, clientName, campaignData);
+    },
+    listForClient: async (clientId) => {
+      return mockDb.getCampaignsForClient(clientId);
+    },
+    get: async (campaignId) => {
+      return mockDb.getCampaign(campaignId);
+    },
+    confirm: async (campaignId, hostId, hostName) => {
+      return mockDb.confirmCampaignHost(campaignId, hostId, hostName);
+    },
+    getProposals: async (campaignId) => {
+      initMockDatabase();
+      const matches = JSON.parse(localStorage.getItem('matches') || '[]');
+      return matches
+        .filter(m => m.campaignId === campaignId)
+        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    }
+  },
   matches: {
+
     request: async (clientId, clientName, hostId, hostName, message) => {
       if (isSheetdbActive) {
         // SheetDB 크레딧 차감 (10크레딧) - SheetDB에 직접 반영

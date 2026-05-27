@@ -2,13 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { api } from '../supabaseClient';
 import { useAuth } from '../context/AuthContext';
 import ShowhostCard from '../components/ShowhostCard';
-import MatchingModal from '../components/MatchingModal';
+import CampaignProposalModal from '../components/CampaignProposalModal';
 import PortfolioView from '../components/PortfolioView';
 import { Search, Filter, Sparkles, Star, Calendar, CircleDollarSign, Video, CheckCircle, AlertCircle, ArrowLeft, Lock, ShieldAlert } from 'lucide-react';
 
 const CATEGORIES = ['전체', '식품', '뷰티', '가전', '테크', '패션', '건기식', '키즈', '여행', '리빙'];
 
-const Home = ({ onNavigateToLogin }) => {
+const Home = ({ onNavigateToLogin, onNavigateToCampaignCreate }) => {
   const { user } = useAuth();
   const [hosts, setHosts] = useState([]);
   const [filteredHosts, setFilteredHosts] = useState([]);
@@ -416,7 +416,7 @@ const Home = ({ onNavigateToLogin }) => {
         <PortfolioView 
           host={selectedHost} 
           onClose={() => setSelectedHost(null)} 
-          onMatchRequest={() => setShowMatchingModal(true)} 
+          onSendProposal={() => setShowMatchingModal(true)} 
         />
       )}
 
@@ -443,17 +443,18 @@ const Home = ({ onNavigateToLogin }) => {
           animation: 'scaleIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)'
         }}>
           <CheckCircle size={20} />
-          <span>매칭 제안서가 성공적으로 발송되었습니다!</span>
+          <span>캠페인 제안이 성공적으로 발송되었습니다!</span>
         </div>
       )}
 
       {/* Matching Form Modal Overlay */}
       {showMatchingModal && selectedHost && (
-        <MatchingModal 
+        <CampaignProposalModal 
           host={selectedHost} 
           onClose={() => setShowMatchingModal(false)}
           onSuccess={handleMatchSuccess}
           onNavigateToLogin={onNavigateToLogin}
+          onCreateCampaign={() => { setShowMatchingModal(false); if (onNavigateToCampaignCreate) onNavigateToCampaignCreate(); }}
         />
       )}
     </>

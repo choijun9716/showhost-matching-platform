@@ -1,7 +1,7 @@
 import React from 'react';
 import { ArrowLeft, Printer, Sparkles, Link as LinkIcon, ExternalLink } from 'lucide-react';
 
-const PortfolioView = ({ host, onClose, onMatchRequest }) => {
+const PortfolioView = ({ host, onClose, onSendProposal }) => {
   const birth = host.birth || '정보없음';
   const company = '소속사 없음';
   const education = '정보없음';
@@ -168,10 +168,10 @@ const PortfolioView = ({ host, onClose, onMatchRequest }) => {
                 </p>
               </div>
 
-              {/* 매칭 신청하기 버튼 (웹 전용) */}
+              {/* 캠페인 제안 버튼 (웹 전용) */}
               <div className="no-print" style={{ marginTop: '10px' }}>
                 <button 
-                  onClick={onMatchRequest}
+                  onClick={onSendProposal}
                   className="btn btn-primary"
                   style={{ 
                     width: '100%', 
@@ -182,10 +182,14 @@ const PortfolioView = ({ host, onClose, onMatchRequest }) => {
                     color: 'white',
                     border: 'none',
                     borderRadius: '10px',
-                    cursor: 'pointer'
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px'
                   }}
                 >
-                  매칭 제안 신청하기
+                  캠페인 제안 보내기
                 </button>
               </div>
 
