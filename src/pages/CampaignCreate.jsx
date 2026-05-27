@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../supabaseClient';
-import { Megaphone, Calendar, MapPin, Tag, FileText, ArrowLeft, CheckCircle } from 'lucide-react';
+import { Megaphone, Calendar, MapPin, Tag, FileText, ArrowLeft, CheckCircle, Users } from 'lucide-react';
 
 const CATEGORIES = ['식품', '뷰티', '가전', '테크', '패션', '건기식', '키즈', '여행', '리빙', '기타'];
 
@@ -13,6 +13,7 @@ const CampaignCreate = ({ onBack, onCreated }) => {
     endDate: '',
     location: '',
     category: '전체',
+    recruitCount: 1,
     description: ''
   });
   const [submitting, setSubmitting] = useState(false);
@@ -146,6 +147,38 @@ const CampaignCreate = ({ onBack, onCreated }) => {
                 >
                   {cat}
                 </button>
+              ))}
+            </div>
+          </div>
+
+          {/* 모집 인원 */}
+          <div>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '12px', fontWeight: 600 }}>
+              <Users size={15} color="#818cf8" />
+              모집 인원 <span style={{ color: '#ef4444' }}>*</span>
+            </label>
+            <div style={{ display: 'flex', gap: '12px' }}>
+              {[1, 2].map(count => (
+                <label key={count} style={{
+                  display: 'flex', alignItems: 'center', gap: '8px',
+                  padding: '12px 24px',
+                  borderRadius: '8px',
+                  border: form.recruitCount === count ? '2px solid #818cf8' : '1px solid rgba(255,255,255,0.12)',
+                  background: form.recruitCount === count ? 'rgba(129,140,248,0.1)' : 'rgba(255,255,255,0.02)',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s',
+                  fontWeight: form.recruitCount === count ? 700 : 400
+                }}>
+                  <input
+                    type="radio"
+                    name="recruitCount"
+                    value={count}
+                    checked={form.recruitCount === count}
+                    onChange={() => handleChange('recruitCount', count)}
+                    style={{ margin: 0, accentColor: '#818cf8' }}
+                  />
+                  {count}명
+                </label>
               ))}
             </div>
           </div>

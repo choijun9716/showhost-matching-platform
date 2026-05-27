@@ -419,10 +419,12 @@ export const mockDb = {
       schedule: campaignData.schedule,
       location: campaignData.location,
       category: campaignData.category,
+      recruitCount: parseInt(campaignData.recruitCount) || 1,
       description: campaignData.description || '',
+      endDate: campaignData.endDate || '',
       status: 'open',
-      confirmedHostId: null,
-      confirmedHostName: null,
+      confirmedHostId: '',
+      confirmedHostName: '',
       proposalCount: 0,
       createdAt: new Date().toISOString()
     };
@@ -450,10 +452,25 @@ export const mockDb = {
     initMockDatabase();
     const campaigns = JSON.parse(localStorage.getItem('campaigns') || '[]');
     const campIdx = campaigns.findIndex(c => c.id === campaignId);
-    if (campIdx === -1) throw new Error('캔페인을 찾을 수 없습니다.');
-    campaigns[campIdx].status = 'confirmed';
-    campaigns[campIdx].confirmedHostId = hostId;
-    campaigns[campIdx].confirmedHostName = hostName;
+    if (campIdx === -1) throw new Error('캠페인을 찾을 수 없습니다.');
+    const campaign = campaigns[campIdx];
+
+    let confirmedIds = campaign.confirmedHostId ? campaign.confirmedHostId.split(',') : [];
+    let confirmedNames = campaign.confirmedHostName ? campaign.confirmedHostName.split(',') : [];
+
+    const maxRecruits = parseInt(campaign.recruitCount) || 1;
+
+    if (confirmedIds.includes(hostId)) throw new Error("이미 확정된 쇼호스트입니다.");
+    if (confirmedIds.length >= maxRecruits) throw new Error(`최대 ${maxRecruits}명까지만 확정할 수 있습니다.`);
+
+    confirmedIds.push(hostId);
+    confirmedNames.push(hostName);
+
+    const newStatus = confirmedIds.length >= maxRecruits ? 'confirmed' : 'open';
+
+    campaigns[campIdx].status = newStatus;
+    campaigns[campIdx].confirmedHostId = confirmedIds.join(',');
+    campaigns[campIdx].confirmedHostName = confirmedNames.join(',');
     localStorage.setItem('campaigns', JSON.stringify(campaigns));
 
     // 다른 accepted 상태의 매칭을 closed로
@@ -461,7 +478,7 @@ export const mockDb = {
     const updated = matches.map(m => {
       if (m.campaignId !== campaignId) return m;
       if (m.hostId === hostId) return { ...m, status: 'confirmed' };
-      if (m.status === 'accepted') return { ...m, status: 'closed' };
+      if (newStatus === 'confirmed' && m.status === 'accepted') return { ...m, status: 'closed' };
       return m;
     });
     localStorage.setItem('matches', JSON.stringify(updated));
@@ -795,6 +812,7 @@ export const api = {
           schedule: campaignData.schedule,
           location: campaignData.location,
           category: campaignData.category,
+          recruitCount: parseInt(campaignData.recruitCount) || 1,
           description: campaignData.description || '',
           endDate: campaignData.endDate || '',
           status: 'open',
@@ -841,13 +859,15 @@ export const api = {
         let confirmedIds = campaign.confirmedHostId ? campaign.confirmedHostId.split(',') : [];
         let confirmedNames = campaign.confirmedHostName ? campaign.confirmedHostName.split(',') : [];
 
+        const maxRecruits = parseInt(campaign.recruitCount) || 1;
+
         if (confirmedIds.includes(hostId)) throw new Error("이미 확정된 쇼호스트입니다.");
-        if (confirmedIds.length >= 2) throw new Error("최대 2명까지만 확정할 수 있습니다.");
+        if (confirmedIds.length >= maxRecruits) throw new Error(`최대 ${maxRecruits}명까지만 확정할 수 있습니다.`);
 
         confirmedIds.push(hostId);
         confirmedNames.push(hostName);
 
-        const newStatus = confirmedIds.length === 2 ? 'confirmed' : 'open';
+        const newStatus = confirmedIds.length >= maxRecruits ? 'confirmed' : 'open';
 
         // 캠페인 상태 업데이트
         await sheetdbPatch("campaigns", "id", campaignId, { 

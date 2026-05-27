@@ -555,7 +555,7 @@ const Admin = ({ onNavigateToCampaignCreate }) => {
                           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap', marginBottom: '8px' }}>
                             <span style={{ padding: '3px 10px', borderRadius: '6px', fontSize: '0.75rem', fontWeight: 700, background: statusInfo.bg, color: statusInfo.color }}>
                               {statusInfo.text}
-                              {campaign.status === 'open' && campaign.confirmedHostId && ` (1명 확정)`}
+                              {campaign.status === 'open' && campaign.confirmedHostId && ` (${campaign.confirmedHostId.split(',').length}/${campaign.recruitCount || 1}명 확정)`}
                             </span>
                             <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#fff' }}>[{campaign.clientName}] {campaign.brandName}</h3>
                           </div>
@@ -565,6 +565,9 @@ const Admin = ({ onNavigateToCampaignCreate }) => {
                             </span>
                             <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
                               <Tag size={13} color="#818cf8" /> {campaign.category}
+                            </span>
+                            <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                              <Users size={13} color="#818cf8" /> 모집: {campaign.recruitCount || 1}명
                             </span>
                             <span style={{ display: 'flex', alignItems: 'center', gap: '5px', color: 'rgba(255,255,255,0.4)' }}>
                               캠페인 ID: {campaign.id}
