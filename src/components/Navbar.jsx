@@ -60,7 +60,7 @@ const Navbar = ({ activeTab, setActiveTab }) => {
             >
               <LayoutDashboard size={16} />
               <span className="nav-text-hide">
-                {user.role === 'client' ? '컠페인 관리' : '매칭 대시보드'}
+                {user.role === 'client' ? '캠페인 관리' : '매칭 대시보드'}
               </span>
             </button>
           )}
