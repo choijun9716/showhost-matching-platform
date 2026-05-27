@@ -215,12 +215,24 @@ const CampaignDashboard = ({ onCreateCampaign }) => {
                     borderRadius: '8px',
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '8px',
+                    gap: '12px',
                     fontSize: '0.88rem'
                   }}>
-                    <Award size={15} color="#22c55e" />
-                    <span style={{ color: '#22c55e', fontWeight: 700 }}>최종 확정:</span>
-                    <span>{campaign.confirmedHostName}</span>
+                    {hostsMap[campaign.confirmedHostId]?.profileImage ? (
+                      <img 
+                        src={hostsMap[campaign.confirmedHostId].profileImage} 
+                        alt={campaign.confirmedHostName} 
+                        style={{ width: '32px', height: '32px', borderRadius: '50%', objectFit: 'cover', border: '1px solid rgba(34,197,94,0.3)' }}
+                      />
+                    ) : (
+                      <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'rgba(34,197,94,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <Award size={16} color="#22c55e" />
+                      </div>
+                    )}
+                    <div>
+                      <div style={{ color: '#22c55e', fontWeight: 700, fontSize: '0.8rem', marginBottom: '2px' }}>최종 확정 쇼호스트</div>
+                      <div style={{ fontWeight: 600 }}>{campaign.confirmedHostName}</div>
+                    </div>
                   </div>
                 )}
               </div>
