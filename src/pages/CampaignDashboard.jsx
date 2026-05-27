@@ -163,7 +163,10 @@ const CampaignDashboard = ({ onCreateCampaign }) => {
                         fontWeight: 700,
                         background: statusInfo.bg,
                         color: statusInfo.color
-                      }}>{statusInfo.text}</span>
+                      }}>
+                        {statusInfo.text}
+                        {campaign.status === 'open' && campaign.confirmedHostId && ` (1명 확정)`}
+                      </span>
                       <h3 style={{ fontSize: '1.1rem', fontWeight: 700 }}>{campaign.brandName}</h3>
                     </div>
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', fontSize: '0.85rem', color: 'hsl(var(--foreground-muted))' }}>
@@ -205,34 +208,45 @@ const CampaignDashboard = ({ onCreateCampaign }) => {
                   </div>
                 </div>
 
-                {/* 확정된 호스트 */}
-                {campaign.status === 'confirmed' && campaign.confirmedHostName && (
+                {/* 확정된 호스트 목록 */}
+                {(campaign.confirmedHostId) && (
                   <div style={{
                     marginTop: '12px',
-                    padding: '10px 14px',
-                    background: 'rgba(34,197,94,0.08)',
-                    border: '1px solid rgba(34,197,94,0.2)',
-                    borderRadius: '8px',
                     display: 'flex',
-                    alignItems: 'center',
-                    gap: '12px',
-                    fontSize: '0.88rem'
+                    flexDirection: 'column',
+                    gap: '8px'
                   }}>
-                    {hostsMap[campaign.confirmedHostId]?.profileImage ? (
-                      <img 
-                        src={hostsMap[campaign.confirmedHostId].profileImage} 
-                        alt={campaign.confirmedHostName} 
-                        style={{ width: '32px', height: '32px', borderRadius: '50%', objectFit: 'cover', border: '1px solid rgba(34,197,94,0.3)' }}
-                      />
-                    ) : (
-                      <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'rgba(34,197,94,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <Award size={16} color="#22c55e" />
-                      </div>
-                    )}
-                    <div>
-                      <div style={{ color: '#22c55e', fontWeight: 700, fontSize: '0.8rem', marginBottom: '2px' }}>최종 확정 쇼호스트</div>
-                      <div style={{ fontWeight: 600 }}>{campaign.confirmedHostName}</div>
-                    </div>
+                    {campaign.confirmedHostId.split(',').map((hId, index) => {
+                      const hName = campaign.confirmedHostName ? campaign.confirmedHostName.split(',')[index] : '알 수 없음';
+                      return (
+                        <div key={hId} style={{
+                          padding: '10px 14px',
+                          background: 'rgba(34,197,94,0.08)',
+                          border: '1px solid rgba(34,197,94,0.2)',
+                          borderRadius: '8px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '12px',
+                          fontSize: '0.88rem'
+                        }}>
+                          {hostsMap[hId]?.profileImage ? (
+                            <img 
+                              src={hostsMap[hId].profileImage} 
+                              alt={hName} 
+                              style={{ width: '32px', height: '32px', borderRadius: '50%', objectFit: 'cover', border: '1px solid rgba(34,197,94,0.3)' }}
+                            />
+                          ) : (
+                            <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'rgba(34,197,94,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                              <Award size={16} color="#22c55e" />
+                            </div>
+                          )}
+                          <div>
+                            <div style={{ color: '#22c55e', fontWeight: 700, fontSize: '0.8rem', marginBottom: '2px' }}>최종 확정 쇼호스트 {index + 1}</div>
+                            <div style={{ fontWeight: 600 }}>{hName}</div>
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
                 )}
               </div>

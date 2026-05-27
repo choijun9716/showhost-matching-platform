@@ -555,6 +555,7 @@ const Admin = ({ onNavigateToCampaignCreate }) => {
                           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap', marginBottom: '8px' }}>
                             <span style={{ padding: '3px 10px', borderRadius: '6px', fontSize: '0.75rem', fontWeight: 700, background: statusInfo.bg, color: statusInfo.color }}>
                               {statusInfo.text}
+                              {campaign.status === 'open' && campaign.confirmedHostId && ` (1명 확정)`}
                             </span>
                             <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#fff' }}>[{campaign.clientName}] {campaign.brandName}</h3>
                           </div>

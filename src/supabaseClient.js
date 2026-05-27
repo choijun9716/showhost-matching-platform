@@ -834,11 +834,26 @@ export const api = {
     },
     confirm: async (campaignId, hostId, hostName) => {
       if (isSheetdbActive) {
+        const campaignArr = await sheetdbSearch("campaigns", { id: campaignId });
+        if (!campaignArr || campaignArr.length === 0) throw new Error("캠페인을 찾을 수 없습니다.");
+        const campaign = campaignArr[0];
+
+        let confirmedIds = campaign.confirmedHostId ? campaign.confirmedHostId.split(',') : [];
+        let confirmedNames = campaign.confirmedHostName ? campaign.confirmedHostName.split(',') : [];
+
+        if (confirmedIds.includes(hostId)) throw new Error("이미 확정된 쇼호스트입니다.");
+        if (confirmedIds.length >= 2) throw new Error("최대 2명까지만 확정할 수 있습니다.");
+
+        confirmedIds.push(hostId);
+        confirmedNames.push(hostName);
+
+        const newStatus = confirmedIds.length === 2 ? 'confirmed' : 'open';
+
         // 캠페인 상태 업데이트
         await sheetdbPatch("campaigns", "id", campaignId, { 
-          status: 'confirmed', 
-          confirmedHostId: hostId, 
-          confirmedHostName: hostName 
+          status: newStatus, 
+          confirmedHostId: confirmedIds.join(','), 
+          confirmedHostName: confirmedNames.join(',') 
         });
 
         // 매칭 상태 업데이트
@@ -848,7 +863,8 @@ export const api = {
         for (const m of campMatches) {
           if (m.hostId === hostId) {
             await sheetdbPatch("matches", "id", m.id, { status: 'confirmed' });
-          } else if (m.status === 'accepted') {
+          } else if (newStatus === 'confirmed' && m.status === 'accepted') {
+            // 2명이 다 차서 마감된 경우에만 다른 수락건을 closed로 변경
             await sheetdbPatch("matches", "id", m.id, { status: 'closed' });
           }
         }
