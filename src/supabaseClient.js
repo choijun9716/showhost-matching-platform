@@ -786,18 +786,77 @@ export const api = {
   },
   campaigns: {
     create: async (clientId, clientName, campaignData) => {
+      if (isSheetdbActive) {
+        const newCampaign = {
+          id: 'camp-' + Date.now(),
+          clientId,
+          clientName,
+          brandName: campaignData.brandName,
+          schedule: campaignData.schedule,
+          location: campaignData.location,
+          category: campaignData.category,
+          description: campaignData.description || '',
+          status: 'open',
+          confirmedHostId: '', // null 대신 빈 문자열로 구글시트 오류 방지
+          confirmedHostName: '',
+          proposalCount: 0,
+          createdAt: new Date().toISOString()
+        };
+        await sheetdbPost("campaigns", [newCampaign]);
+        return newCampaign;
+      }
       return mockDb.createCampaign(clientId, clientName, campaignData);
     },
     listForClient: async (clientId) => {
+      if (isSheetdbActive) {
+        const campaigns = await sheetdbGet("campaigns");
+        return campaigns
+          .filter(c => c.clientId === clientId)
+          .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      }
       return mockDb.getCampaignsForClient(clientId);
     },
     get: async (campaignId) => {
+      if (isSheetdbActive) {
+        const res = await sheetdbSearch("campaigns", { id: campaignId });
+        return res && res.length > 0 ? res[0] : null;
+      }
       return mockDb.getCampaign(campaignId);
     },
     confirm: async (campaignId, hostId, hostName) => {
+      if (isSheetdbActive) {
+        // 캠페인 상태 업데이트
+        await sheetdbPatch("campaigns", "id", campaignId, { 
+          status: 'confirmed', 
+          confirmedHostId: hostId, 
+          confirmedHostName: hostName 
+        });
+
+        // 매칭 상태 업데이트
+        const allMatches = await sheetdbGet("matches");
+        const campMatches = allMatches.filter(m => m.campaignId === campaignId);
+        
+        for (const m of campMatches) {
+          if (m.hostId === hostId) {
+            await sheetdbPatch("matches", "id", m.id, { status: 'confirmed' });
+          } else if (m.status === 'accepted') {
+            await sheetdbPatch("matches", "id", m.id, { status: 'closed' });
+          }
+        }
+        
+        // 업데이트된 캠페인 정보 반환
+        const res = await sheetdbSearch("campaigns", { id: campaignId });
+        return res[0];
+      }
       return mockDb.confirmCampaignHost(campaignId, hostId, hostName);
     },
     getProposals: async (campaignId) => {
+      if (isSheetdbActive) {
+        const matches = await sheetdbGet("matches");
+        return matches
+          .filter(m => m.campaignId === campaignId)
+          .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      }
       initMockDatabase();
       const matches = JSON.parse(localStorage.getItem('matches') || '[]');
       return matches
@@ -807,14 +866,20 @@ export const api = {
   },
   matches: {
 
-    request: async (clientId, clientName, hostId, hostName, message) => {
+    request: async (clientId, clientName, hostId, hostName, message, campaignId = null) => {
       if (isSheetdbActive) {
         // SheetDB 크레딧 차감 (10크레딧) - SheetDB에 직접 반영
-        await api.points.deduct(clientId, 10, `${hostName}에게 매칭 신청`);
+        if (campaignId) {
+           await api.points.deduct(clientId, 10, `${hostName}에게 캠페인 제안`);
+        } else {
+           await api.points.deduct(clientId, 10, `${hostName}에게 매칭 신청`);
+        }
+        
         const newMatchId = "match-" + Date.now();
         const createdAt = new Date().toISOString();
         const newMatch = {
           id: newMatchId,
+          campaignId: campaignId || '', // null 대신 빈 문자열
           clientId,
           clientName,
           hostId,
@@ -824,6 +889,15 @@ export const api = {
           createdAt
         };
         await sheetdbPost("matches", [newMatch]);
+
+        // 캠페인의 proposalCount 증가
+        if (campaignId) {
+          const campRes = await sheetdbSearch("campaigns", { id: campaignId });
+          if (campRes && campRes.length > 0) {
+            const currentCount = parseInt(campRes[0].proposalCount) || 0;
+            await sheetdbPatch("campaigns", "id", campaignId, { proposalCount: currentCount + 1 });
+          }
+        }
         return newMatch;
       } else if (isRealSupabase) {
         // 크레딧 차감 먼저 (10크레딧)
