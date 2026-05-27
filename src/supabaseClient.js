@@ -817,6 +817,14 @@ export const api = {
       }
       return mockDb.getCampaignsForClient(clientId);
     },
+    listAll: async () => {
+      if (isSheetdbActive) {
+        const campaigns = await sheetdbGet("campaigns");
+        return campaigns.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      }
+      const campaigns = JSON.parse(localStorage.getItem('campaigns') || '[]');
+      return campaigns.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    },
     get: async (campaignId) => {
       if (isSheetdbActive) {
         const res = await sheetdbSearch("campaigns", { id: campaignId });

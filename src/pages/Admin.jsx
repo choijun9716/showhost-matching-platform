@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { api } from '../supabaseClient';
 import { useAuth } from '../context/AuthContext';
-import { Shield, Eye, EyeOff, Trash2, Star, Zap, Plus, Users, UserCheck } from 'lucide-react';
+import { Shield, Eye, EyeOff, Trash2, Star, Zap, Plus, Users, UserCheck, Search, Filter } from 'lucide-react';
 
 const Admin = ({ onNavigateToCampaignCreate }) => {
   const { user } = useAuth();
@@ -12,6 +12,11 @@ const Admin = ({ onNavigateToCampaignCreate }) => {
   const [activeTab, setActiveTab] = useState('hosts'); // 'hosts' | 'clients' | 'matches'
   const [chargeAmounts, setChargeAmounts] = useState({}); // { userId: amount }
   const [chargingId, setChargingId] = useState(null);
+
+  // Filters for matches tab
+  const [allCampaigns, setAllCampaigns] = useState([]);
+  const [campaignFilter, setCampaignFilter] = useState('all');
+  const [hostSearchQuery, setHostSearchQuery] = useState('');
 
   // 권한 체크 로직
   if (!user || user.role !== 'admin') {
@@ -27,15 +32,17 @@ const Admin = ({ onNavigateToCampaignCreate }) => {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const [profileData, allUsers, matchesData] = await Promise.all([
+      const [profileData, allUsers, matchesData, campaignsData] = await Promise.all([
         api.profiles.list(),
         api.users.list(),
-        api.matches.listAll()
+        api.matches.listAll(),
+        api.campaigns.listAll()
       ]);
       setHosts(profileData);
       const clientUsers = allUsers.filter(u => u.role === 'client');
       setClients(clientUsers);
       setAllMatches(matchesData);
+      setAllCampaigns(campaignsData);
     } catch (error) {
       console.error('Error fetching admin data:', error);
       alert('데이터를 불러오는 중 오류가 발생했습니다.');
@@ -399,68 +406,142 @@ const Admin = ({ onNavigateToCampaignCreate }) => {
           )}
         </div>
       )}
-      {activeTab === 'matches' && (
-        <div className="glass-panel" style={{ padding: '24px' }}>
-          <h2 style={{ fontSize: '1.2rem', fontWeight: 700, marginBottom: '16px' }}>총 매칭 및 제안 현황 ({allMatches.length}건)</h2>
-          <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
-              <thead>
-                <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', color: 'hsl(var(--foreground-muted))', textAlign: 'left' }}>
-                  <th style={{ padding: '12px' }}>발송일시</th>
-                  <th style={{ padding: '12px' }}>매칭 ID / 캠페인 ID</th>
-                  <th style={{ padding: '12px' }}>브랜드(클라이언트)</th>
-                  <th style={{ padding: '12px' }}>쇼호스트</th>
-                  <th style={{ padding: '12px' }}>메시지</th>
-                  <th style={{ padding: '12px' }}>상태</th>
-                </tr>
-              </thead>
-              <tbody>
-                {allMatches.map((m, i) => {
-                  const statusColors = {
-                    pending: '#f59e0b',
-                    accepted: '#22c55e',
-                    rejected: '#ef4444',
-                    confirmed: '#818cf8',
-                    closed: 'gray'
-                  };
-                  const statusText = {
-                    pending: '대기중',
-                    accepted: '수락',
-                    rejected: '거절',
-                    confirmed: '확정',
-                    closed: '마감'
-                  };
-                  return (
-                    <tr key={m.id || i} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-                      <td style={{ padding: '12px' }}>{new Date(m.createdAt).toLocaleString('ko-KR')}</td>
-                      <td style={{ padding: '12px', color: 'hsl(var(--foreground-muted))', fontSize: '0.8rem' }}>
-                        <div>Match: {m.id}</div>
-                        {m.campaignId && <div>Camp: {m.campaignId}</div>}
-                      </td>
-                      <td style={{ padding: '12px', fontWeight: 600 }}>{m.clientName}</td>
-                      <td style={{ padding: '12px', fontWeight: 600 }}>{m.hostName}</td>
-                      <td style={{ padding: '12px', color: 'hsl(var(--foreground-muted))' }}>{m.message || '-'}</td>
-                      <td style={{ padding: '12px', color: statusColors[m.status] || 'white', fontWeight: 700 }}>
-                        {statusText[m.status] || m.status}
+      {activeTab === 'matches' && (() => {
+        const filteredMatches = allMatches.filter(m => {
+          const matchCampaign = campaignFilter === 'all' || m.campaignId === campaignFilter;
+          const matchHost = hostSearchQuery.trim() === '' || m.hostName?.toLowerCase().includes(hostSearchQuery.toLowerCase());
+          return matchCampaign && matchHost;
+        });
+
+        // 맵 생성: 캠페인 ID -> 캠페인 이름
+        const campMap = {};
+        allCampaigns.forEach(c => {
+          campMap[c.id] = c.brandName ? `[${c.brandName}] ${c.category || ''}` : `캠페인(${c.id})`;
+        });
+
+        return (
+          <div className="glass-panel animate-fade-in" style={{ padding: '24px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '16px' }}>
+              <h2 style={{ fontSize: '1.3rem', fontWeight: 800, margin: 0 }}>총 매칭 및 제안 현황 ({filteredMatches.length}건)</h2>
+              <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+                <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                  <Filter size={16} style={{ position: 'absolute', left: '12px', color: 'hsl(var(--foreground-muted))' }} />
+                  <select
+                    className="input-field"
+                    value={campaignFilter}
+                    onChange={(e) => setCampaignFilter(e.target.value)}
+                    style={{ paddingLeft: '36px', minWidth: '180px', height: '40px' }}
+                  >
+                    <option value="all">전체 캠페인</option>
+                    {allCampaigns.map(c => (
+                      <option key={c.id} value={c.id}>
+                        {c.brandName ? `[${c.brandName}] 캠페인` : c.id}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                  <Search size={16} style={{ position: 'absolute', left: '12px', color: 'hsl(var(--foreground-muted))' }} />
+                  <input
+                    type="text"
+                    className="input-field"
+                    placeholder="쇼호스트 이름 검색..."
+                    value={hostSearchQuery}
+                    onChange={(e) => setHostSearchQuery(e.target.value)}
+                    style={{ paddingLeft: '36px', height: '40px', width: '200px' }}
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
+                <thead>
+                  <tr style={{ 
+                    borderBottom: '2px solid rgba(255,255,255,0.1)', 
+                    color: 'hsl(var(--foreground-muted))', 
+                    textAlign: 'left',
+                    background: 'rgba(255,255,255,0.02)'
+                  }}>
+                    <th style={{ padding: '14px 16px', fontWeight: 600 }}>매칭(제안) 정보</th>
+                    <th style={{ padding: '14px 16px', fontWeight: 600 }}>관련 캠페인</th>
+                    <th style={{ padding: '14px 16px', fontWeight: 600 }}>대상 쇼호스트</th>
+                    <th style={{ padding: '14px 16px', fontWeight: 600 }}>상태</th>
+                    <th style={{ padding: '14px 16px', fontWeight: 600, textAlign: 'right' }}>발송 일시</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredMatches.map((m, i) => {
+                    const statusColors = {
+                      pending: { bg: 'rgba(245,158,11,0.15)', text: '#f59e0b', label: '대기중' },
+                      accepted: { bg: 'rgba(34,197,94,0.15)', text: '#22c55e', label: '수락함' },
+                      rejected: { bg: 'rgba(239,68,68,0.15)', text: '#ef4444', label: '거절함' },
+                      confirmed: { bg: 'rgba(129,140,248,0.15)', text: '#818cf8', label: '최종확정' },
+                      closed: { bg: 'rgba(156,163,175,0.15)', text: '#9ca3af', label: '마감됨' }
+                    };
+                    const badge = statusColors[m.status] || { bg: 'rgba(255,255,255,0.1)', text: 'white', label: m.status };
+                    
+                    return (
+                      <tr key={m.id || i} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', transition: 'background 0.2s' }} className="hover-row">
+                        <td style={{ padding: '16px' }}>
+                          <div style={{ fontWeight: 600, color: '#e2e8f0', marginBottom: '4px' }}>
+                            {m.clientName}
+                          </div>
+                          <div style={{ color: 'hsl(var(--foreground-muted))', fontSize: '0.8rem', display: 'flex', gap: '4px', flexDirection: 'column' }}>
+                            <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '200px' }} title={m.message}>"{m.message || '내용 없음'}"</span>
+                            <span style={{ opacity: 0.5, fontSize: '0.75rem' }}>ID: {m.id}</span>
+                          </div>
+                        </td>
+                        <td style={{ padding: '16px' }}>
+                          <div style={{ fontWeight: 600, color: 'hsl(var(--primary))' }}>
+                            {m.campaignId ? campMap[m.campaignId] || '캠페인 정보 없음' : '캠페인 미지정'}
+                          </div>
+                          <div style={{ color: 'hsl(var(--foreground-muted))', fontSize: '0.75rem', marginTop: '4px', opacity: 0.5 }}>
+                            {m.campaignId || '-'}
+                          </div>
+                        </td>
+                        <td style={{ padding: '16px' }}>
+                          <div style={{ fontWeight: 700, fontSize: '1rem', color: '#fff' }}>{m.hostName}</div>
+                        </td>
+                        <td style={{ padding: '16px' }}>
+                          <span style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            padding: '4px 10px',
+                            background: badge.bg,
+                            color: badge.text,
+                            borderRadius: '12px',
+                            fontSize: '0.8rem',
+                            fontWeight: 700
+                          }}>
+                            {badge.label}
+                          </span>
+                        </td>
+                        <td style={{ padding: '16px', textAlign: 'right', color: 'hsl(var(--foreground-muted))', fontSize: '0.85rem' }}>
+                          {new Date(m.createdAt).toLocaleString('ko-KR', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })}
+                        </td>
+                      </tr>
+                    )
+                  })}
+                  {filteredMatches.length === 0 && (
+                    <tr>
+                      <td colSpan="5" style={{ padding: '40px 24px', textAlign: 'center' }}>
+                        <div style={{ color: 'hsl(var(--foreground-muted))', marginBottom: '8px' }}>진행된 매칭 내역이 없습니다.</div>
+                        <div style={{ fontSize: '0.8rem', opacity: 0.5 }}>필터 조건을 변경해 보세요.</div>
                       </td>
                     </tr>
-                  )
-                })}
-                {allMatches.length === 0 && (
-                  <tr>
-                    <td colSpan="6" style={{ padding: '24px', textAlign: 'center', color: 'hsl(var(--foreground-muted))' }}>
-                      진행된 매칭 내역이 없습니다.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
 
       <style>{`
         .hover-danger:hover { color: #ef4444 !important; }
+        .hover-row:hover { background: rgba(255,255,255,0.03) !important; }
       `}</style>
     </div>
   );
