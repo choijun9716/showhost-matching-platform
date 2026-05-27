@@ -19,7 +19,7 @@ function AppContent() {
   const renderPage = () => {
     switch (activeTab) {
       case 'admin':
-        return <Admin />;
+        return <Admin onNavigateToCampaignCreate={() => setActiveTab('campaign-create')} />;
       case 'dashboard':
         // 파트너사(client)는 캠페인 대시보드로
         if (user?.role === 'client') {

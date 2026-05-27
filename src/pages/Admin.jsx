@@ -3,12 +3,13 @@ import { api } from '../supabaseClient';
 import { useAuth } from '../context/AuthContext';
 import { Shield, Eye, EyeOff, Trash2, Star, Zap, Plus, Users, UserCheck } from 'lucide-react';
 
-const Admin = () => {
+const Admin = ({ onNavigateToCampaignCreate }) => {
   const { user } = useAuth();
   const [hosts, setHosts] = useState([]);
   const [clients, setClients] = useState([]);
+  const [allMatches, setAllMatches] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('hosts'); // 'hosts' | 'clients'
+  const [activeTab, setActiveTab] = useState('hosts'); // 'hosts' | 'clients' | 'matches'
   const [chargeAmounts, setChargeAmounts] = useState({}); // { userId: amount }
   const [chargingId, setChargingId] = useState(null);
 
@@ -26,13 +27,15 @@ const Admin = () => {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const [profileData, allUsers] = await Promise.all([
+      const [profileData, allUsers, matchesData] = await Promise.all([
         api.profiles.list(),
-        api.users.list()
+        api.users.list(),
+        api.matches.listAll()
       ]);
       setHosts(profileData);
       const clientUsers = allUsers.filter(u => u.role === 'client');
       setClients(clientUsers);
+      setAllMatches(matchesData);
     } catch (error) {
       console.error('Error fetching admin data:', error);
       alert('데이터를 불러오는 중 오류가 발생했습니다.');
@@ -133,44 +136,65 @@ const Admin = () => {
         <h1 style={{ fontSize: '1.8rem', fontWeight: 800 }}>관리자 패널</h1>
       </div>
 
-      {/* 탭 버튼 */}
-      <div style={{ display: 'flex', gap: '8px', marginBottom: '20px' }}>
-        <button
-          onClick={() => setActiveTab('hosts')}
-          className="btn"
-          style={{
-            padding: '10px 20px',
-            display: 'flex', alignItems: 'center', gap: '6px',
-            background: activeTab === 'hosts' ? 'rgba(255,255,255,0.1)' : 'transparent',
-            border: activeTab === 'hosts' ? '1px solid rgba(255,255,255,0.2)' : '1px solid transparent',
-            fontWeight: activeTab === 'hosts' ? 700 : 400
-          }}
-        >
-          <UserCheck size={16} />
-          쇼호스트 관리
-        </button>
-        <button
-          onClick={() => setActiveTab('clients')}
-          className="btn"
-          style={{
-            padding: '10px 20px',
-            display: 'flex', alignItems: 'center', gap: '6px',
-            background: activeTab === 'clients' ? 'rgba(99,102,241,0.15)' : 'transparent',
-            border: activeTab === 'clients' ? '1px solid rgba(99,102,241,0.3)' : '1px solid transparent',
-            color: activeTab === 'clients' ? '#818cf8' : 'inherit',
-            fontWeight: activeTab === 'clients' ? 700 : 400
-          }}
-        >
-          <Zap size={16} />
-          브랜드 크레딧 관리
-          <span style={{
-            fontSize: '0.7rem', padding: '2px 6px', borderRadius: '10px',
-            background: 'rgba(99,102,241,0.2)', color: '#818cf8'
-          }}>{clients.length}</span>
-        </button>
+      {/* 탭 버튼 및 액션 버튼 */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '12px' }}>
+        <div style={{ display: 'flex', gap: '8px' }}>
+          <button
+            onClick={() => setActiveTab('hosts')}
+            className="btn"
+            style={{
+              padding: '10px 20px',
+              display: 'flex', alignItems: 'center', gap: '6px',
+              background: activeTab === 'hosts' ? 'rgba(255,255,255,0.1)' : 'transparent',
+              border: activeTab === 'hosts' ? '1px solid rgba(255,255,255,0.2)' : '1px solid transparent',
+              fontWeight: activeTab === 'hosts' ? 700 : 400
+            }}
+          >
+            <UserCheck size={16} />
+            쇼호스트 관리
+          </button>
+          <button
+            onClick={() => setActiveTab('clients')}
+            className="btn"
+            style={{
+              padding: '10px 20px',
+              display: 'flex', alignItems: 'center', gap: '6px',
+              background: activeTab === 'clients' ? 'rgba(99,102,241,0.15)' : 'transparent',
+              border: activeTab === 'clients' ? '1px solid rgba(99,102,241,0.3)' : '1px solid transparent',
+              color: activeTab === 'clients' ? '#818cf8' : 'inherit',
+              fontWeight: activeTab === 'clients' ? 700 : 400
+            }}
+          >
+            <Users size={16} />
+            파트너사(브랜드) 관리
+          </button>
+          <button
+            onClick={() => setActiveTab('matches')}
+            className="btn"
+            style={{
+              padding: '10px 20px',
+              display: 'flex', alignItems: 'center', gap: '6px',
+              background: activeTab === 'matches' ? 'rgba(255,255,255,0.1)' : 'transparent',
+              border: activeTab === 'matches' ? '1px solid rgba(255,255,255,0.2)' : '1px solid transparent',
+              fontWeight: activeTab === 'matches' ? 700 : 400
+            }}
+          >
+            <Zap size={16} />
+            총 매칭 현황
+          </button>
+        </div>
+        <div>
+          <button
+            onClick={onNavigateToCampaignCreate}
+            className="btn btn-primary"
+            style={{ padding: '10px 20px', display: 'flex', alignItems: 'center', gap: '6px' }}
+          >
+            <Plus size={16} />
+            캠페인 생성
+          </button>
+        </div>
       </div>
 
-      {/* 쇼호스트 관리 탭 */}
       {activeTab === 'hosts' && (
         <div className="glass-panel" style={{ padding: '24px', overflowX: 'auto' }}>
           <h2 style={{ fontSize: '1.2rem', marginBottom: '20px', fontWeight: 700 }}>쇼호스트 관리</h2>
@@ -271,7 +295,6 @@ const Admin = () => {
         </div>
       )}
 
-      {/* 브랜드 크레딧 관리 탭 */}
       {activeTab === 'clients' && (
         <div className="glass-panel" style={{ padding: '24px', overflowX: 'auto' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px' }}>

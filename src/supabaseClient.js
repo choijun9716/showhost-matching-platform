@@ -939,6 +939,36 @@ export const api = {
         return mockDb.requestMatch(clientId, clientName, hostId, hostName, message, campaignId);
       }
     },
+    listAll: async () => {
+      if (isSheetdbActive) {
+        const list = await sheetdbGet("matches");
+        return list
+          .map(m => ({
+            ...m,
+            campaignId: m.campaignId || m.campaignid || m.campaign_id,
+            hostId: m.hostId || m.hostid || m.host_id,
+            clientId: m.clientId || m.clientid || m.client_id
+          }))
+          .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      } else if (isRealSupabase) {
+        const { data, error } = await supabase.from('matches').select('*').order('created_at', { ascending: false });
+        if (error) throw error;
+        return data.map(d => ({
+          id: d.id,
+          campaignId: d.campaign_id,
+          clientId: d.client_id,
+          clientName: d.client_name,
+          hostId: d.host_id,
+          hostName: d.host_name,
+          message: d.message,
+          status: d.status,
+          createdAt: d.created_at
+        }));
+      } else {
+        const matches = JSON.parse(localStorage.getItem('matches') || '[]');
+        return matches.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      }
+    },
     listForClient: async (clientId) => {
       if (isSheetdbActive) {
         const list = await sheetdbGet("matches");
