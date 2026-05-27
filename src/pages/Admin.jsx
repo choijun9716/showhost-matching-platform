@@ -398,6 +398,64 @@ const Admin = ({ onNavigateToCampaignCreate }) => {
             </div>
           )}
         </div>
+      {activeTab === 'matches' && (
+        <div className="glass-panel" style={{ padding: '24px' }}>
+          <h2 style={{ fontSize: '1.2rem', fontWeight: 700, marginBottom: '16px' }}>총 매칭 및 제안 현황 ({allMatches.length}건)</h2>
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
+              <thead>
+                <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', color: 'hsl(var(--foreground-muted))', textAlign: 'left' }}>
+                  <th style={{ padding: '12px' }}>발송일시</th>
+                  <th style={{ padding: '12px' }}>매칭 ID / 캠페인 ID</th>
+                  <th style={{ padding: '12px' }}>브랜드(클라이언트)</th>
+                  <th style={{ padding: '12px' }}>쇼호스트</th>
+                  <th style={{ padding: '12px' }}>메시지</th>
+                  <th style={{ padding: '12px' }}>상태</th>
+                </tr>
+              </thead>
+              <tbody>
+                {allMatches.map((m, i) => {
+                  const statusColors = {
+                    pending: '#f59e0b',
+                    accepted: '#22c55e',
+                    rejected: '#ef4444',
+                    confirmed: '#818cf8',
+                    closed: 'gray'
+                  };
+                  const statusText = {
+                    pending: '대기중',
+                    accepted: '수락',
+                    rejected: '거절',
+                    confirmed: '확정',
+                    closed: '마감'
+                  };
+                  return (
+                    <tr key={m.id || i} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                      <td style={{ padding: '12px' }}>{new Date(m.createdAt).toLocaleString('ko-KR')}</td>
+                      <td style={{ padding: '12px', color: 'hsl(var(--foreground-muted))', fontSize: '0.8rem' }}>
+                        <div>Match: {m.id}</div>
+                        {m.campaignId && <div>Camp: {m.campaignId}</div>}
+                      </td>
+                      <td style={{ padding: '12px', fontWeight: 600 }}>{m.clientName}</td>
+                      <td style={{ padding: '12px', fontWeight: 600 }}>{m.hostName}</td>
+                      <td style={{ padding: '12px', color: 'hsl(var(--foreground-muted))' }}>{m.message || '-'}</td>
+                      <td style={{ padding: '12px', color: statusColors[m.status] || 'white', fontWeight: 700 }}>
+                        {statusText[m.status] || m.status}
+                      </td>
+                    </tr>
+                  )
+                })}
+                {allMatches.length === 0 && (
+                  <tr>
+                    <td colSpan="6" style={{ padding: '24px', textAlign: 'center', color: 'hsl(var(--foreground-muted))' }}>
+                      진행된 매칭 내역이 없습니다.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
       )}
 
       <style>{`
