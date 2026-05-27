@@ -1,10 +1,28 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { LogOut, User, LayoutDashboard, Shield, Zap, Megaphone } from 'lucide-react';
+import { api } from '../supabaseClient';
+import { LogOut, User, LayoutDashboard, Shield, Zap, Megaphone, Bell } from 'lucide-react';
 
 const Navbar = ({ activeTab, setActiveTab }) => {
   const { user, logout } = useAuth();
+  const [pendingCount, setPendingCount] = useState(0);
 
+  useEffect(() => {
+    if (user && user.role === 'showhost') {
+      const fetchMatches = async () => {
+        try {
+          const matches = await api.matches.listForHost(user.id);
+          const count = matches.filter(m => m.status === 'pending').length;
+          setPendingCount(count);
+        } catch (e) {
+          console.error(e);
+        }
+      };
+      fetchMatches();
+      const interval = setInterval(fetchMatches, 5000);
+      return () => clearInterval(interval);
+    }
+  }, [user, activeTab]);
 
   return (
     <header className="glass-panel" style={{
@@ -62,6 +80,19 @@ const Navbar = ({ activeTab, setActiveTab }) => {
               <span className="nav-text-hide">
                 {user.role === 'client' ? '캠페인 관리' : '매칭 대시보드'}
               </span>
+              {user.role === 'showhost' && pendingCount > 0 && (
+                <div style={{
+                  background: '#ef4444',
+                  color: '#fff',
+                  fontSize: '0.7rem',
+                  fontWeight: 800,
+                  padding: '2px 6px',
+                  borderRadius: '10px',
+                  marginLeft: '4px'
+                }}>
+                  {pendingCount}
+                </div>
+              )}
             </button>
           )}
 
