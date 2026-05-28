@@ -104,20 +104,8 @@ const Login = ({ onAuthSuccess }) => {
         <div style={{ position: 'relative', zIndex: 1 }}>
           {/* Header */}
           <div style={{ textAlign: 'center', marginBottom: '30px' }}>
-            <div className="bg-gradient-primary" style={{
-              width: '44px',
-              height: '44px',
-              borderRadius: '12px',
-              display: 'inline-flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              boxShadow: '0 4px 15px rgba(255, 255, 255, 0.1)',
-              marginBottom: '16px'
-            }}>
-              <Sparkles size={22} color="black" />
-            </div>
             <h2 style={{ fontSize: '1.75rem', fontWeight: 800, marginBottom: '6px' }}>
-              {isLoginView ? 'Welcome Back' : 'Get Started'}
+              {isLoginView ? '로그인' : '회원가입'}
             </h2>
             <p style={{ color: 'hsl(var(--foreground-muted))', fontSize: '0.9rem' }}>
               {isLoginView 
