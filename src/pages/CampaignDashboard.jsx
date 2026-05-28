@@ -25,6 +25,7 @@ const CampaignDashboard = ({ onCreateCampaign }) => {
   const [hostsMap, setHostsMap] = useState({});
   const [loading, setLoading] = useState(true);
   const [confirming, setConfirming] = useState(null);
+  const [filterStatus, setFilterStatus] = useState('all');
 
   useEffect(() => {
     fetchCampaigns();
@@ -108,6 +109,11 @@ const CampaignDashboard = ({ onCreateCampaign }) => {
     );
   }
 
+  const filteredCampaigns = campaigns.filter(c => {
+    if (filterStatus === 'all') return true;
+    return c.status === filterStatus;
+  });
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
       {/* 헤더 */}
@@ -128,6 +134,33 @@ const CampaignDashboard = ({ onCreateCampaign }) => {
         </button>
       </div>
 
+      {/* 필터 탭 */}
+      {campaigns.length > 0 && (
+        <div style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
+          <button 
+            onClick={() => setFilterStatus('all')}
+            className="btn"
+            style={{ padding: '6px 14px', borderRadius: '20px', fontSize: '0.85rem', background: filterStatus === 'all' ? '#ffffff' : 'rgba(255,255,255,0.05)', color: filterStatus === 'all' ? '#000000' : 'hsl(var(--foreground-muted))', fontWeight: filterStatus === 'all' ? 700 : 500 }}
+          >
+            전체
+          </button>
+          <button 
+            onClick={() => setFilterStatus('open')}
+            className="btn"
+            style={{ padding: '6px 14px', borderRadius: '20px', fontSize: '0.85rem', background: filterStatus === 'open' ? '#ffffff' : 'rgba(255,255,255,0.05)', color: filterStatus === 'open' ? '#000000' : 'hsl(var(--foreground-muted))', fontWeight: filterStatus === 'open' ? 700 : 500 }}
+          >
+            모집중
+          </button>
+          <button 
+            onClick={() => setFilterStatus('confirmed')}
+            className="btn"
+            style={{ padding: '6px 14px', borderRadius: '20px', fontSize: '0.85rem', background: filterStatus === 'confirmed' ? '#ffffff' : 'rgba(255,255,255,0.05)', color: filterStatus === 'confirmed' ? '#000000' : 'hsl(var(--foreground-muted))', fontWeight: filterStatus === 'confirmed' ? 700 : 500 }}
+          >
+            매칭확정
+          </button>
+        </div>
+      )}
+
       {campaigns.length === 0 ? (
         <div className="glass-panel" style={{ textAlign: 'center', padding: '60px 40px' }}>
           <Megaphone size={48} color="hsl(var(--foreground-muted))" style={{ marginBottom: '16px', opacity: 0.5 }} />
@@ -139,8 +172,12 @@ const CampaignDashboard = ({ onCreateCampaign }) => {
             <Plus size={16} /> 첫 캠페인 만들기
           </button>
         </div>
+      ) : filteredCampaigns.length === 0 ? (
+        <div className="glass-panel" style={{ textAlign: 'center', padding: '60px 40px' }}>
+          <h3 style={{ fontSize: '1.1rem', marginBottom: '8px' }}>해당 상태의 캠페인이 없습니다</h3>
+        </div>
       ) : (
-        campaigns.map(campaign => {
+        filteredCampaigns.map(campaign => {
           const statusInfo = STATUS_LABEL[campaign.status] || STATUS_LABEL.open;
           const isExpanded = expanded === campaign.id;
           const campProposals = proposals[campaign.id] || [];
