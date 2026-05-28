@@ -50,8 +50,8 @@ const PortfolioView = ({ host, onClose, onSendProposal, isOwnProfile = false }) 
             display: 'flex', 
             alignItems: 'center', 
             gap: '8px',
-            background: 'linear-gradient(135deg, #00f2fe 0%, #4facfe 100%)',
-            color: '#000000',
+            background: '#ffffff',
+            color: '#0d0d0d',
             fontWeight: 700
           }}
         >
@@ -86,7 +86,6 @@ const PortfolioView = ({ host, onClose, onSendProposal, isOwnProfile = false }) 
                 <div className="name-wrapper">
                   <h1 className="host-title">
                     {host.name}
-                    <span className="gender-badge">{host.gender || '쇼호스트'}</span>
                   </h1>
                   <p className="english-name">SHOWHOST</p>
                 </div>
@@ -365,11 +364,11 @@ const PortfolioView = ({ host, onClose, onSendProposal, isOwnProfile = false }) 
 
         .bio-block {
           background: #0a0a0a;
-          border-left: 4px solid #00f2fe;
+          border-left: 4px solid #ffffff;
           padding: 18px 20px;
           border-radius: 0 12px 12px 0;
           border: 1px solid rgba(255,255,255,0.05);
-          border-left: 4px solid #00f2fe;
+          border-left: 4px solid #ffffff;
         }
 
         .bio-text {

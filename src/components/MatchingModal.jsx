@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../supabaseClient';
 import { X, Send, AlertCircle, Star, Zap } from 'lucide-react';
+import CreditTopUpModal from './CreditTopUpModal';
 
 const MATCH_COST = 10; // 매칭 1건당 차감 크레딧
 
@@ -9,6 +10,7 @@ const MatchingModal = ({ host, onClose, onSuccess, onNavigateToLogin }) => {
   const { user, updateCredits } = useAuth();
   const [message, setMessage] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [isTopUpOpen, setIsTopUpOpen] = useState(false);
   const [error, setError] = useState('');
   const backdropRef = useRef(null);
 
@@ -65,6 +67,7 @@ const MatchingModal = ({ host, onClose, onSuccess, onNavigateToLogin }) => {
   };
 
   return (
+    <>
     <div 
       ref={backdropRef}
       style={{
@@ -224,8 +227,17 @@ const MatchingModal = ({ host, onClose, onSuccess, onNavigateToLogin }) => {
                   borderRadius: '8px',
                   fontSize: '0.85rem'
                 }}>
-                  <AlertCircle size={16} />
-                  <span>크레딧이 부족합니다. 관리자에게 크레딧 충전을 요청해 주세요.</span>
+                  <AlertCircle size={15} />
+                  <span>
+                    크레딧이 부족합니다.{' '}
+                    <button 
+                      type="button"
+                      onClick={() => setIsTopUpOpen(true)}
+                      style={{ background: 'none', border: 'none', color: '#ffffff', textDecoration: 'underline', cursor: 'pointer', fontWeight: 600, padding: 0 }}
+                    >
+                      충전하기
+                    </button>
+                  </span>
                 </div>
               )}
 
@@ -295,6 +307,13 @@ const MatchingModal = ({ host, onClose, onSuccess, onNavigateToLogin }) => {
         </form>
       </div>
     </div>
+    {isTopUpOpen && (
+      <CreditTopUpModal 
+        onClose={() => setIsTopUpOpen(false)}
+        onSuccess={() => {}}
+      />
+    )}
+    </>
   );
 };
 

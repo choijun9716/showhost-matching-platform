@@ -276,15 +276,7 @@ const ProfileEdit = () => {
             <Sparkles size={18} color="#ffffff" />
             신체 스펙 정보
           </h2>
-          <div className="input-grid-3">
-            <div>
-              <label style={{ fontSize: '0.9rem', fontWeight: 600, marginBottom: '8px', display: 'block' }}>성별</label>
-              <select className="input-field" value={gender} onChange={(e) => setGender(e.target.value)}>
-                <option value="여성">여성</option>
-                <option value="남성">남성</option>
-                <option value="기타">기타</option>
-              </select>
-            </div>
+          <div className="input-grid-2">
             <div>
               <label style={{ fontSize: '0.9rem', fontWeight: 600, marginBottom: '8px', display: 'block' }}>키 (cm)</label>
               <div style={{ position: 'relative' }}>

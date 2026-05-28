@@ -2,10 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../supabaseClient';
 import { LogOut, User, LayoutDashboard, Shield, Zap, Megaphone, Bell } from 'lucide-react';
+import CreditTopUpModal from './CreditTopUpModal';
 
 const Navbar = ({ activeTab, setActiveTab }) => {
   const { user, logout } = useAuth();
   const [pendingCount, setPendingCount] = useState(0);
+  const [isTopUpOpen, setIsTopUpOpen] = useState(false);
 
   useEffect(() => {
     if (user && user.role === 'showhost') {
@@ -25,6 +27,7 @@ const Navbar = ({ activeTab, setActiveTab }) => {
   }, [user, activeTab]);
 
   return (
+    <>
     <header className="glass-panel" style={{
       position: 'sticky',
       top: 0,
@@ -115,7 +118,7 @@ const Navbar = ({ activeTab, setActiveTab }) => {
             </button>
           )}
 
-          {user && user.role === 'admin' && (
+          {user && (user.role === 'admin' || user.role === 'subadmin') && (
             <button 
               onClick={() => setActiveTab('admin')}
               className="btn"
@@ -142,30 +145,48 @@ const Navbar = ({ activeTab, setActiveTab }) => {
             <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
               {/* 크레딧 배지 - 브랜드 계정만 */}
               {user.role === 'client' && (
-                <div style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '5px',
-                  padding: '5px 11px',
-                  borderRadius: '8px',
-                  background: (parseInt(user.points) || 0) > 0
-                    ? 'rgba(255, 255, 255, 0.1)'
-                    : 'rgba(239, 68, 68, 0.1)',
-                  border: `1px solid ${
-                    (parseInt(user.points) || 0) > 0
-                      ? 'rgba(255, 255, 255, 0.3)'
-                      : 'rgba(239, 68, 68, 0.3)'
-                  }`,
-                  whiteSpace: 'nowrap'
-                }}>
-                  <Zap size={13} color={(parseInt(user.points) || 0) > 0 ? '#ffffff' : '#ef4444'} />
-                  <span style={{
-                    fontSize: '0.8rem',
-                    fontWeight: 700,
-                    color: (parseInt(user.points) || 0) > 0 ? '#ffffff' : '#ef4444'
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '5px',
+                    padding: '5px 11px',
+                    borderRadius: '8px',
+                    background: (parseInt(user.points) || 0) > 0
+                      ? 'rgba(255, 255, 255, 0.1)'
+                      : 'rgba(239, 68, 68, 0.1)',
+                    border: `1px solid ${
+                      (parseInt(user.points) || 0) > 0
+                        ? 'rgba(255, 255, 255, 0.3)'
+                        : 'rgba(239, 68, 68, 0.3)'
+                    }`,
+                    whiteSpace: 'nowrap'
                   }}>
-                    {(parseInt(user.points) || 0).toLocaleString()} C
-                  </span>
+                    <Zap size={13} color={(parseInt(user.points) || 0) > 0 ? '#ffffff' : '#ef4444'} />
+                    <span style={{
+                      fontSize: '0.8rem',
+                      fontWeight: 700,
+                      color: (parseInt(user.points) || 0) > 0 ? '#ffffff' : '#ef4444'
+                    }}>
+                      {(parseInt(user.points) || 0).toLocaleString()} C
+                    </span>
+                  </div>
+                  <button
+                    onClick={() => setIsTopUpOpen(true)}
+                    style={{
+                      background: 'rgba(255,255,255,0.15)',
+                      color: '#ffffff',
+                      border: '1px solid rgba(255,255,255,0.2)',
+                      padding: '5px 12px',
+                      borderRadius: '8px',
+                      fontSize: '0.8rem',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      whiteSpace: 'nowrap'
+                    }}
+                  >
+                    충전하기
+                  </button>
                 </div>
               )}
 
@@ -173,11 +194,11 @@ const Navbar = ({ activeTab, setActiveTab }) => {
                 <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>{user.name}님</span>
                 <span style={{ 
                   fontSize: '0.7rem', 
-                  color: user.role === 'showhost' ? '#ffffff' : (user.role === 'admin' ? '#f59e0b' : 'hsl(var(--primary-hover))'),
+                  color: user.role === 'showhost' ? '#ffffff' : ((user.role === 'admin' || user.role === 'subadmin') ? '#f59e0b' : 'hsl(var(--primary-hover))'),
                   fontWeight: 700,
                   textTransform: 'uppercase'
                 }}>
-                  {user.role === 'showhost' ? '쇼호스트' : (user.role === 'admin' ? '관리자' : '브랜드 담당자')}
+                  {user.role === 'showhost' ? '쇼호스트' : (user.role === 'admin' ? '관리자' : (user.role === 'subadmin' ? '중간 관리자' : '브랜드 담당자'))}
                 </span>
               </div>
               <button 
@@ -207,9 +228,16 @@ const Navbar = ({ activeTab, setActiveTab }) => {
               로그인 / 가입
             </button>
           )}
-        </nav>
-      </div>
-    </header>
+          </nav>
+        </div>
+      </header>
+      {isTopUpOpen && (
+        <CreditTopUpModal 
+          onClose={() => setIsTopUpOpen(false)}
+          onSuccess={() => {}}
+        />
+      )}
+    </>
   );
 };
 

@@ -167,6 +167,7 @@ export const initMockDatabase = () => {
   if (!localStorage.getItem('users')) {
     localStorage.setItem('users', JSON.stringify([
       { id: 'admin-1', email: 'admin@test.com', password: 'password123', name: '관리자', role: 'admin', isPaid: 'true', points: 9999 },
+      { id: 'subadmin-1', email: 'subadmin@test.com', password: 'password123', name: '중간관리자', role: 'subadmin', isPaid: 'true', points: 9999 },
       { id: 'client-1', email: 'client@test.com', password: 'password123', name: '테스트 브랜드', role: 'client', isPaid: 'false', points: 30 },
       ...INITIAL_MOCK_PROFILES.map(host => ({
         id: host.id,
@@ -1095,16 +1096,31 @@ export const api = {
       }
     },
     respond: async (matchId, status) => {
+      let result;
       if (isSheetdbActive) {
         await sheetdbPatch("matches", "id", matchId, { status });
-        return { success: true, matchId, status };
+        result = { success: true, matchId, status };
       } else if (isRealSupabase) {
         const { error } = await supabase.from('matches').update({ status }).eq('id', matchId);
         if (error) throw error;
-        return { success: true, matchId, status };
+        result = { success: true, matchId, status };
       } else {
-        return mockDb.respondMatch(matchId, status);
+        result = await mockDb.respondMatch(matchId, status);
       }
+
+      // [자동 환불 로직] 쇼호스트가 제안을 거절한 경우 10크레딧 환불
+      if (status === 'rejected') {
+        try {
+          const allMatches = await api.matches.listAll();
+          const target = allMatches.find(m => m.id === matchId);
+          if (target && target.clientId) {
+            await api.users.chargePoints(target.clientId, 10, '쇼호스트 제안 거절 (자동 환불)');
+          }
+        } catch (err) {
+          console.error('환불 처리 중 오류 발생:', err);
+        }
+      }
+      return result;
     },
     update: async (matchId, updates) => {
       if (isSheetdbActive) {

@@ -11,7 +11,7 @@ const Admin = ({ onNavigateToCampaignCreate }) => {
   const [clients, setClients] = useState([]);
   const [allMatches, setAllMatches] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('hosts'); // 'hosts' | 'clients' | 'matches'
+  const [activeTab, setActiveTab] = useState(user?.role === 'subadmin' ? 'matches' : 'hosts');
   const [chargeAmounts, setChargeAmounts] = useState({}); // { userId: amount }
   const [chargingId, setChargingId] = useState(null);
 
@@ -26,7 +26,7 @@ const Admin = ({ onNavigateToCampaignCreate }) => {
   };
 
   // 권한 체크 로직
-  if (!user || user.role !== 'admin') {
+  if (!user || (user.role !== 'admin' && user.role !== 'subadmin')) {
     return (
       <div className="container" style={{ padding: '40px 0', textAlign: 'center' }}>
         <Shield size={48} color="#ef4444" style={{ margin: '0 auto 20px auto' }} />
@@ -61,6 +61,14 @@ const Admin = ({ onNavigateToCampaignCreate }) => {
   useEffect(() => {
     fetchData();
   }, []);
+
+  useEffect(() => {
+    if (user?.role === 'subadmin') {
+      if (activeTab === 'hosts' || activeTab === 'stats' || activeTab === 'settlement') {
+        setActiveTab('matches');
+      }
+    }
+  }, [user, activeTab]);
 
   const handleUpdateMatch = async (matchId, updates) => {
     try {
@@ -163,8 +171,9 @@ const Admin = ({ onNavigateToCampaignCreate }) => {
       {/* 탭 버튼 및 액션 버튼 */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '12px' }}>
         <div style={{ display: 'flex', gap: '8px' }}>
-          <button
-            onClick={() => setActiveTab('hosts')}
+          {user.role === 'admin' && (
+            <button
+              onClick={() => setActiveTab('hosts')}
             className="btn"
             style={{
               padding: '10px 20px',
@@ -176,7 +185,8 @@ const Admin = ({ onNavigateToCampaignCreate }) => {
           >
             <UserCheck size={16} />
             쇼호스트 관리
-          </button>
+            </button>
+          )}
           <button
             onClick={() => setActiveTab('clients')}
             className="btn"
@@ -206,8 +216,10 @@ const Admin = ({ onNavigateToCampaignCreate }) => {
             <Zap size={16} />
             총 매칭 현황
           </button>
-          <button
-            onClick={() => setActiveTab('stats')}
+          {user.role === 'admin' && (
+            <>
+              <button
+                onClick={() => setActiveTab('stats')}
             className="btn"
             style={{
               padding: '10px 20px',
@@ -233,8 +245,10 @@ const Admin = ({ onNavigateToCampaignCreate }) => {
             }}
           >
             <DollarSign size={16} />
-            정산 관리
-          </button>
+              정산 관리
+              </button>
+            </>
+          )}
         </div>
         <div>
           <button
@@ -248,15 +262,15 @@ const Admin = ({ onNavigateToCampaignCreate }) => {
         </div>
       </div>
 
-      {activeTab === 'stats' && (
+      {user.role === 'admin' && activeTab === 'stats' && (
         <AdminStats allMatches={allMatches} hosts={hosts} clients={clients} campaigns={allCampaigns} />
       )}
 
-      {activeTab === 'settlement' && (
+      {user.role === 'admin' && activeTab === 'settlement' && (
         <AdminSettlement allMatches={allMatches} campaigns={allCampaigns} hosts={hosts} onUpdateMatch={handleUpdateMatch} />
       )}
 
-      {activeTab === 'hosts' && (
+      {user.role === 'admin' && activeTab === 'hosts' && (
         <div className="glass-panel" style={{ padding: '24px', overflowX: 'auto' }}>
           <h2 style={{ fontSize: '1.2rem', marginBottom: '20px', fontWeight: 700 }}>쇼호스트 관리</h2>
           <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '800px' }}>
