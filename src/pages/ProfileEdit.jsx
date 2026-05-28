@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../supabaseClient';
-import { Save, User, Award, CircleDollarSign, FileText, Video, Sparkles, Image, CheckCircle, AlertCircle } from 'lucide-react';
+import { Save, User, Award, CircleDollarSign, FileText, Video, Sparkles, Image, CheckCircle, AlertCircle, Calendar, Tag, Ruler, Scale, Briefcase } from 'lucide-react';
 
 const CATEGORIES = ['패션', '뷰티', '푸드', 'IT/가전', '기타'];
 const CAREER_OPTIONS = ['신입', '1년', '2년', '3년', '4년', '5년', '7년 이상', '10년 이상'];
@@ -213,32 +213,27 @@ const ProfileEdit = () => {
   }
 
   return (
-    <div className="container animate-fade-in" style={{ paddingBottom: '80px', maxWidth: '800px' }}>
+    <div className="container animate-fade-in" style={{ paddingBottom: '100px', maxWidth: '800px' }}>
       
+      {/* Header Area */}
       <div style={{ marginBottom: '30px' }}>
         <div className="badge" style={{ marginBottom: '12px' }}>
           <Sparkles size={12} style={{ marginRight: '4px' }} />
           Showhost Management
         </div>
         <h1 style={{ fontSize: '2.2rem', fontWeight: 800 }}>내 쇼호스트 프로필 관리</h1>
-        <p style={{ color: 'hsl(var(--foreground-muted))' }}>
-          브랜드(클라이언트)사에게 노출되는 프로필 정보를 작성하고 정기적으로 업데이트해보세요.
+        <p style={{ color: 'hsl(var(--foreground-muted))', marginTop: '6px', fontSize: '0.95rem' }}>
+          브랜드사에게 매력적으로 보일 수 있도록 프로필 사진과 정보를 꼼꼼하게 작성해 주세요.
         </p>
       </div>
 
+      {/* 알림 메시지 */}
       {successMsg && (
         <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '12px',
-          background: 'rgba(16, 185, 129, 0.1)',
-          border: '1px solid rgba(16, 185, 129, 0.2)',
-          color: '#10b981',
-          padding: '16px',
-          borderRadius: '12px',
-          fontSize: '0.95rem',
-          fontWeight: 600,
-          marginBottom: '30px'
+          display: 'flex', alignItems: 'center', gap: '12px',
+          background: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.2)',
+          color: '#10b981', padding: '16px', borderRadius: '12px',
+          fontSize: '0.95rem', fontWeight: 600, marginBottom: '24px'
         }}>
           <CheckCircle size={20} />
           <span>{successMsg}</span>
@@ -247,277 +242,242 @@ const ProfileEdit = () => {
 
       {error && (
         <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '12px',
-          background: 'rgba(239, 68, 68, 0.1)',
-          border: '1px solid rgba(239, 68, 68, 0.2)',
-          color: '#ef4444',
-          padding: '16px',
-          borderRadius: '12px',
-          fontSize: '0.95rem',
-          fontWeight: 600,
-          marginBottom: '30px'
+          display: 'flex', alignItems: 'center', gap: '12px',
+          background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.2)',
+          color: '#ef4444', padding: '16px', borderRadius: '12px',
+          fontSize: '0.95rem', fontWeight: 600, marginBottom: '24px'
         }}>
           <AlertCircle size={20} />
           <span>{error}</span>
         </div>
       )}
 
-      <form onSubmit={handleSave} className="glass-panel" style={{ padding: '40px', display: 'flex', flexDirection: 'column', gap: '30px' }}>
+      <form onSubmit={handleSave} style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
         
-        {/* Profile Image & Basic Info Row */}
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: '1fr',
-          gap: '30px',
-        }} className="profile-edit-grid">
+        {/* Section 1: 프로필 사진 및 기본 정보 */}
+        <div className="glass-panel" style={{ padding: '32px' }}>
+          <h2 style={{ fontSize: '1.2rem', fontWeight: 700, marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <User size={18} color="#818cf8" />
+            기본 정보
+          </h2>
           
-          {/* Avatar Upload Column */}
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}>
-            <label style={{ alignSelf: 'flex-start' }}>프로필 사진</label>
-            <div style={{ position: 'relative', width: '150px', height: '150px', borderRadius: '16px', overflow: 'hidden', border: '1px solid var(--glass-border)' }}>
-              {avatar ? (
-                <img src={avatar} alt="Profile preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-              ) : (
-                <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.3)', color: 'hsl(var(--foreground-muted))' }}>
-                  <Image size={32} />
-                </div>
-              )}
+          <div className="edit-section-grid">
+            {/* Left: Avatar */}
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}>
+              <div style={{ 
+                position: 'relative', width: '140px', height: '140px', 
+                borderRadius: '50%', overflow: 'hidden', 
+                border: '3px solid rgba(129, 140, 248, 0.3)',
+                boxShadow: '0 8px 32px rgba(0,0,0,0.2)'
+              }}>
+                {avatar ? (
+                  <img src={avatar} alt="Profile preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                ) : (
+                  <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.3)', color: 'hsl(var(--foreground-muted))' }}>
+                    <Image size={32} />
+                  </div>
+                )}
+              </div>
+              <div style={{ width: '100%', textAlign: 'center' }}>
+                <input type="file" accept="image/*" onChange={handleImageChange} style={{ display: 'none' }} id="avatar-upload" />
+                <label htmlFor="avatar-upload" className="btn btn-secondary" style={{ padding: '8px 16px', fontSize: '0.85rem', cursor: 'pointer', margin: 0, display: 'inline-block' }}>
+                  프로필 사진 변경
+                </label>
+                <div style={{ fontSize: '0.75rem', color: 'hsl(var(--foreground-muted))', marginTop: '8px' }}>최대 10MB 이미지 지원</div>
+              </div>
             </div>
-            
-            <div style={{ width: '100%', textAlign: 'center' }}>
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleImageChange}
-                style={{ display: 'none' }}
-                id="avatar-upload"
-              />
-              <label 
-                htmlFor="avatar-upload" 
-                className="btn btn-secondary"
-                style={{ 
-                  display: 'inline-flex',
-                  padding: '8px 16px',
-                  fontSize: '0.85rem',
-                  cursor: 'pointer',
-                  margin: 0
-                }}
-              >
-                사진 선택
-              </label>
-              <span style={{ display: 'block', fontSize: '0.75rem', color: 'hsl(var(--foreground-muted))', marginTop: '6px' }}>
-                최대 2MB 이미지 지원
-              </span>
-            </div>
-          </div>
 
-          {/* Basic Fields Column */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', flexGrow: 1 }}>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '16px' }}>
+            {/* Right: Inputs */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
               <div>
-                <label htmlFor="edit-name">활동명 / 이름</label>
+                <label style={{ fontSize: '0.9rem', fontWeight: 600, marginBottom: '8px', display: 'block' }}>활동명 (이름) <span style={{ color: '#ef4444' }}>*</span></label>
                 <div style={{ position: 'relative' }}>
                   <User size={16} color="hsl(var(--foreground-muted))" style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)' }} />
-                  <input
-                    id="edit-name"
-                    type="text"
-                    placeholder="활동명"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    style={{ paddingLeft: '44px' }}
-                  />
+                  <input type="text" className="input-field" placeholder="예: 쇼호스트 김현우" value={name} onChange={(e) => setName(e.target.value)} style={{ paddingLeft: '44px' }} />
+                </div>
+              </div>
+              
+              <div className="input-grid-2">
+                <div>
+                  <label style={{ fontSize: '0.9rem', fontWeight: 600, marginBottom: '8px', display: 'block' }}>전문 분야</label>
+                  <div style={{ position: 'relative' }}>
+                    <Tag size={16} color="hsl(var(--foreground-muted))" style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)' }} />
+                    <select className="input-field" value={category} onChange={(e) => setCategory(e.target.value)} style={{ paddingLeft: '44px' }}>
+                      {CATEGORIES.map(cat => <option key={cat} value={cat}>{cat}</option>)}
+                    </select>
+                  </div>
+                </div>
+                <div>
+                  <label style={{ fontSize: '0.9rem', fontWeight: 600, marginBottom: '8px', display: 'block' }}>활동 경력</label>
+                  <div style={{ position: 'relative' }}>
+                    <Briefcase size={16} color="hsl(var(--foreground-muted))" style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)' }} />
+                    <select className="input-field" value={career} onChange={(e) => setCareer(e.target.value)} style={{ paddingLeft: '44px' }}>
+                      {CAREER_OPTIONS.map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <label style={{ fontSize: '0.9rem', fontWeight: 600, marginBottom: '8px', display: 'block' }}>생년월일</label>
+                <div style={{ position: 'relative' }}>
+                  <Calendar size={16} color="hsl(var(--foreground-muted))" style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)' }} />
+                  <input type="text" className="input-field" placeholder="예: 1995-05-12" value={birth} onChange={(e) => setBirth(e.target.value)} style={{ paddingLeft: '44px' }} />
                 </div>
               </div>
             </div>
-
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-              <div>
-                <label htmlFor="edit-category">전문 분야</label>
-                <select
-                  id="edit-category"
-                  value={category}
-                  onChange={(e) => setCategory(e.target.value)}
-                >
-                  {CATEGORIES.map(cat => (
-                    <option key={cat} value={cat}>{cat}</option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label htmlFor="edit-career">활동 경력</label>
-                <select
-                  id="edit-career"
-                  value={career}
-                  onChange={(e) => setCareer(e.target.value)}
-                >
-                  {CAREER_OPTIONS.map(opt => (
-                    <option key={opt} value={opt}>{opt}</option>
-                  ))}
-                </select>
-              </div>
-            </div>
-
-            {/* 성별, 키, 몸무게 입력 */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px' }}>
-              <div>
-                <label htmlFor="edit-gender">성별</label>
-                <select
-                  id="edit-gender"
-                  value={gender}
-                  onChange={(e) => setGender(e.target.value)}
-                >
-                  <option value="여성">여성</option>
-                  <option value="남성">남성</option>
-                  <option value="기타">기타</option>
-                </select>
-              </div>
-              <div>
-                <label htmlFor="edit-height">키</label>
-                <input
-                  id="edit-height"
-                  type="text"
-                  placeholder="예: 168cm"
-                  value={height}
-                  onChange={(e) => setHeight(e.target.value)}
-                />
-              </div>
-              <div>
-                <label htmlFor="edit-weight">몸무게</label>
-                <input
-                  id="edit-weight"
-                  type="text"
-                  placeholder="예: 50kg"
-                  value={weight}
-                  onChange={(e) => setWeight(e.target.value)}
-                />
-              </div>
-            </div>
-
-            {/* 생년월일 입력 */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '16px' }}>
-              <div>
-                <label htmlFor="edit-birth">생년월일</label>
-                <input
-                  id="edit-birth"
-                  type="text"
-                  placeholder="예: 2002-03-06"
-                  value={birth}
-                  onChange={(e) => setBirth(e.target.value)}
-                />
-              </div>
-            </div>
-          </div>
-
-        </div>
-
-        {/* Bio & Details */}
-        <div>
-          <label htmlFor="edit-bio">한 줄 소개</label>
-          <div style={{ position: 'relative' }}>
-            <Sparkles size={16} color="hsl(var(--foreground-muted))" style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)' }} />
-            <input
-              id="edit-bio"
-              type="text"
-              placeholder="예: 트렌디한 화법과 탄탄한 경력의 푸드 완판 쇼호스트"
-              value={bio}
-              onChange={(e) => setBio(e.target.value)}
-              style={{ paddingLeft: '44px' }}
-            />
           </div>
         </div>
 
-
-
-        {/* Financial Specs */}
-        <div>
-          <label htmlFor="edit-pay">희망 페이 (단가)</label>
-          <div style={{ position: 'relative' }}>
-            <CircleDollarSign size={16} color="hsl(var(--foreground-muted))" style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)' }} />
-            <input
-              id="edit-pay"
-              type="text"
-              placeholder="예: 시간당 20만 - 35만원 (협의)"
-              value={pay}
-              onChange={(e) => setPay(e.target.value)}
-              style={{ paddingLeft: '44px' }}
-            />
-          </div>
-        </div>
-
-        {/* 방송 링크 & 포트폴리오 링크 */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }} className="specs-grid-mobile">
-          <div>
-            <label htmlFor="edit-broadcast">대표방송 링크</label>
-            <div style={{ position: 'relative' }}>
-              <Video size={16} color="hsl(var(--foreground-muted))" style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)' }} />
-              <input
-                id="edit-broadcast"
-                type="url"
-                placeholder="https://shoppinglive.naver.com/..."
-                value={broadcastLink}
-                onChange={(e) => setBroadcastLink(e.target.value)}
-                style={{ paddingLeft: '44px' }}
-              />
+        {/* Section 2: 신체 스펙 */}
+        <div className="glass-panel" style={{ padding: '32px' }}>
+          <h2 style={{ fontSize: '1.2rem', fontWeight: 700, marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <Sparkles size={18} color="#818cf8" />
+            신체 스펙 정보
+          </h2>
+          <div className="input-grid-3">
+            <div>
+              <label style={{ fontSize: '0.9rem', fontWeight: 600, marginBottom: '8px', display: 'block' }}>성별</label>
+              <select className="input-field" value={gender} onChange={(e) => setGender(e.target.value)}>
+                <option value="여성">여성</option>
+                <option value="남성">남성</option>
+                <option value="기타">기타</option>
+              </select>
             </div>
-          </div>
-
-          <div>
-            <label htmlFor="edit-portfolio">포트폴리오 링크</label>
-            <div style={{ position: 'relative' }}>
-              <FileText size={16} color="hsl(var(--foreground-muted))" style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)' }} />
-              <input
-                id="edit-portfolio"
-                type="url"
-                placeholder="https://youtube.com/... 또는 포트폴리오 URL"
-                value={portfolio}
-                onChange={(e) => setPortfolio(e.target.value)}
-                style={{ paddingLeft: '44px' }}
-              />
+            <div>
+              <label style={{ fontSize: '0.9rem', fontWeight: 600, marginBottom: '8px', display: 'block' }}>키 (cm)</label>
+              <div style={{ position: 'relative' }}>
+                <Ruler size={16} color="hsl(var(--foreground-muted))" style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)' }} />
+                <input type="text" className="input-field" placeholder="예: 168" value={height} onChange={(e) => setHeight(e.target.value)} style={{ paddingLeft: '44px' }} />
+              </div>
+            </div>
+            <div>
+              <label style={{ fontSize: '0.9rem', fontWeight: 600, marginBottom: '8px', display: 'block' }}>몸무게 (kg)</label>
+              <div style={{ position: 'relative' }}>
+                <Scale size={16} color="hsl(var(--foreground-muted))" style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)' }} />
+                <input type="text" className="input-field" placeholder="예: 50" value={weight} onChange={(e) => setWeight(e.target.value)} style={{ paddingLeft: '44px' }} />
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Action Button */}
-        <button
-          type="submit"
-          className="btn btn-primary"
-          disabled={saving}
-          style={{
-            padding: '16px',
-            fontSize: '1.05rem',
-            marginTop: '10px'
-          }}
-        >
-          {saving ? '프로필 저장 중...' : (
-            <>
-              <Save size={18} />
-              <span>프로필 변경사항 저장</span>
-            </>
-          )}
-        </button>
+        {/* Section 3: 상세 조건 및 소개 */}
+        <div className="glass-panel" style={{ padding: '32px' }}>
+          <h2 style={{ fontSize: '1.2rem', fontWeight: 700, marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <Award size={18} color="#818cf8" />
+            상세 소개 및 조건
+          </h2>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            <div>
+              <label style={{ fontSize: '0.9rem', fontWeight: 600, marginBottom: '8px', display: 'block' }}>한 줄 소개 <span style={{ color: '#ef4444' }}>*</span></label>
+              <div style={{ position: 'relative' }}>
+                <FileText size={16} color="hsl(var(--foreground-muted))" style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)' }} />
+                <input type="text" className="input-field" placeholder="예: 신뢰감을 주는 탄탄한 화법의 만능 쇼호스트!" value={bio} onChange={(e) => setBio(e.target.value)} style={{ paddingLeft: '44px' }} />
+              </div>
+            </div>
+            <div>
+              <label style={{ fontSize: '0.9rem', fontWeight: 600, marginBottom: '8px', display: 'block' }}>희망 페이 (조건)</label>
+              <div style={{ position: 'relative' }}>
+                <CircleDollarSign size={16} color="hsl(var(--foreground-muted))" style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)' }} />
+                <input type="text" className="input-field" placeholder="예: 시간당 20만~30만원 (협의 가능)" value={pay} onChange={(e) => setPay(e.target.value)} style={{ paddingLeft: '44px' }} />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Section 4: 포트폴리오 */}
+        <div className="glass-panel" style={{ padding: '32px' }}>
+          <h2 style={{ fontSize: '1.2rem', fontWeight: 700, marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <Video size={18} color="#818cf8" />
+            포트폴리오
+          </h2>
+          <div className="input-grid-2">
+            <div>
+              <label style={{ fontSize: '0.9rem', fontWeight: 600, marginBottom: '8px', display: 'block' }}>대표 방송 영상 링크</label>
+              <div style={{ position: 'relative' }}>
+                <Video size={16} color="hsl(var(--foreground-muted))" style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)' }} />
+                <input type="url" className="input-field" placeholder="https://youtube.com/..." value={broadcastLink} onChange={(e) => setBroadcastLink(e.target.value)} style={{ paddingLeft: '44px' }} />
+              </div>
+            </div>
+            <div>
+              <label style={{ fontSize: '0.9rem', fontWeight: 600, marginBottom: '8px', display: 'block' }}>포트폴리오 문서/웹사이트</label>
+              <div style={{ position: 'relative' }}>
+                <FileText size={16} color="hsl(var(--foreground-muted))" style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)' }} />
+                <input type="url" className="input-field" placeholder="https://notion.so/..." value={portfolio} onChange={(e) => setPortfolio(e.target.value)} style={{ paddingLeft: '44px' }} />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Fixed Bottom Save Bar */}
+        <div className="glass-panel" style={{ 
+          position: 'sticky', 
+          bottom: '20px', 
+          padding: '16px 24px', 
+          display: 'flex', 
+          justifyContent: 'flex-end',
+          alignItems: 'center',
+          boxShadow: '0 10px 40px rgba(0,0,0,0.4)',
+          zIndex: 50,
+          background: 'rgba(15,23,42,0.85)'
+        }}>
+          <button type="submit" className="btn btn-primary" disabled={saving} style={{ padding: '12px 32px', fontSize: '1.05rem', minWidth: '200px' }}>
+            {saving ? '저장 중...' : (
+              <>
+                <Save size={18} />
+                <span>프로필 저장하기</span>
+              </>
+            )}
+          </button>
+        </div>
 
       </form>
 
-      {/* Media Queries Simulation */}
+      {/* Media Queries for responsive styling */}
       <style>{`
-        .profile-edit-grid {
+        .input-field {
+          width: 100%;
+          padding: 12px 16px;
+          border-radius: 8px;
+          border: 1px solid rgba(255,255,255,0.1);
+          background: rgba(0,0,0,0.2);
+          color: #fff;
+          font-size: 0.95rem;
+          transition: all 0.2s;
+        }
+        .input-field:focus {
+          border-color: #818cf8;
+          background: rgba(129,140,248,0.05);
+          outline: none;
+        }
+        
+        .edit-section-grid {
           display: grid;
           grid-template-columns: 1fr;
+          gap: 30px;
         }
-        .specs-grid-mobile {
+        .input-grid-2 {
           display: grid;
           grid-template-columns: 1fr;
           gap: 20px;
         }
+        .input-grid-3 {
+          display: grid;
+          grid-template-columns: 1fr;
+          gap: 20px;
+        }
+
+        /* Tablet & Desktop */
         @media (min-width: 640px) {
-          .profile-edit-grid {
-            grid-template-columns: 180px 1fr;
+          .edit-section-grid {
+            grid-template-columns: 160px 1fr;
+            gap: 40px;
           }
-          .specs-grid-mobile {
-            grid-template-columns: 1.2fr 1fr;
+          .input-grid-2 {
+            grid-template-columns: 1fr 1fr;
+          }
+          .input-grid-3 {
+            grid-template-columns: 1fr 1fr 1fr;
           }
         }
       `}</style>
