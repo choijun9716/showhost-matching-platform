@@ -56,7 +56,7 @@ const Navbar = ({ activeTab, setActiveTab }) => {
             fontFamily: 'Outfit, sans-serif',
             letterSpacing: '-0.03em'
           }}>
-            SHOW<span className="text-gradient-cyan">LAB</span>
+            SHOW<span className="text-gradient-primary">LAB</span>
           </span>
         </div>
 
@@ -98,11 +98,11 @@ const Navbar = ({ activeTab, setActiveTab }) => {
 
           {user && user.role === 'showhost' && (
             <button 
-              onClick={() => setActiveTab('profile-edit')}
+              onClick={() => setActiveTab('my-profile')}
               className="btn"
               style={{
-                background: activeTab === 'profile-edit' ? 'rgba(255, 255, 255, 0.08)' : 'transparent',
-                color: activeTab === 'profile-edit' ? '#white' : 'hsl(var(--foreground-muted))',
+                background: activeTab === 'my-profile' ? 'rgba(255, 255, 255, 0.08)' : 'transparent',
+                color: activeTab === 'my-profile' ? '#white' : 'hsl(var(--foreground-muted))',
                 padding: '8px 16px',
                 fontSize: '0.9rem',
                 display: 'flex',
@@ -111,7 +111,7 @@ const Navbar = ({ activeTab, setActiveTab }) => {
               }}
             >
               <User size={16} />
-              <span className="nav-text-hide">내 프로필 관리</span>
+              <span className="nav-text-hide">내 프로필</span>
             </button>
           )}
 
@@ -149,20 +149,20 @@ const Navbar = ({ activeTab, setActiveTab }) => {
                   padding: '5px 11px',
                   borderRadius: '8px',
                   background: (parseInt(user.points) || 0) > 0
-                    ? 'rgba(99, 102, 241, 0.1)'
+                    ? 'rgba(255, 255, 255, 0.1)'
                     : 'rgba(239, 68, 68, 0.1)',
                   border: `1px solid ${
                     (parseInt(user.points) || 0) > 0
-                      ? 'rgba(99, 102, 241, 0.3)'
+                      ? 'rgba(255, 255, 255, 0.3)'
                       : 'rgba(239, 68, 68, 0.3)'
                   }`,
                   whiteSpace: 'nowrap'
                 }}>
-                  <Zap size={13} color={(parseInt(user.points) || 0) > 0 ? '#818cf8' : '#ef4444'} />
+                  <Zap size={13} color={(parseInt(user.points) || 0) > 0 ? '#ffffff' : '#ef4444'} />
                   <span style={{
                     fontSize: '0.8rem',
                     fontWeight: 700,
-                    color: (parseInt(user.points) || 0) > 0 ? '#818cf8' : '#ef4444'
+                    color: (parseInt(user.points) || 0) > 0 ? '#ffffff' : '#ef4444'
                   }}>
                     {(parseInt(user.points) || 0).toLocaleString()} C
                   </span>

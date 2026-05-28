@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../supabaseClient';
-import { Save, User, Award, CircleDollarSign, FileText, Video, Sparkles, Image, CheckCircle, AlertCircle, Calendar, Tag, Ruler, Scale, Briefcase } from 'lucide-react';
+import { Save, User, Award, CircleDollarSign, Video, Sparkles, CheckCircle, AlertCircle, Calendar, Tag, Ruler, Scale, X, Plus, FileText } from 'lucide-react';
 
 const CATEGORIES = ['패션', '뷰티', '푸드', 'IT/가전', '기타'];
-const CAREER_OPTIONS = ['신입', '1년', '2년', '3년', '4년', '5년', '7년 이상', '10년 이상'];
 
 const ProfileEdit = () => {
   const { user, updateCurrentUserProfile } = useAuth();
@@ -13,19 +12,17 @@ const ProfileEdit = () => {
   // Form States
   const [name, setName] = useState('');
   const [category, setCategory] = useState('기타');
-  const [career, setCareer] = useState('신입');
   const [gender, setGender] = useState('여성');
   const [height, setHeight] = useState('');
   const [weight, setWeight] = useState('');
-  const [avatar, setAvatar] = useState('');
   const [bio, setBio] = useState('');
-  const [detail, setDetail] = useState('');
   const [pay, setPay] = useState('');
-  const [time, setTime] = useState('');
-  const [broadcastLink, setBroadcastLink] = useState('');
-  const [portfolio, setPortfolio] = useState('');
-
   const [birth, setBirth] = useState('');
+  
+  // New States for Keywords & References
+  const [keywords, setKeywords] = useState([]);
+  const [keywordInput, setKeywordInput] = useState('');
+  const [references, setReferences] = useState([]);
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -46,18 +43,14 @@ const ProfileEdit = () => {
         setProfile(data);
         setName(data.name || '');
         setCategory(data.category || '기타');
-        setCareer(data.career || '신입');
         setGender(data.gender || '여성');
         setHeight(data.height || '');
         setWeight(data.weight || '');
-        setAvatar(data.profileImage || '');
         setBio(data.bio || '');
-        setDetail(data.detail || '');
         setPay(data.pay || '');
-        setTime(data.time || '');
-        setBroadcastLink(data.broadcastLink || '');
-        setPortfolio(data.portfolio || '');
         setBirth(data.birth || '');
+        setKeywords(data.keywords || []);
+        setReferences(data.references || []);
       }
     } catch (err) {
       console.error('Error fetching profile:', err);
@@ -67,70 +60,36 @@ const ProfileEdit = () => {
     }
   };
 
-  // HTML5 Canvas 기반 이미지 압축 및 리사이징 유틸리티
-  const compressImage = (file, maxWidth = 250, maxHeight = 250, quality = 0.5) => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = (event) => {
-        const img = new Image();
-        img.src = event.target.result;
-        img.onload = () => {
-          const canvas = document.createElement('canvas');
-          let width = img.width;
-          let height = img.height;
-
-          // 종횡비 유지하면서 최대 가로/세로 한도에 맞춰 스케일 축소
-          if (width > height) {
-            if (width > maxWidth) {
-              height = Math.round((height * maxWidth) / width);
-              width = maxWidth;
-            }
-          } else {
-            if (height > maxHeight) {
-              width = Math.round((width * maxHeight) / height);
-              height = maxHeight;
-            }
-          }
-
-          canvas.width = width;
-          canvas.height = height;
-
-          const ctx = canvas.getContext('2d');
-          ctx.drawImage(img, 0, 0, width, height);
-
-          // JPEG 압축 품질 지정하여 Base64 인코딩
-          const dataUrl = canvas.toDataURL('image/jpeg', quality);
-          resolve(dataUrl);
-        };
-        img.onerror = (err) => reject(err);
-      };
-      reader.onerror = (err) => reject(err);
-    });
+  const handleAddKeyword = () => {
+    if (keywordInput.trim() && keywords.length < 3 && !keywords.includes(keywordInput.trim())) {
+      setKeywords([...keywords, keywordInput.trim()]);
+      setKeywordInput('');
+    }
   };
 
-  // Handle Image File to Compressed Base64
-  const handleImageChange = async (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      // 이미지 용량이 커도 압축 후 저장되므로 한도 완화(10MB)
-      if (file.size > 10 * 1024 * 1024) {
-        setError('이미지 크기는 10MB 이하여야 합니다.');
-        return;
-      }
-      
-      setLoading(true);
-      setError('');
-      try {
-        const compressedBase64 = await compressImage(file, 250, 250, 0.5);
-        setAvatar(compressedBase64);
-      } catch (err) {
-        console.error('Image compression error:', err);
-        setError('이미지 압축 처리 중 오류가 발생했습니다.');
-      } finally {
-        setLoading(false);
-      }
+  const handleKeywordKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleAddKeyword();
     }
+  };
+
+  const handleRemoveKeyword = (kw) => {
+    setKeywords(keywords.filter(k => k !== kw));
+  };
+
+  const handleAddReference = () => {
+    setReferences([...references, { title: '', url: '' }]);
+  };
+
+  const handleUpdateReference = (index, field, value) => {
+    const updated = [...references];
+    updated[index][field] = value;
+    setReferences(updated);
+  };
+
+  const handleRemoveReference = (index) => {
+    setReferences(references.filter((_, i) => i !== index));
   };
 
   const handleSave = async (e) => {
@@ -152,22 +111,18 @@ const ProfileEdit = () => {
       const updatedData = {
         name,
         category,
-        career,
         gender,
         height,
         weight,
-        profileImage: avatar,
         bio,
-        detail,
         pay,
-        time,
-        portfolio,
-        birth
+        birth,
+        keywords,
+        references
       };
       const updatedProfile = await api.profiles.update(user.id, updatedData);
       setProfile(updatedProfile);
       
-      // AuthContext 전역 세션의 네임 정보도 즉각 동기화
       updateCurrentUserProfile(updatedProfile);
 
       setSuccessMsg('프로필이 성공적으로 저장되었습니다!');
@@ -257,33 +212,30 @@ const ProfileEdit = () => {
         {/* Section 1: 프로필 사진 및 기본 정보 */}
         <div className="glass-panel" style={{ padding: '32px' }}>
           <h2 style={{ fontSize: '1.2rem', fontWeight: 700, marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <User size={18} color="#818cf8" />
+            <User size={18} color="#ffffff" />
             기본 정보
           </h2>
-          
           <div className="edit-section-grid">
             {/* Left: Avatar */}
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}>
               <div style={{ 
                 position: 'relative', width: '140px', height: '140px', 
                 borderRadius: '50%', overflow: 'hidden', 
-                border: '3px solid rgba(129, 140, 248, 0.3)',
+                border: '3px solid rgba(255, 255, 255, 0.3)',
                 boxShadow: '0 8px 32px rgba(0,0,0,0.2)'
               }}>
-                {avatar ? (
-                  <img src={avatar} alt="Profile preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                {profile?.profileImage ? (
+                  <img src={profile.profileImage} alt="Profile preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                 ) : (
                   <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.3)', color: 'hsl(var(--foreground-muted))' }}>
-                    <Image size={32} />
+                    <User size={32} />
                   </div>
                 )}
               </div>
               <div style={{ width: '100%', textAlign: 'center' }}>
-                <input type="file" accept="image/*" onChange={handleImageChange} style={{ display: 'none' }} id="avatar-upload" />
-                <label htmlFor="avatar-upload" className="btn btn-secondary" style={{ padding: '8px 16px', fontSize: '0.85rem', cursor: 'pointer', margin: 0, display: 'inline-block' }}>
-                  프로필 사진 변경
-                </label>
-                <div style={{ fontSize: '0.75rem', color: 'hsl(var(--foreground-muted))', marginTop: '8px' }}>최대 10MB 이미지 지원</div>
+                <div style={{ fontSize: '0.8rem', color: 'hsl(var(--foreground-muted))', marginTop: '8px' }}>
+                  프로필 사진은<br/>변경할 수 없습니다.
+                </div>
               </div>
             </div>
 
@@ -299,30 +251,19 @@ const ProfileEdit = () => {
               
               <div className="input-grid-2">
                 <div>
-                  <label style={{ fontSize: '0.9rem', fontWeight: 600, marginBottom: '8px', display: 'block' }}>전문 분야</label>
-                  <div style={{ position: 'relative' }}>
-                    <Tag size={16} color="hsl(var(--foreground-muted))" style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)' }} />
-                    <select className="input-field" value={category} onChange={(e) => setCategory(e.target.value)} style={{ paddingLeft: '44px' }}>
-                      {CATEGORIES.map(cat => <option key={cat} value={cat}>{cat}</option>)}
-                    </select>
-                  </div>
+                  <label style={{ fontSize: '0.9rem', fontWeight: 600, marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <Tag size={15} color="#ffffff" /> 전문 분야
+                  </label>
+                  <select className="input-field" value={category} onChange={(e) => setCategory(e.target.value)}>
+                    {CATEGORIES.map(cat => <option key={cat} value={cat}>{cat}</option>)}
+                  </select>
                 </div>
                 <div>
-                  <label style={{ fontSize: '0.9rem', fontWeight: 600, marginBottom: '8px', display: 'block' }}>활동 경력</label>
+                  <label style={{ fontSize: '0.9rem', fontWeight: 600, marginBottom: '8px', display: 'block' }}>생년월일</label>
                   <div style={{ position: 'relative' }}>
-                    <Briefcase size={16} color="hsl(var(--foreground-muted))" style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)' }} />
-                    <select className="input-field" value={career} onChange={(e) => setCareer(e.target.value)} style={{ paddingLeft: '44px' }}>
-                      {CAREER_OPTIONS.map(opt => <option key={opt} value={opt}>{opt}</option>)}
-                    </select>
+                    <Calendar size={16} color="hsl(var(--foreground-muted))" style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)' }} />
+                    <input type="text" className="input-field" placeholder="예: 1995-05-12" value={birth} onChange={(e) => setBirth(e.target.value)} style={{ paddingLeft: '44px' }} />
                   </div>
-                </div>
-              </div>
-
-              <div>
-                <label style={{ fontSize: '0.9rem', fontWeight: 600, marginBottom: '8px', display: 'block' }}>생년월일</label>
-                <div style={{ position: 'relative' }}>
-                  <Calendar size={16} color="hsl(var(--foreground-muted))" style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)' }} />
-                  <input type="text" className="input-field" placeholder="예: 1995-05-12" value={birth} onChange={(e) => setBirth(e.target.value)} style={{ paddingLeft: '44px' }} />
                 </div>
               </div>
             </div>
@@ -332,7 +273,7 @@ const ProfileEdit = () => {
         {/* Section 2: 신체 스펙 */}
         <div className="glass-panel" style={{ padding: '32px' }}>
           <h2 style={{ fontSize: '1.2rem', fontWeight: 700, marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <Sparkles size={18} color="#818cf8" />
+            <Sparkles size={18} color="#ffffff" />
             신체 스펙 정보
           </h2>
           <div className="input-grid-3">
@@ -364,7 +305,7 @@ const ProfileEdit = () => {
         {/* Section 3: 상세 조건 및 소개 */}
         <div className="glass-panel" style={{ padding: '32px' }}>
           <h2 style={{ fontSize: '1.2rem', fontWeight: 700, marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <Award size={18} color="#818cf8" />
+            <Award size={18} color="#ffffff" />
             상세 소개 및 조건
           </h2>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
@@ -373,6 +314,21 @@ const ProfileEdit = () => {
               <div style={{ position: 'relative' }}>
                 <FileText size={16} color="hsl(var(--foreground-muted))" style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)' }} />
                 <input type="text" className="input-field" placeholder="예: 신뢰감을 주는 탄탄한 화법의 만능 쇼호스트!" value={bio} onChange={(e) => setBio(e.target.value)} style={{ paddingLeft: '44px' }} />
+              </div>
+            </div>
+            <div>
+              <label style={{ fontSize: '0.9rem', fontWeight: 600, marginBottom: '8px', display: 'block' }}>키워드 (최대 3개)</label>
+              <div style={{ display: 'flex', gap: '8px', marginBottom: '8px', flexWrap: 'wrap' }}>
+                {keywords.map(kw => (
+                  <span key={kw} style={{ background: 'rgba(255, 255, 255, 0.2)', color: '#ffffff', padding: '6px 12px', borderRadius: '20px', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    #{kw}
+                    <button type="button" onClick={() => handleRemoveKeyword(kw)} style={{ background: 'none', border: 'none', color: '#ffffff', cursor: 'pointer', padding: 0, display: 'flex' }}><X size={14} /></button>
+                  </span>
+                ))}
+              </div>
+              <div style={{ display: 'flex', gap: '10px' }}>
+                <input type="text" className="input-field" placeholder="키워드 입력 후 Enter 또는 추가 버튼 클릭" value={keywordInput} onChange={e => setKeywordInput(e.target.value)} onKeyDown={handleKeywordKeyDown} disabled={keywords.length >= 3} />
+                <button type="button" className="btn btn-secondary" onClick={handleAddKeyword} disabled={keywords.length >= 3} style={{ padding: '0 20px', whiteSpace: 'nowrap' }}>추가</button>
               </div>
             </div>
             <div>
@@ -385,27 +341,28 @@ const ProfileEdit = () => {
           </div>
         </div>
 
-        {/* Section 4: 포트폴리오 */}
+        {/* Section 4: 방송 레퍼런스 리스트 */}
         <div className="glass-panel" style={{ padding: '32px' }}>
           <h2 style={{ fontSize: '1.2rem', fontWeight: 700, marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <Video size={18} color="#818cf8" />
-            포트폴리오
+            <Video size={18} color="#ffffff" />
+            방송 레퍼런스 리스트
           </h2>
-          <div className="input-grid-2">
-            <div>
-              <label style={{ fontSize: '0.9rem', fontWeight: 600, marginBottom: '8px', display: 'block' }}>대표 방송 영상 링크</label>
-              <div style={{ position: 'relative' }}>
-                <Video size={16} color="hsl(var(--foreground-muted))" style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)' }} />
-                <input type="url" className="input-field" placeholder="https://youtube.com/..." value={broadcastLink} onChange={(e) => setBroadcastLink(e.target.value)} style={{ paddingLeft: '44px' }} />
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            {references.map((ref, idx) => (
+              <div key={idx} style={{ display: 'flex', gap: '12px', alignItems: 'flex-start', background: 'rgba(0,0,0,0.1)', padding: '16px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  <input type="text" className="input-field" placeholder="방송 제목 (예: 라이브커머스 다이슨 판매)" value={ref.title} onChange={e => handleUpdateReference(idx, 'title', e.target.value)} />
+                  <input type="text" className="input-field" placeholder="방송 영상 URL 또는 관련 내용 입력" value={ref.url} onChange={e => handleUpdateReference(idx, 'url', e.target.value)} />
+                </div>
+                <button type="button" onClick={() => handleRemoveReference(idx)} style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', border: 'none', padding: '12px', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <X size={20} />
+                </button>
               </div>
-            </div>
-            <div>
-              <label style={{ fontSize: '0.9rem', fontWeight: 600, marginBottom: '8px', display: 'block' }}>포트폴리오 문서/웹사이트</label>
-              <div style={{ position: 'relative' }}>
-                <FileText size={16} color="hsl(var(--foreground-muted))" style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)' }} />
-                <input type="url" className="input-field" placeholder="https://notion.so/..." value={portfolio} onChange={(e) => setPortfolio(e.target.value)} style={{ paddingLeft: '44px' }} />
-              </div>
-            </div>
+            ))}
+            <button type="button" onClick={handleAddReference} className="btn btn-secondary" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '16px', borderStyle: 'dashed' }}>
+              <Plus size={18} />
+              <span>레퍼런스 항목 추가하기</span>
+            </button>
           </div>
         </div>
 
@@ -446,8 +403,8 @@ const ProfileEdit = () => {
           transition: all 0.2s;
         }
         .input-field:focus {
-          border-color: #818cf8;
-          background: rgba(129,140,248,0.05);
+          border-color: #ffffff;
+          background: rgba(255, 255, 255,0.05);
           outline: none;
         }
         

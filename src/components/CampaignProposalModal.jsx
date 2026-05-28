@@ -126,22 +126,22 @@ const CampaignProposalModal = ({ host, onClose, onSuccess, onNavigateToLogin, on
               <div style={{
                 display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                 padding: '12px 16px', borderRadius: '10px',
-                background: hasEnoughCredits ? 'rgba(99,102,241,0.08)' : 'rgba(239,68,68,0.08)',
-                border: `1px solid ${hasEnoughCredits ? 'rgba(99,102,241,0.25)' : 'rgba(239,68,68,0.25)'}`
+                background: hasEnoughCredits ? 'rgba(255, 255, 255,0.08)' : 'rgba(239,68,68,0.08)',
+                border: `1px solid ${hasEnoughCredits ? 'rgba(255, 255, 255,0.25)' : 'rgba(239,68,68,0.25)'}`
               }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.88rem', color: 'hsl(var(--foreground-muted))' }}>
-                  <Zap size={14} color={hasEnoughCredits ? '#818cf8' : '#ef4444'} />
+                  <Zap size={14} color={hasEnoughCredits ? '#ffffff' : '#ef4444'} />
                   보유 크레딧
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  <span style={{ fontWeight: 700, color: hasEnoughCredits ? '#818cf8' : '#ef4444' }}>
+                  <span style={{ fontWeight: 700, color: hasEnoughCredits ? '#ffffff' : '#ef4444' }}>
                     {credits} C
                   </span>
                   <span style={{
                     fontSize: '0.78rem', padding: '2px 8px', borderRadius: '12px',
-                    background: hasEnoughCredits ? 'rgba(99,102,241,0.15)' : 'rgba(239,68,68,0.15)',
-                    color: hasEnoughCredits ? '#818cf8' : '#ef4444',
-                    border: `1px solid ${hasEnoughCredits ? 'rgba(99,102,241,0.3)' : 'rgba(239,68,68,0.3)'}`
+                    background: hasEnoughCredits ? 'rgba(255, 255, 255,0.15)' : 'rgba(239,68,68,0.15)',
+                    color: hasEnoughCredits ? '#ffffff' : '#ef4444',
+                    border: `1px solid ${hasEnoughCredits ? 'rgba(255, 255, 255,0.3)' : 'rgba(239,68,68,0.3)'}`
                   }}>-{MATCH_COST}C</span>
                 </div>
               </div>
@@ -176,20 +176,20 @@ const CampaignProposalModal = ({ host, onClose, onSuccess, onNavigateToLogin, on
                         style={{
                           padding: '14px 16px', borderRadius: '10px', cursor: 'pointer',
                           border: selectedCampaign?.id === camp.id
-                            ? '1px solid #818cf8'
+                            ? '1px solid #ffffff'
                             : '1px solid rgba(255,255,255,0.08)',
                           background: selectedCampaign?.id === camp.id
-                            ? 'rgba(99,102,241,0.1)'
+                            ? 'rgba(255, 255, 255,0.1)'
                             : 'rgba(255,255,255,0.03)',
                           transition: 'all 0.15s ease'
                         }}
                       >
                         <div style={{ fontWeight: 600, marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                          <Megaphone size={14} color="#818cf8" />
+                          <Megaphone size={14} color="#ffffff" />
                           {camp.brandName}
                           <span style={{
                             fontSize: '0.72rem', padding: '2px 6px', borderRadius: '4px',
-                            background: 'rgba(99,102,241,0.15)', color: '#818cf8'
+                            background: 'rgba(255, 255, 255,0.15)', color: '#ffffff'
                           }}>{camp.category}</span>
                         </div>
                         <div style={{ display: 'flex', gap: '14px', fontSize: '0.8rem', color: 'hsl(var(--foreground-muted))' }}>

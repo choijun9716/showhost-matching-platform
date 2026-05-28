@@ -8,13 +8,20 @@ import Dashboard from './pages/Dashboard';
 import Admin from './pages/Admin';
 import CampaignCreate from './pages/CampaignCreate';
 import CampaignDashboard from './pages/CampaignDashboard';
+import MyProfilePage from './pages/MyProfilePage';
 
 function AppContent() {
   const [activeTab, setActiveTab] = useState('home');
   const { user } = useAuth();
 
   const handleNavigateToLogin = () => setActiveTab('login');
-  const handleAuthSuccess = () => setActiveTab('home');
+  const handleAuthSuccess = (loggedInUser) => {
+    if (loggedInUser?.role === 'showhost') {
+      setActiveTab('my-profile');
+    } else {
+      setActiveTab('home');
+    }
+  };
 
   const renderPage = () => {
     switch (activeTab) {
@@ -45,6 +52,8 @@ function AppContent() {
         );
       case 'profile-edit':
         return <ProfileEdit />;
+      case 'my-profile':
+        return <MyProfilePage user={user} setActiveTab={setActiveTab} />;
       case 'login':
         return <Login onAuthSuccess={handleAuthSuccess} />;
       case 'home':

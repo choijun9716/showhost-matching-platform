@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { api } from '../supabaseClient';
 import { useAuth } from '../context/AuthContext';
-import { Shield, Eye, EyeOff, Trash2, Star, Zap, Plus, Users, UserCheck, Search, Filter, ChevronDown, ChevronUp, Clock, Calendar, MapPin, Tag, Award } from 'lucide-react';
+import { Shield, Eye, EyeOff, Trash2, Star, Zap, Plus, Users, UserCheck, Search, Filter, ChevronDown, ChevronUp, Clock, Calendar, MapPin, Tag, Award, BarChart3, DollarSign } from 'lucide-react';
+import AdminStats from '../components/AdminStats';
+import AdminSettlement from '../components/AdminSettlement';
 
 const Admin = ({ onNavigateToCampaignCreate }) => {
   const { user } = useAuth();
@@ -59,6 +61,16 @@ const Admin = ({ onNavigateToCampaignCreate }) => {
   useEffect(() => {
     fetchData();
   }, []);
+
+  const handleUpdateMatch = async (matchId, updates) => {
+    try {
+      await api.matches.update(matchId, updates);
+      setAllMatches(prev => prev.map(m => m.id === matchId ? { ...m, ...updates } : m));
+    } catch (error) {
+      console.error(error);
+      alert('매칭 업데이트 실패: ' + error.message);
+    }
+  };
 
   const handleToggleVisibility = async (host) => {
     try {
@@ -144,7 +156,7 @@ const Admin = ({ onNavigateToCampaignCreate }) => {
   return (
     <div className="container animate-fade-in" style={{ padding: '20px 0' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px' }}>
-        <Shield size={28} className="text-gradient-cyan" />
+        <Shield size={28} className="text-gradient-primary" />
         <h1 style={{ fontSize: '1.8rem', fontWeight: 800 }}>관리자 패널</h1>
       </div>
 
@@ -171,9 +183,9 @@ const Admin = ({ onNavigateToCampaignCreate }) => {
             style={{
               padding: '10px 20px',
               display: 'flex', alignItems: 'center', gap: '6px',
-              background: activeTab === 'clients' ? 'rgba(99,102,241,0.15)' : 'transparent',
-              border: activeTab === 'clients' ? '1px solid rgba(99,102,241,0.3)' : '1px solid transparent',
-              color: activeTab === 'clients' ? '#818cf8' : 'inherit',
+              background: activeTab === 'clients' ? 'rgba(255, 255, 255,0.15)' : 'transparent',
+              border: activeTab === 'clients' ? '1px solid rgba(255, 255, 255,0.3)' : '1px solid transparent',
+              color: activeTab === 'clients' ? '#ffffff' : 'inherit',
               fontWeight: activeTab === 'clients' ? 700 : 400
             }}
           >
@@ -194,6 +206,35 @@ const Admin = ({ onNavigateToCampaignCreate }) => {
             <Zap size={16} />
             총 매칭 현황
           </button>
+          <button
+            onClick={() => setActiveTab('stats')}
+            className="btn"
+            style={{
+              padding: '10px 20px',
+              display: 'flex', alignItems: 'center', gap: '6px',
+              background: activeTab === 'stats' ? 'rgba(245, 158, 11, 0.15)' : 'transparent',
+              border: activeTab === 'stats' ? '1px solid rgba(245, 158, 11, 0.3)' : '1px solid transparent',
+              color: activeTab === 'stats' ? '#f59e0b' : 'inherit',
+              fontWeight: activeTab === 'stats' ? 700 : 400
+            }}
+          >
+            <BarChart3 size={16} />
+            통계 및 리포트
+          </button>
+          <button
+            onClick={() => setActiveTab('settlement')}
+            className="btn"
+            style={{
+              padding: '10px 20px',
+              display: 'flex', alignItems: 'center', gap: '6px',
+              background: activeTab === 'settlement' ? 'rgba(255,255,255,0.1)' : 'transparent',
+              border: activeTab === 'settlement' ? '1px solid rgba(255,255,255,0.2)' : '1px solid transparent',
+              fontWeight: activeTab === 'settlement' ? 700 : 400
+            }}
+          >
+            <DollarSign size={16} />
+            정산 관리
+          </button>
         </div>
         <div>
           <button
@@ -206,6 +247,14 @@ const Admin = ({ onNavigateToCampaignCreate }) => {
           </button>
         </div>
       </div>
+
+      {activeTab === 'stats' && (
+        <AdminStats allMatches={allMatches} hosts={hosts} clients={clients} campaigns={allCampaigns} />
+      )}
+
+      {activeTab === 'settlement' && (
+        <AdminSettlement allMatches={allMatches} campaigns={allCampaigns} hosts={hosts} onUpdateMatch={handleUpdateMatch} />
+      )}
 
       {activeTab === 'hosts' && (
         <div className="glass-panel" style={{ padding: '24px', overflowX: 'auto' }}>
@@ -310,7 +359,7 @@ const Admin = ({ onNavigateToCampaignCreate }) => {
       {activeTab === 'clients' && (
         <div className="glass-panel" style={{ padding: '24px', overflowX: 'auto' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px' }}>
-            <Zap size={20} color="#818cf8" />
+            <Zap size={20} color="#ffffff" />
             <h2 style={{ fontSize: '1.2rem', fontWeight: 700 }}>브랜드 크레딧 관리</h2>
             <span style={{ fontSize: '0.8rem', color: 'hsl(var(--foreground-muted))' }}>
               매칭 1건 = 10크레딧 차감
@@ -352,16 +401,16 @@ const Admin = ({ onNavigateToCampaignCreate }) => {
                       gap: '6px',
                       padding: '6px 14px',
                       borderRadius: '8px',
-                      background: credits > 0 ? 'rgba(99,102,241,0.1)' : 'rgba(239,68,68,0.1)',
-                      border: `1px solid ${credits > 0 ? 'rgba(99,102,241,0.3)' : 'rgba(239,68,68,0.3)'}`,
+                      background: credits > 0 ? 'rgba(255, 255, 255,0.1)' : 'rgba(239,68,68,0.1)',
+                      border: `1px solid ${credits > 0 ? 'rgba(255, 255, 255,0.3)' : 'rgba(239,68,68,0.3)'}`,
                       minWidth: '100px',
                       justifyContent: 'center'
                     }}>
-                      <Zap size={14} color={credits > 0 ? '#818cf8' : '#ef4444'} />
+                      <Zap size={14} color={credits > 0 ? '#ffffff' : '#ef4444'} />
                       <span style={{
                         fontWeight: 700,
                         fontSize: '1rem',
-                        color: credits > 0 ? '#818cf8' : '#ef4444'
+                        color: credits > 0 ? '#ffffff' : '#ef4444'
                       }}>
                         {credits.toLocaleString()} C
                       </span>
@@ -441,7 +490,7 @@ const Admin = ({ onNavigateToCampaignCreate }) => {
           pending: { bg: 'rgba(245,158,11,0.15)', text: '#f59e0b', label: '대기중' },
           accepted: { bg: 'rgba(34,197,94,0.15)', text: '#22c55e', label: '수락함' },
           rejected: { bg: 'rgba(239,68,68,0.15)', text: '#ef4444', label: '거절함' },
-          confirmed: { bg: 'rgba(129,140,248,0.15)', text: '#818cf8', label: '최종확정' },
+          confirmed: { bg: 'rgba(255, 255, 255,0.15)', text: '#ffffff', label: '최종확정' },
           closed: { bg: 'rgba(156,163,175,0.15)', text: '#9ca3af', label: '마감됨' }
         };
 
@@ -476,7 +525,7 @@ const Admin = ({ onNavigateToCampaignCreate }) => {
                   }}>{badge.label}</span>
                 </div>
                 <div style={{ color: 'hsl(var(--foreground-muted))', fontSize: '0.85rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                  {showCampaignInfo && m.clientName && <span style={{ color: '#818cf8', marginRight: '8px' }}>[{m.clientName}]</span>}
+                  {showCampaignInfo && m.clientName && <span style={{ color: '#ffffff', marginRight: '8px' }}>[{m.clientName}]</span>}
                   {m.message ? `"${m.message}"` : '메시지 없음'}
                 </div>
               </div>
@@ -540,7 +589,7 @@ const Admin = ({ onNavigateToCampaignCreate }) => {
                   ? { text: '매칭 확정', bg: 'rgba(34,197,94,0.15)', color: '#22c55e' } 
                   : campaign.status === 'closed'
                   ? { text: '모집 마감', bg: 'rgba(255,255,255,0.1)', color: 'gray' }
-                  : { text: '모집 중', bg: 'rgba(99,102,241,0.15)', color: '#818cf8' };
+                  : { text: '모집 중', bg: 'rgba(255, 255, 255,0.15)', color: '#ffffff' };
 
                 return (
                   <div key={campaign.id} className="glass-panel" style={{ overflow: 'hidden' }}>
@@ -561,13 +610,13 @@ const Admin = ({ onNavigateToCampaignCreate }) => {
                           </div>
                           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', fontSize: '0.85rem', color: 'hsl(var(--foreground-muted))' }}>
                             <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                              <Calendar size={13} color="#818cf8" /> {campaign.schedule}
+                              <Calendar size={13} color="#ffffff" /> {campaign.schedule}
                             </span>
                             <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                              <Tag size={13} color="#818cf8" /> {campaign.category}
+                              <Tag size={13} color="#ffffff" /> {campaign.category}
                             </span>
                             <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                              <Users size={13} color="#818cf8" /> 모집: {campaign.recruitCount || 1}명
+                              <Users size={13} color="#ffffff" /> 모집: {campaign.recruitCount || 1}명
                             </span>
                             <span style={{ display: 'flex', alignItems: 'center', gap: '5px', color: 'rgba(255,255,255,0.4)' }}>
                               캠페인 ID: {campaign.id}
@@ -577,7 +626,7 @@ const Admin = ({ onNavigateToCampaignCreate }) => {
                         <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexShrink: 0 }}>
                           <div style={{ textAlign: 'right', fontSize: '0.85rem' }}>
                             <div style={{ color: 'hsl(var(--foreground-muted))' }}>관련 제안 수</div>
-                            <div style={{ fontWeight: 700, color: '#818cf8', fontSize: '1.1rem' }}>{campProposals.length}건</div>
+                            <div style={{ fontWeight: 700, color: '#ffffff', fontSize: '1.1rem' }}>{campProposals.length}건</div>
                           </div>
                           <div style={{ padding: '8px', background: 'rgba(255,255,255,0.05)', borderRadius: '50%' }}>
                             {isExpanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}

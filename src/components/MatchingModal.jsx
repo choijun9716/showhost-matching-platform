@@ -179,13 +179,13 @@ const MatchingModal = ({ host, onClose, onSuccess, onNavigateToLogin }) => {
                 justifyContent: 'space-between',
                 padding: '14px 16px',
                 background: hasEnoughCredits
-                  ? 'rgba(99, 102, 241, 0.08)'
+                  ? 'rgba(255, 255, 255, 0.08)'
                   : 'rgba(239, 68, 68, 0.08)',
-                border: `1px solid ${hasEnoughCredits ? 'rgba(99, 102, 241, 0.25)' : 'rgba(239, 68, 68, 0.25)'}`,
+                border: `1px solid ${hasEnoughCredits ? 'rgba(255, 255, 255, 0.25)' : 'rgba(239, 68, 68, 0.25)'}`,
                 borderRadius: '10px'
               }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <Zap size={16} color={hasEnoughCredits ? '#818cf8' : '#ef4444'} />
+                  <Zap size={16} color={hasEnoughCredits ? '#ffffff' : '#ef4444'} />
                   <span style={{ fontSize: '0.9rem', color: 'hsl(var(--foreground-muted))' }}>
                     보유 크레딧
                   </span>
@@ -194,7 +194,7 @@ const MatchingModal = ({ host, onClose, onSuccess, onNavigateToLogin }) => {
                   <span style={{
                     fontSize: '1.1rem',
                     fontWeight: 700,
-                    color: hasEnoughCredits ? '#818cf8' : '#ef4444'
+                    color: hasEnoughCredits ? '#ffffff' : '#ef4444'
                   }}>
                     {credits.toLocaleString()} C
                   </span>
@@ -202,9 +202,9 @@ const MatchingModal = ({ host, onClose, onSuccess, onNavigateToLogin }) => {
                     fontSize: '0.8rem',
                     padding: '3px 10px',
                     borderRadius: '20px',
-                    background: hasEnoughCredits ? 'rgba(99,102,241,0.15)' : 'rgba(239,68,68,0.15)',
-                    color: hasEnoughCredits ? '#818cf8' : '#ef4444',
-                    border: `1px solid ${hasEnoughCredits ? 'rgba(99,102,241,0.3)' : 'rgba(239,68,68,0.3)'}`
+                    background: hasEnoughCredits ? 'rgba(255, 255, 255,0.15)' : 'rgba(239,68,68,0.15)',
+                    color: hasEnoughCredits ? '#ffffff' : '#ef4444',
+                    border: `1px solid ${hasEnoughCredits ? 'rgba(255, 255, 255,0.3)' : 'rgba(239,68,68,0.3)'}`
                   }}>
                     -{MATCH_COST}C 차감
                   </span>

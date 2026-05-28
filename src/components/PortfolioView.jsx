@@ -1,28 +1,13 @@
 import React from 'react';
 import { ArrowLeft, Printer, Sparkles, Link as LinkIcon, ExternalLink } from 'lucide-react';
 
-const PortfolioView = ({ host, onClose, onSendProposal }) => {
+const PortfolioView = ({ host, onClose, onSendProposal, isOwnProfile = false }) => {
   const birth = host.birth || '정보없음';
   const company = '소속사 없음';
   const education = '정보없음';
   const shoeSize = '정보없음';
-  let keywords = [];
-
-  // 방송 데이터 (필모그래피)
-  let broadcasts = [];
-  // 하위 호환성: 기존 데이터의 대표 방송 링크
-  if (host.broadcastLink) {
-      broadcasts.push({
-        type: '라이브커머스',
-        year: new Date().getFullYear().toString(),
-        brand: '대표 방송',
-        role: '쇼호스트',
-        link: host.broadcastLink
-      });
-    }
-
-  // 갤러리 이미지
-  let photos = [host.profileImage, host.profileImage, host.profileImage];
+  let keywords = host.keywords || [];
+  let references = host.references || [];
 
   // QR코드 생성 API 링크 (현재 웹 링크 연동)
   const currentUrl = window.location.origin + window.location.pathname + `?hostId=${host.id || host.email}`;
@@ -157,17 +142,6 @@ const PortfolioView = ({ host, onClose, onSendProposal }) => {
                 </div>
               </div>
 
-              {/* 대표작품/최근대표이력 요약 */}
-              <div className="rep-works-section">
-                <h3 className="section-subtitle">대표이력</h3>
-                <p className="rep-works-text">
-                  {broadcasts.length > 0 
-                    ? `${broadcasts[0].type || '방송'}, ${broadcasts[0].year || ''}, ${broadcasts[0].brand || ''}, ${broadcasts[0].role || '진행'}`
-                    : '등록된 대표 이력이 존재하지 않습니다.'
-                  }
-                </p>
-              </div>
-
               {/* 캠페인 제안 버튼 (웹 전용) */}
               <div className="no-print" style={{ marginTop: '10px' }}>
                 <button 
@@ -178,8 +152,8 @@ const PortfolioView = ({ host, onClose, onSendProposal }) => {
                     padding: '14px', 
                     fontSize: '1.05rem', 
                     fontWeight: 700,
-                    background: 'linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(260 85% 60%) 100%)',
-                    color: 'white',
+                    background: '#ffffff',
+                    color: '#0d0d0d',
                     border: 'none',
                     borderRadius: '10px',
                     cursor: 'pointer',
@@ -189,46 +163,24 @@ const PortfolioView = ({ host, onClose, onSendProposal }) => {
                     gap: '8px'
                   }}
                 >
-                  캠페인 제안 보내기
+                  {isOwnProfile ? '프로필 수정' : '제안요청'}
                 </button>
               </div>
 
               {/* 하단 브랜딩 로고 */}
-              <div className="branding-logo-row">
-                <span className="branding-logo">SHOW<span className="text-gradient-cyan">LAB</span></span>
+              <div className="branding-logo-row" style={{ marginTop: 'auto' }}>
+                <span className="branding-logo">SHOW<span className="text-gradient-primary">LAB</span></span>
               </div>
             </div>
           </div>
         </section>
 
         {/* ============================================================ */}
-        {/* PAGE 2: 프로필 사진 갤러리 */}
+        {/* PAGE 2: 방송 레퍼런스 리스트 */}
         {/* ============================================================ */}
         <section className="print-page page-2">
           <div className="page-header-row">
-            <h2 className="page-section-title">프로필 사진 📷</h2>
-            <div className="page-header-line" />
-          </div>
-          
-          <div className="gallery-grid">
-            {photos.slice(0, 3).map((photo, index) => (
-              <div key={index} className="gallery-img-card">
-                <img src={photo} alt={`${host.name} profile cut ${index + 1}`} className="gallery-img" />
-              </div>
-            ))}
-          </div>
-
-          <div className="branding-logo-row" style={{ marginTop: 'auto' }}>
-            <span className="branding-logo">SHOW<span className="text-gradient-cyan">LAB</span></span>
-          </div>
-        </section>
-
-        {/* ============================================================ */}
-        {/* PAGE 3: 방송 이력 필모그래피 */}
-        {/* ============================================================ */}
-        <section className="print-page page-3">
-          <div className="page-header-row">
-            <h2 className="page-section-title">방송 및 매칭 필모그래피</h2>
+            <h2 className="page-section-title">방송 레퍼런스 리스트</h2>
             <div className="page-header-line" />
           </div>
 
@@ -236,34 +188,43 @@ const PortfolioView = ({ host, onClose, onSendProposal }) => {
             <table className="filmo-table">
               <thead>
                 <tr>
-                  <th style={{ width: '45%' }}>브랜드 / 방송명</th>
-                  <th style={{ width: '55%' }}>대표방송 링크 (클릭 가능)</th>
+                  <th style={{ width: '60%' }}>방송 제목</th>
+                  <th style={{ width: '40%' }}>링크</th>
                 </tr>
               </thead>
               <tbody>
-                {broadcasts.length > 0 ? broadcasts.map((item, idx) => (
+                {references.length > 0 ? references.map((item, idx) => (
                   <tr key={idx}>
-                    <td className="brand-text bold-text">{item.brand}</td>
+                    <td className="brand-text bold-text">{item.title}</td>
                     <td className="link-cell">
-                      {item.link ? (
-                        <a 
-                          href={item.link} 
-                          target="_blank" 
-                          rel="noopener noreferrer" 
-                          style={{
-                            color: '#38bdf8', 
-                            textDecoration: 'underline',
-                            wordBreak: 'break-all',
-                            fontSize: '0.85rem',
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            gap: '4px'
-                          }}
-                          title="방송 보기"
-                        >
-                          <span>{item.link}</span>
-                          <ExternalLink size={12} style={{ flexShrink: 0 }} />
-                        </a>
+                      {item.url ? (
+                        (item.url.startsWith('http') || (item.url.includes('.') && !item.url.includes(' '))) ? (
+                          <a 
+                            href={item.url.startsWith('http') ? item.url : `https://${item.url}`} 
+                            target="_blank" 
+                            rel="noopener noreferrer" 
+                            className="btn"
+                            style={{
+                              background: 'rgba(229, 229, 229, 0.1)',
+                              border: '1px solid rgba(229, 229, 229, 0.2)',
+                              color: '#e5e5e5',
+                              textDecoration: 'none',
+                              fontSize: '0.85rem',
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '6px',
+                              padding: '6px 14px',
+                              borderRadius: '8px',
+                              fontWeight: 600
+                            }}
+                            title="방송 보기"
+                          >
+                            <span>방송보기</span>
+                            <ExternalLink size={14} style={{ flexShrink: 0 }} />
+                          </a>
+                        ) : (
+                          <span style={{ color: 'hsl(var(--foreground-muted))', fontSize: '0.9rem', wordBreak: 'break-all' }}>{item.url}</span>
+                        )
                       ) : (
                         <span className="no-link-text">-</span>
                       )}
@@ -272,7 +233,7 @@ const PortfolioView = ({ host, onClose, onSendProposal }) => {
                 )) : (
                   <tr>
                     <td colSpan="2" style={{ textAlign: 'center', padding: '40px', color: 'rgba(255,255,255,0.4)' }}>
-                      등록된 상세 방송 데이터가 없습니다.
+                      등록된 방송 레퍼런스가 없습니다.
                     </td>
                   </tr>
                 )}
@@ -281,7 +242,7 @@ const PortfolioView = ({ host, onClose, onSendProposal }) => {
           </div>
 
           <div className="branding-logo-row" style={{ marginTop: 'auto' }}>
-            <span className="branding-logo">SHOW<span className="text-gradient-cyan">LAB</span></span>
+            <span className="branding-logo">SHOW<span className="text-gradient-primary">LAB</span></span>
           </div>
         </section>
       </div>

@@ -38,17 +38,17 @@ const Login = ({ onAuthSuccess }) => {
     try {
       if (isLoginView) {
         // 로그인 처리
-        await login(email, password);
+        const loggedInUser = await login(email, password);
         setSuccessMsg('로그인에 성공했습니다! 잠시 후 이동합니다.');
         setTimeout(() => {
-          onAuthSuccess();
+          onAuthSuccess(loggedInUser);
         }, 1000);
       } else {
         // 회원가입 처리
-        await signup(email, password, name, role);
+        const newUser = await signup(email, password, name, role);
         setSuccessMsg('회원가입 및 프로필 생성이 완료되었습니다!');
         setTimeout(() => {
-          onAuthSuccess();
+          onAuthSuccess(newUser);
         }, 1500);
       }
     } catch (err) {

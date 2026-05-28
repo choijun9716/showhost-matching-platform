@@ -105,7 +105,7 @@ a {
   -webkit-text-fill-color: transparent;
 }
 
-.text-gradient-cyan {
+.text-gradient-primary {
   background: linear-gradient(135deg, #ffffff 0%, #a3a3a3 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -198,10 +198,10 @@ label {
 }
 
 .btn-premium-glass:hover {
-  background: linear-gradient(135deg, rgba(110, 80, 250, 0.3) 0%, rgba(0, 242, 254, 0.3) 100%);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.05) 100%);
   border-color: rgba(255, 255, 255, 0.4);
   transform: translateY(-2px);
-  box-shadow: 0 4px 15px rgba(0, 242, 254, 0.2);
+  box-shadow: 0 4px 15px rgba(255, 255, 255, 0.1);
 }
 
 .btn-accent {

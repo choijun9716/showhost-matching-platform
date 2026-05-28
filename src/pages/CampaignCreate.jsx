@@ -64,12 +64,12 @@ const CampaignCreate = ({ onBack, onCreated }) => {
           {/* 라이브 브랜드명 */}
           <div>
             <label style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px', fontWeight: 600 }}>
-              <Megaphone size={15} color="#818cf8" />
+              <Megaphone size={15} color="#ffffff" />
               라이브 브랜드명 <span style={{ color: '#ef4444' }}>*</span>
             </label>
             <input
               type="text"
-              placeholder="예: 뷰티 브랜드 A, 패션 스타트업 B"
+              placeholder="예:뷰티 브랜드 "
               value={form.brandName}
               onChange={e => handleChange('brandName', e.target.value)}
               style={{ width: '100%' }}
@@ -80,7 +80,7 @@ const CampaignCreate = ({ onBack, onCreated }) => {
           <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
             <div style={{ flex: 1, minWidth: '200px' }}>
               <label style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px', fontWeight: 600 }}>
-                <Calendar size={15} color="#818cf8" />
+                <Calendar size={15} color="#ffffff" />
                 방송 일정 <span style={{ color: '#ef4444' }}>*</span>
               </label>
               <input
@@ -109,12 +109,12 @@ const CampaignCreate = ({ onBack, onCreated }) => {
           {/* 방송 장소 */}
           <div>
             <label style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px', fontWeight: 600 }}>
-              <MapPin size={15} color="#818cf8" />
+              <MapPin size={15} color="#ffffff" />
               방송 장소 <span style={{ color: '#ef4444' }}>*</span>
             </label>
             <input
               type="text"
-              placeholder="예: 서울 강남구 스튜디오, 자택 스튜디오, 온라인"
+              placeholder="예: 하남 스튜디오"
               value={form.location}
               onChange={e => handleChange('location', e.target.value)}
               style={{ width: '100%' }}
@@ -124,7 +124,7 @@ const CampaignCreate = ({ onBack, onCreated }) => {
           {/* 카테고리 */}
           <div>
             <label style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '12px', fontWeight: 600 }}>
-              <Tag size={15} color="#818cf8" />
+              <Tag size={15} color="#ffffff" />
               카테고리 <span style={{ color: '#ef4444' }}>*</span>
             </label>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
@@ -137,7 +137,7 @@ const CampaignCreate = ({ onBack, onCreated }) => {
                     padding: '8px 18px',
                     borderRadius: '8px',
                     border: form.category === cat ? 'none' : '1px solid rgba(255,255,255,0.12)',
-                    background: form.category === cat ? '#818cf8' : 'rgba(255,255,255,0.05)',
+                    background: form.category === cat ? '#ffffff' : 'rgba(255,255,255,0.05)',
                     color: form.category === cat ? 'white' : 'hsl(var(--foreground-muted))',
                     fontWeight: form.category === cat ? 700 : 400,
                     cursor: 'pointer',
@@ -154,31 +154,26 @@ const CampaignCreate = ({ onBack, onCreated }) => {
           {/* 모집 인원 */}
           <div>
             <label style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '12px', fontWeight: 600 }}>
-              <Users size={15} color="#818cf8" />
+              <Users size={15} color="#ffffff" />
               모집 인원 <span style={{ color: '#ef4444' }}>*</span>
             </label>
             <div style={{ display: 'flex', gap: '12px' }}>
               {[1, 2].map(count => (
-                <label key={count} style={{
-                  display: 'flex', alignItems: 'center', gap: '8px',
-                  padding: '12px 24px',
-                  borderRadius: '8px',
-                  border: form.recruitCount === count ? '2px solid #818cf8' : '1px solid rgba(255,255,255,0.12)',
-                  background: form.recruitCount === count ? 'rgba(129,140,248,0.1)' : 'rgba(255,255,255,0.02)',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s',
-                  fontWeight: form.recruitCount === count ? 700 : 400
-                }}>
-                  <input
-                    type="radio"
-                    name="recruitCount"
-                    value={count}
-                    checked={form.recruitCount === count}
-                    onChange={() => handleChange('recruitCount', count)}
-                    style={{ margin: 0, accentColor: '#818cf8' }}
-                  />
+                <div
+                  key={count}
+                  onClick={() => handleChange('recruitCount', count)}
+                  style={{
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    padding: '12px 32px',
+                    borderRadius: '8px',
+                    border: form.recruitCount === count ? '2px solid #ffffff' : '1px solid rgba(255,255,255,0.12)',
+                    background: form.recruitCount === count ? 'rgba(255, 255, 255,0.1)' : 'rgba(255,255,255,0.02)',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s',
+                    fontWeight: form.recruitCount === count ? 700 : 400
+                  }}>
                   {count}명
-                </label>
+                </div>
               ))}
             </div>
           </div>
@@ -186,12 +181,12 @@ const CampaignCreate = ({ onBack, onCreated }) => {
           {/* 상세 안내 */}
           <div>
             <label style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px', fontWeight: 600 }}>
-              <FileText size={15} color="#818cf8" />
+              <FileText size={15} color="#ffffff" />
               캠페인 상세 안내 <span style={{ fontSize: '0.8rem', color: 'hsl(var(--foreground-muted))', fontWeight: 400 }}>(선택)</span>
             </label>
             <textarea
               rows={5}
-              placeholder="예: 신제품 런칭 라이브 방송입니다. 진행 시간 약 60분, 의상 협의 가능합니다. 경험 있는 패션 전문 쇼호스트를 찾습니다."
+              placeholder="예: 신제품 런칭 라이브 방송입니다. 진행 시간 약 60분,경험 있는 패션 전문 쇼호스트를 찾습니다."
               value={form.description}
               onChange={e => handleChange('description', e.target.value)}
               style={{ width: '100%', resize: 'vertical' }}
@@ -226,7 +221,7 @@ const CampaignCreate = ({ onBack, onCreated }) => {
               {submitting ? '생성 중...' : (
                 <>
                   <CheckCircle size={16} />
-                  캠페인 생성 (무료)
+                  캠페인 생성
                 </>
               )}
             </button>

@@ -4,7 +4,7 @@ import { api } from '../supabaseClient';
 import { Megaphone, Calendar, MapPin, Tag, ChevronDown, ChevronUp, CheckCircle, Clock, XCircle, Award, Plus, Zap, Users } from 'lucide-react';
 
 const STATUS_LABEL = {
-  open: { text: '모집중', color: '#818cf8', bg: 'rgba(99,102,241,0.12)' },
+  open: { text: '모집중', color: '#ffffff', bg: 'rgba(255, 255, 255,0.12)' },
   confirmed: { text: '확정완료', color: '#22c55e', bg: 'rgba(34,197,94,0.12)' },
   closed: { text: '종료', color: 'hsl(var(--foreground-muted))', bg: 'rgba(255,255,255,0.06)' },
 };
@@ -13,7 +13,7 @@ const MATCH_STATUS = {
   pending: { icon: <Clock size={13} />, text: '검토중', color: '#f59e0b' },
   accepted: { icon: <CheckCircle size={13} />, text: '수락', color: '#22c55e' },
   rejected: { icon: <XCircle size={13} />, text: '거절', color: '#ef4444' },
-  confirmed: { icon: <Award size={13} />, text: '최종확정', color: '#818cf8' },
+  confirmed: { icon: <Award size={13} />, text: '최종확정', color: '#ffffff' },
   closed: { icon: <XCircle size={13} />, text: '마감', color: 'hsl(var(--foreground-muted))' },
 };
 
@@ -171,19 +171,19 @@ const CampaignDashboard = ({ onCreateCampaign }) => {
                     </div>
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', fontSize: '0.85rem', color: 'hsl(var(--foreground-muted))' }}>
                       <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                        <Calendar size={13} color="#818cf8" />
+                        <Calendar size={13} color="#ffffff" />
                         {formatSchedule(campaign.schedule)}
                       </span>
                       <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                        <MapPin size={13} color="#818cf8" />
+                        <MapPin size={13} color="#ffffff" />
                         {campaign.location}
                       </span>
                       <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                        <Tag size={13} color="#818cf8" />
+                        <Tag size={13} color="#ffffff" />
                         {campaign.category}
                       </span>
                       <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                        <Users size={13} color="#818cf8" />
+                        <Users size={13} color="#ffffff" />
                         모집: {campaign.recruitCount || 1}명
                       </span>
                       {campaign.endDate && (
@@ -197,7 +197,7 @@ const CampaignDashboard = ({ onCreateCampaign }) => {
                   <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexShrink: 0 }}>
                     <div style={{ textAlign: 'right', fontSize: '0.8rem' }}>
                       <div style={{ color: 'hsl(var(--foreground-muted))' }}>제안 발송</div>
-                      <div style={{ fontWeight: 700, color: '#818cf8' }}>{campaign.proposalCount || 0}명</div>
+                      <div style={{ fontWeight: 700, color: '#ffffff' }}>{campaign.proposalCount || 0}명</div>
                     </div>
                     {campaign.status === 'open' && (
                       <button

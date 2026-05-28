@@ -61,7 +61,7 @@ const Dashboard = ({ onNavigateToCampaign }) => {
     const map = {
       accepted: { bg: 'rgba(16,185,129,0.15)', color: '#10b981', icon: <CheckCircle2 size={12} />, text: '수락됨' },
       rejected: { bg: 'rgba(239,68,68,0.15)', color: '#ef4444', icon: <XCircle size={12} />, text: '거절됨' },
-      confirmed: { bg: 'rgba(99,102,241,0.15)', color: '#818cf8', icon: <Award size={12} />, text: '최종확정' },
+      confirmed: { bg: 'rgba(255, 255, 255,0.15)', color: '#ffffff', icon: <Award size={12} />, text: '최종확정' },
       closed: { bg: 'rgba(255,255,255,0.07)', color: 'hsl(var(--foreground-muted))', icon: <XCircle size={12} />, text: '마감' },
       pending: { bg: 'rgba(245,158,11,0.15)', color: '#f59e0b', icon: <Clock size={12} />, text: '검토중' },
     };
@@ -131,7 +131,7 @@ const Dashboard = ({ onNavigateToCampaign }) => {
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '12px' }}>
                   <div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-                      <Megaphone size={16} color="#818cf8" />
+                      <Megaphone size={16} color="#ffffff" />
                       <h3 style={{ fontSize: '1.05rem', fontWeight: 700 }}>
                         {campaign ? campaign.brandName : match.clientName} 의 캠페인 제안
                       </h3>
@@ -147,22 +147,22 @@ const Dashboard = ({ onNavigateToCampaign }) => {
                 {campaign && (
                   <div style={{
                     padding: '14px 16px',
-                    background: 'rgba(99,102,241,0.05)',
-                    border: '1px solid rgba(99,102,241,0.15)',
+                    background: 'rgba(255, 255, 255,0.05)',
+                    border: '1px solid rgba(255, 255, 255,0.15)',
                     borderRadius: '10px',
                     display: 'flex', flexWrap: 'wrap', gap: '14px',
                     fontSize: '0.85rem'
                   }}>
                     <span style={{ display: 'flex', alignItems: 'center', gap: '5px', color: 'hsl(var(--foreground-muted))' }}>
-                      <Calendar size={13} color="#818cf8" />
+                      <Calendar size={13} color="#ffffff" />
                       {formatSchedule(campaign.schedule)}
                     </span>
                     <span style={{ display: 'flex', alignItems: 'center', gap: '5px', color: 'hsl(var(--foreground-muted))' }}>
-                      <MapPin size={13} color="#818cf8" />
+                      <MapPin size={13} color="#ffffff" />
                       {campaign.location}
                     </span>
                     <span style={{ display: 'flex', alignItems: 'center', gap: '5px', color: 'hsl(var(--foreground-muted))' }}>
-                      <Tag size={13} color="#818cf8" />
+                      <Tag size={13} color="#ffffff" />
                       {campaign.category}
                     </span>
                   </div>

@@ -643,11 +643,19 @@ export const api = {
     list: async () => {
       if (isSheetdbActive) {
         const list = await sheetdbGet("profiles");
-        return list.map(p => ({
-          ...p,
-          rating: parseFloat(p.rating || 5.0),
-          reviews: parseInt(p.reviews || 0)
-        }));
+        return list.map(p => {
+          let keywords = [];
+          let references = [];
+          try { if (p.keywords) keywords = JSON.parse(p.keywords); } catch(e) {}
+          try { if (p.references) references = JSON.parse(p.references); } catch(e) {}
+          return {
+            ...p,
+            rating: parseFloat(p.rating || 5.0),
+            reviews: parseInt(p.reviews || 0),
+            keywords,
+            references
+          };
+        });
       } else if (isRealSupabase) {
         const { data, error } = await supabase.from('profiles').select('*');
         if (error) throw error;
@@ -672,10 +680,16 @@ export const api = {
         const res = await sheetdbSearch("profiles", params);
         if (!res || res.length === 0) return null;
         const p = res[0];
+        let keywords = [];
+        let references = [];
+        try { if (p.keywords) keywords = JSON.parse(p.keywords); } catch(e) {}
+        try { if (p.references) references = JSON.parse(p.references); } catch(e) {}
         return {
           ...p,
           rating: parseFloat(p.rating || 5.0),
-          reviews: parseInt(p.reviews || 0)
+          reviews: parseInt(p.reviews || 0),
+          keywords,
+          references
         };
       } else if (isRealSupabase) {
         const { data, error } = await supabase.from('profiles').select('*').eq('id', id).single();
@@ -699,7 +713,16 @@ export const api = {
         } else {
           idColumn = "name";
         }
-        await sheetdbPatch("profiles", idColumn, id, data);
+        
+        const updateData = { ...data };
+        if (updateData.keywords && Array.isArray(updateData.keywords)) {
+          updateData.keywords = JSON.stringify(updateData.keywords);
+        }
+        if (updateData.references && Array.isArray(updateData.references)) {
+          updateData.references = JSON.stringify(updateData.references);
+        }
+        
+        await sheetdbPatch("profiles", idColumn, id, updateData);
         
         // 이름 변경 시 users 테이블과 동기화
         if (data.name) {
@@ -1076,12 +1099,28 @@ export const api = {
         await sheetdbPatch("matches", "id", matchId, { status });
         return { success: true, matchId, status };
       } else if (isRealSupabase) {
-        const { data, error } = await supabase.from('matches').update({ status }).eq('id', matchId).select().single();
+        const { error } = await supabase.from('matches').update({ status }).eq('id', matchId);
         if (error) throw error;
-        return data;
+        return { success: true, matchId, status };
       } else {
         return mockDb.respondMatch(matchId, status);
       }
+    },
+    update: async (matchId, updates) => {
+      if (isSheetdbActive) {
+        await sheetdbPatch("matches", "id", matchId, updates);
+        return { success: true, matchId, ...updates };
+      } else if (isRealSupabase) {
+        const { error } = await supabase.from('matches').update(updates).eq('id', matchId);
+        if (error) throw error;
+        return { success: true, matchId, ...updates };
+      } else {
+        const matches = JSON.parse(localStorage.getItem('matches') || '[]');
+        const updated = matches.map(m => m.id === matchId ? { ...m, ...updates } : m);
+        localStorage.setItem('matches', JSON.stringify(updated));
+        return { success: true, matchId, ...updates };
+      }
     }
+
   }
 };
