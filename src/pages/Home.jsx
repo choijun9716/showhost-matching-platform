@@ -123,74 +123,124 @@ const Home = ({ onNavigateToLogin, onNavigateToCampaignCreate }) => {
         {/* Main Layout (Split View when Showhost is Selected) */}
         {!selectedHost ? (
           <>
-            {/* Hero Section */}
-            <section style={{ textAlign: 'center', margin: '40px 0 60px 0' }}>
-              <div className="badge" style={{ marginBottom: '16px' }}>
-                <Sparkles size={12} style={{ marginRight: '4px' }} />
-                Premium Live Commerce Matching
-              </div>
-              <h1 style={{
-                fontSize: '2.5rem',
-                fontWeight: 800,
-                lineHeight: '1.2',
-                marginBottom: '10px',
-                fontFamily: 'Outfit, sans-serif'
-              }}>
-                <span className="text-gradient-rainbow">전문 쇼호스트</span>를 찾아보세요
-              </h1>
-              <p style={{
-                color: 'hsl(var(--foreground-muted))',
-                maxWidth: '600px',
-                margin: '0 auto',
-                fontSize: '1rem',
-                lineHeight: '1.5'
-              }}>
-                검증된 쇼호스트 프로필을 확인하고 직접 매칭을 요청하세요.
-              </p>
-            </section>
-
             {!user ? (
-              /* 1. 로그인 전 비공개 유도 화면 */
-              <div className="glass-panel animate-scale-in" style={{
-                maxWidth: '550px',
-                margin: '0 auto 40px auto',
-                padding: '45px 35px',
-                textAlign: 'center',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                gap: '24px'
-              }}>
-                <div className="bg-gradient-primary" style={{
-                  width: '60px',
-                  height: '60px',
-                  borderRadius: '16px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  boxShadow: '0 8px 24px rgba(110, 80, 250, 0.4)'
-                }}>
-                  <Lock size={26} color="white" />
-                </div>
-                <div>
-                  <h3 style={{ fontSize: '1.4rem', fontWeight: 700, marginBottom: '10px' }}>
-                    쇼호스트 리스트 비공개 안내
-                  </h3>
-                  <p style={{ color: 'hsl(var(--foreground-muted))', fontSize: '0.9rem', lineHeight: '1.6', maxWidth: '400px', margin: '0 auto' }}>
-                    등록된 쇼호스트의 개인정보 보호를 위해 인증된 파트너사에게먼 공개됩니다.
-                    가입 후 로그인하여 검증된 전문 쇼호스트 탐색해 보세요!
+              <div className="landing-page animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '80px', marginTop: '20px' }}>
+                {/* 1. Hero Section */}
+                <section style={{ textAlign: 'center', margin: '60px 0 20px 0' }}>
+                  <div className="badge" style={{ marginBottom: '24px', padding: '8px 16px', fontSize: '0.9rem' }}>
+                    <Sparkles size={14} style={{ marginRight: '6px' }} />
+                    대한민국 No.1 라이브 커머스 매칭 플랫폼
+                  </div>
+                  <h1 style={{
+                    fontSize: 'clamp(2.5rem, 5vw, 4rem)',
+                    fontWeight: 900,
+                    lineHeight: '1.2',
+                    marginBottom: '24px',
+                    letterSpacing: '-0.02em',
+                    fontFamily: 'Outfit, sans-serif'
+                  }}>
+                    검증된 <span className="text-gradient-rainbow">전문 쇼호스트</span><br/>이제 원클릭으로 매칭하세요
+                  </h1>
+                  <p style={{
+                    color: 'hsl(var(--foreground-muted))',
+                    maxWidth: '650px',
+                    margin: '0 auto 40px auto',
+                    fontSize: '1.15rem',
+                    lineHeight: '1.6'
+                  }}>
+                    복잡한 에이전시 절차와 수수료 없이, 검증된 탑클래스 쇼호스트의 
+                    포트폴리오를 확인하고 원하는 조건으로 다이렉트 제안을 보내보세요.
                   </p>
-                </div>
-                <button
-                  type="button"
-                  className="btn btn-primary"
-                  onClick={onNavigateToLogin}
-                  style={{ width: '100%', padding: '14px', fontWeight: 700, borderRadius: '10px' }}
-                >
-                  로그인 / 회원가입 하러가기
-                </button>
+                  <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', flexWrap: 'wrap' }}>
+                    <button onClick={onNavigateToLogin} className="btn btn-primary" style={{ padding: '18px 36px', fontSize: '1.1rem', borderRadius: '50px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '8px', boxShadow: '0 10px 30px rgba(255,255,255,0.2)' }}>
+                      무료로 시작하기 <ArrowLeft size={18} style={{ transform: 'rotate(180deg)' }}/>
+                    </button>
+                  </div>
+                </section>
+
+                {/* 2. Features Section */}
+                <section>
+                  <h2 style={{ textAlign: 'center', fontSize: '2rem', fontWeight: 800, marginBottom: '40px' }}>왜 SHOWLAB 인가요?</h2>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '24px' }}>
+                    <div className="glass-panel" style={{ padding: '30px', textAlign: 'center', borderRadius: '24px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}>
+                      <div style={{ width: '60px', height: '60px', borderRadius: '16px', background: 'rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <Star size={28} color="#ffffff" />
+                      </div>
+                      <h3 style={{ fontSize: '1.2rem', fontWeight: 700 }}>검증된 전문가 풀</h3>
+                      <p style={{ color: 'hsl(var(--foreground-muted))', fontSize: '0.95rem', lineHeight: '1.5' }}>
+                        철저한 자체 심사를 거친 라이브 커머스 전문 쇼호스트 네트워크를 독점 제공합니다.
+                      </p>
+                    </div>
+                    <div className="glass-panel" style={{ padding: '30px', textAlign: 'center', borderRadius: '24px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}>
+                      <div style={{ width: '60px', height: '60px', borderRadius: '16px', background: 'rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <Video size={28} color="#ffffff" />
+                      </div>
+                      <h3 style={{ fontSize: '1.2rem', fontWeight: 700 }}>다이렉트 매칭</h3>
+                      <p style={{ color: 'hsl(var(--foreground-muted))', fontSize: '0.95rem', lineHeight: '1.5' }}>
+                        에이전시 중간 수수료 없이, 브랜드가 직접 원하는 호스트에게 투명하게 제안합니다.
+                      </p>
+                    </div>
+                    <div className="glass-panel" style={{ padding: '30px', textAlign: 'center', borderRadius: '24px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}>
+                      <div style={{ width: '60px', height: '60px', borderRadius: '16px', background: 'rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <CircleDollarSign size={28} color="#ffffff" />
+                      </div>
+                      <h3 style={{ fontSize: '1.2rem', fontWeight: 700 }}>100% 안전 결제</h3>
+                      <p style={{ color: 'hsl(var(--foreground-muted))', fontSize: '0.95rem', lineHeight: '1.5' }}>
+                        쇼호스트가 제안을 거절할 경우 소모된 크레딧(비용)은 시스템이 즉시 100% 환불해 드립니다.
+                      </p>
+                    </div>
+                  </div>
+                </section>
+
+                {/* 3. How it works Section */}
+                <section style={{ padding: '40px 0' }}>
+                  <h2 style={{ textAlign: 'center', fontSize: '2rem', fontWeight: 800, marginBottom: '40px' }}>단 3단계로 끝나는 매칭</h2>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', maxWidth: '800px', margin: '0 auto' }}>
+                    {[
+                      { step: 1, title: '캠페인 등록', desc: '방송할 상품의 일정과 예산을 간단히 설정합니다.', icon: <Calendar size={24} /> },
+                      { step: 2, title: '쇼호스트 탐색 및 제안', desc: '카테고리와 금액대 필터로 최적의 호스트를 찾아 제안을 보냅니다.', icon: <Search size={24} /> },
+                      { step: 3, title: '매칭 성공 및 방송 진행', desc: '호스트가 수락하면 연락처가 공유되며 성공적인 라이브를 준비합니다.', icon: <CheckCircle size={24} /> }
+                    ].map((item, idx) => (
+                      <div key={idx} className="glass-panel" style={{ padding: '24px 30px', display: 'flex', alignItems: 'center', gap: '24px', borderRadius: '20px' }}>
+                        <div style={{ width: '50px', height: '50px', borderRadius: '50%', background: '#ffffff', color: '#000000', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: '1.2rem', flexShrink: 0 }}>
+                          {item.step}
+                        </div>
+                        <div>
+                          <h3 style={{ fontSize: '1.2rem', fontWeight: 700, marginBottom: '6px' }}>{item.title}</h3>
+                          <p style={{ color: 'hsl(var(--foreground-muted))' }}>{item.desc}</p>
+                        </div>
+                        <div style={{ marginLeft: 'auto', color: 'rgba(255,255,255,0.2)' }}>
+                          {item.icon}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </section>
+
+                {/* 4. CTA Section */}
+                <section style={{ textAlign: 'center', padding: '60px 0', marginBottom: '40px', background: 'rgba(255,255,255,0.02)', borderRadius: '30px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                  <h2 style={{ fontSize: '2.2rem', fontWeight: 800, marginBottom: '16px' }}>라이브 커머스의 성공, 지금 시작하세요</h2>
+                  <p style={{ color: 'hsl(var(--foreground-muted))', fontSize: '1.1rem', marginBottom: '32px' }}>
+                    수많은 톱 브랜드와 프리미엄 쇼호스트들이 이미 함께하고 있습니다.
+                  </p>
+                  <button onClick={onNavigateToLogin} className="btn btn-primary" style={{ padding: '16px 32px', fontSize: '1.1rem', borderRadius: '12px', fontWeight: 700 }}>
+                    쇼호스트 리스트 보러가기
+                  </button>
+                </section>
               </div>
-            ) : user.role === 'showhost' ? (
+            ) : (
+              <>
+                {/* Hero Section for Logged in Users */}
+                <section style={{ textAlign: 'center', margin: '40px 0 40px 0' }}>
+                  <div className="badge" style={{ marginBottom: '16px' }}>
+                    <Sparkles size={12} style={{ marginRight: '4px' }} />
+                    Premium Live Commerce Matching
+                  </div>
+                  <h1 style={{ fontSize: '2.2rem', fontWeight: 800, marginBottom: '10px' }}>
+                    <span className="text-gradient-rainbow">전문 쇼호스트</span> 탐색
+                  </h1>
+                </section>
+                {user.role === 'showhost' ? (
               /* 2. 쇼호스트 로그인 시 경쟁자 리스트 차단 */
               <div className="glass-panel animate-scale-in" style={{
                 maxWidth: '580px',
@@ -410,6 +460,8 @@ const Home = ({ onNavigateToLogin, onNavigateToCampaignCreate }) => {
                   </div>
                 )}
               </>
+            )}
+            </>
             )}
           </>
         ) : (
