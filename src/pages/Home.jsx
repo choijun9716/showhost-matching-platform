@@ -128,7 +128,6 @@ const Home = ({ onNavigateToLogin, onNavigateToCampaignCreate }) => {
                 {/* 1. Hero Section */}
                 <section style={{ textAlign: 'center', margin: '60px 0 20px 0' }}>
                   <div className="badge" style={{ marginBottom: '24px', padding: '8px 16px', fontSize: '0.9rem' }}>
-                    <Sparkles size={14} style={{ marginRight: '6px' }} />
                     대한민국 No.1 라이브 커머스 매칭 플랫폼
                   </div>
                   <h1 style={{

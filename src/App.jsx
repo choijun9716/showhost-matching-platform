@@ -83,7 +83,7 @@ function AppContent() {
         marginTop: 'auto'
       }}>
         <div className="container">
-          <p>© {new Date().getFullYear()} SHOWLAB. All rights reserved. Premium Showhost Live Commerce Matchmaking Hub.</p>
+          <p>© 2026 RYZIN Production. All rights reserved.</p>
         </div>
       </footer>
     </div>
