@@ -152,6 +152,16 @@ const Admin = ({ onNavigateToCampaignCreate }) => {
     }
   };
 
+  const handleApproveClient = async (client, isApproved) => {
+    try {
+      const isApprovedStr = isApproved ? 'true' : 'false';
+      const updatedUser = await api.users.approve(client.id, isApprovedStr);
+      setClients(prev => prev.map(c => c.id === client.id ? { ...c, isApproved: updatedUser.isApproved } : c));
+    } catch (error) {
+      alert('승인 처리 실패: ' + error.message);
+    }
+  };
+
   if (loading) {
     return (
       <div className="container" style={{ padding: '60px 0', textAlign: 'center' }}>
@@ -374,7 +384,7 @@ const Admin = ({ onNavigateToCampaignCreate }) => {
         <div className="glass-panel" style={{ padding: '24px', overflowX: 'auto' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px' }}>
             <Zap size={20} color="#ffffff" />
-            <h2 style={{ fontSize: '1.2rem', fontWeight: 700 }}>브랜드 크레딧 관리</h2>
+            <h2 style={{ fontSize: '1.2rem', fontWeight: 700 }}>브랜드 파트너사 관리 (승인 & 크레딧)</h2>
             <span style={{ fontSize: '0.8rem', color: 'hsl(var(--foreground-muted))' }}>
               매칭 1건 = 10크레딧 차감
             </span>
@@ -408,6 +418,64 @@ const Admin = ({ onNavigateToCampaignCreate }) => {
                       <div style={{ fontSize: '0.8rem', color: 'hsl(var(--foreground-muted))' }}>{client.email}</div>
                     </div>
 
+                    {/* 가입 승인 관리 */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: '180px' }}>
+                      {client.isApproved === 'true' ? (
+                        <>
+                          <span style={{
+                            padding: '6px 12px',
+                            borderRadius: '8px',
+                            fontSize: '0.8rem',
+                            fontWeight: 700,
+                            background: 'rgba(34, 197, 94, 0.12)',
+                            border: '1px solid rgba(34, 197, 94, 0.25)',
+                            color: '#22c55e'
+                          }}>
+                            승인 완료
+                          </span>
+                          <button
+                            onClick={() => handleApproveClient(client, false)}
+                            className="btn btn-secondary"
+                            style={{
+                              padding: '8px 12px',
+                              fontSize: '0.8rem',
+                              borderRadius: '8px',
+                              cursor: 'pointer'
+                            }}
+                          >
+                            승인 보류
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          <span style={{
+                            padding: '6px 12px',
+                            borderRadius: '8px',
+                            fontSize: '0.8rem',
+                            fontWeight: 700,
+                            background: 'rgba(245, 158, 11, 0.12)',
+                            border: '1px solid rgba(245, 158, 11, 0.25)',
+                            color: '#f59e0b'
+                          }}>
+                            승인 대기
+                          </span>
+                          <button
+                            onClick={() => handleApproveClient(client, true)}
+                            className="btn btn-primary"
+                            style={{
+                              padding: '8px 16px',
+                              fontSize: '0.8rem',
+                              borderRadius: '8px',
+                              fontWeight: 700,
+                              cursor: 'pointer'
+                            }}
+                          >
+                            가입 승인
+                          </button>
+                        </>
+                      )}
+                    </div>
+
                     {/* 현재 크레딧 */}
                     <div style={{
                       display: 'flex',
@@ -430,7 +498,7 @@ const Admin = ({ onNavigateToCampaignCreate }) => {
                       </span>
                     </div>
 
-                    {/* 충전 입력 */}
+                    {/* 크레딧 충전 입력 */}
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                       <input
                         type="number"

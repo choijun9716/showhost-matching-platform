@@ -4,12 +4,12 @@ import { useAuth } from '../context/AuthContext';
 import ShowhostCard from '../components/ShowhostCard';
 import CampaignProposalModal from '../components/CampaignProposalModal';
 import PortfolioView from '../components/PortfolioView';
-import { Search, Filter, Sparkles, Star, Calendar, CircleDollarSign, Video, CheckCircle, AlertCircle, ArrowLeft, Lock, ShieldAlert } from 'lucide-react';
+import { Search, Filter, Sparkles, Star, Calendar, CircleDollarSign, Video, CheckCircle, AlertCircle, ArrowLeft, Lock, ShieldAlert, Clock } from 'lucide-react';
 
 const CATEGORIES = ['전체', '식품', '뷰티', '가전', '테크', '패션', '건기식', '키즈', '여행', '리빙'];
 
 const Home = ({ onNavigateToLogin, onNavigateToCampaignCreate }) => {
-  const { user } = useAuth();
+  const { user, updateUserApprovalStatus } = useAuth();
   const [hosts, setHosts] = useState([]);
   const [filteredHosts, setFilteredHosts] = useState([]);
   const [selectedCategories, setSelectedCategories] = useState([]); // 중복 선택을 위한 배열
@@ -20,6 +20,26 @@ const Home = ({ onNavigateToLogin, onNavigateToCampaignCreate }) => {
   const [showMatchingModal, setShowMatchingModal] = useState(false);
   const [matchingSuccess, setMatchingSuccess] = useState(false);
   const [loading, setLoading] = useState(true);
+
+  // 파트너사의 승인 여부를 실시간 감지하여 화면을 자동 전환
+  useEffect(() => {
+    if (user && user.role === 'client' && user.isApproved === 'false') {
+      const checkApprovalStatus = async () => {
+        try {
+          const users = await api.users.list();
+          const me = users.find(u => u.id === user.id);
+          if (me && me.isApproved === 'true') {
+            updateUserApprovalStatus('true');
+          }
+        } catch (error) {
+          console.error('승인 상태 체크 중 오류:', error);
+        }
+      };
+
+      const interval = setInterval(checkApprovalStatus, 5000);
+      return () => clearInterval(interval);
+    }
+  }, [user, updateUserApprovalStatus]);
 
   useEffect(() => {
     fetchHosts();
@@ -240,41 +260,88 @@ const Home = ({ onNavigateToLogin, onNavigateToCampaignCreate }) => {
                   </h1>
                 </section>
                 {user.role === 'showhost' ? (
-              /* 2. 쇼호스트 로그인 시 경쟁자 리스트 차단 */
-              <div className="glass-panel animate-scale-in" style={{
-                maxWidth: '580px',
-                margin: '0 auto 40px auto',
-                padding: '45px 35px',
-                textAlign: 'center',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                gap: '24px'
-              }}>
-                <div style={{
-                  width: '60px',
-                  height: '60px',
-                  borderRadius: '16px',
-                  background: 'rgba(239, 68, 68, 0.12)',
-                  border: '1px solid rgba(239, 68, 68, 0.25)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: '#ef4444'
-                }}>
-                  <ShieldAlert size={28} />
-                </div>
-                <div>
-                  <h3 style={{ fontSize: '1.4rem', fontWeight: 700, marginBottom: '10px' }}>
-                    브랜드 전용 탐색 공간입니다
-                  </h3>
-                  <p style={{ color: 'hsl(var(--foreground-muted))', fontSize: '0.9rem', lineHeight: '1.6', maxWidth: '440px', margin: '0 auto' }}>
-                    쇼호스트는 정보 보호를 위해 다른 쇼호스트의 리스트 열람 권한이 제한되어 있습니다. <br />
-                    상단 메뉴의 '내 프로필 관리'및 '매칭 대시보드'에서 제안서를 관리해 보세요!
-                  </p>
-                </div>
-              </div>
-            ) : (
+                  /* 2. 쇼호스트 로그인 시 경쟁자 리스트 차단 */
+                  <div className="glass-panel animate-scale-in" style={{
+                    maxWidth: '580px',
+                    margin: '0 auto 40px auto',
+                    padding: '45px 35px',
+                    textAlign: 'center',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    gap: '24px'
+                  }}>
+                    <div style={{
+                      width: '60px',
+                      height: '60px',
+                      borderRadius: '16px',
+                      background: 'rgba(239, 68, 68, 0.12)',
+                      border: '1px solid rgba(239, 68, 68, 0.25)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: '#ef4444'
+                    }}>
+                      <ShieldAlert size={28} />
+                    </div>
+                    <div>
+                      <h3 style={{ fontSize: '1.4rem', fontWeight: 700, marginBottom: '10px' }}>
+                        브랜드 전용 탐색 공간입니다
+                      </h3>
+                      <p style={{ color: 'hsl(var(--foreground-muted))', fontSize: '0.9rem', lineHeight: '1.6', maxWidth: '440px', margin: '0 auto' }}>
+                        쇼호스트는 정보 보호를 위해 다른 쇼호스트의 리스트 열람 권한이 제한되어 있습니다. <br />
+                        상단 메뉴의 '내 프로필 관리'및 '매칭 대시보드'에서 제안서를 관리해 보세요!
+                      </p>
+                    </div>
+                  </div>
+                ) : user.isApproved === 'false' ? (
+                  /* 2-1. 승인 대기중인 파트너사 리스트 차단 및 대기 안내 노출 */
+                  <div className="glass-panel animate-scale-in" style={{
+                    maxWidth: '580px',
+                    margin: '0 auto 40px auto',
+                    padding: '45px 35px',
+                    textAlign: 'center',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    gap: '24px'
+                  }}>
+                    <div style={{
+                      width: '60px',
+                      height: '60px',
+                      borderRadius: '16px',
+                      background: 'rgba(245, 158, 11, 0.12)',
+                      border: '1px solid rgba(245, 158, 11, 0.25)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: '#f59e0b'
+                    }}>
+                      <Clock size={28} />
+                    </div>
+                    <div>
+                      <h3 style={{ fontSize: '1.4rem', fontWeight: 700, marginBottom: '10px' }}>
+                        가입 승인 대기 중입니다
+                      </h3>
+                      <p style={{ color: 'hsl(var(--foreground-muted))', fontSize: '0.9rem', lineHeight: '1.6', maxWidth: '440px', margin: '0 auto' }}>
+                        회원가입이 정상적으로 접수되었습니다. <br />
+                        현재 관리자의 가입 승인을 대기 중이며, 승인이 완료되면 <br />
+                        쇼호스트 검색 및 매칭 서비스 제안 등 모든 서비스를 바로 이용하실 수 있습니다.
+                      </p>
+                    </div>
+                    <div style={{
+                      marginTop: '10px',
+                      padding: '12px 20px',
+                      background: 'rgba(255, 255, 255, 0.02)',
+                      border: '1px solid rgba(255, 255, 255, 0.05)',
+                      borderRadius: '10px',
+                      fontSize: '0.8rem',
+                      color: 'hsl(var(--foreground-muted))'
+                    }}>
+                      💡 관리자 승인 완료 시 새로고침 없이 화면이 실시간으로 전환됩니다.
+                    </div>
+                  </div>
+                ) : (
               /* 3. 브랜드 담당자 로그인 시 기존 뷰 정상 노출 */
               <>
                 {/* Filter & Search Bar */}

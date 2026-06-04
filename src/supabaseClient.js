@@ -166,9 +166,9 @@ const INITIAL_MOCK_PROFILES = [
 export const initMockDatabase = () => {
   if (!localStorage.getItem('users')) {
     localStorage.setItem('users', JSON.stringify([
-      { id: 'admin-1', email: 'admin@test.com', password: 'password123', name: '관리자', role: 'admin', isPaid: 'true', points: 9999 },
-      { id: 'subadmin-1', email: 'subadmin@test.com', password: 'password123', name: '중간관리자', role: 'subadmin', isPaid: 'true', points: 9999 },
-      { id: 'client-1', email: 'client@test.com', password: 'password123', name: '테스트 브랜드', role: 'client', isPaid: 'false', points: 30 },
+      { id: 'admin-1', email: 'admin@test.com', password: 'password123', name: '관리자', role: 'admin', isPaid: 'true', isApproved: 'true', points: 9999 },
+      { id: 'subadmin-1', email: 'subadmin@test.com', password: 'password123', name: '중간관리자', role: 'subadmin', isPaid: 'true', isApproved: 'true', points: 9999 },
+      { id: 'client-1', email: 'client@test.com', password: 'password123', name: '테스트 브랜드', role: 'client', isPaid: 'false', isApproved: 'true', points: 30 },
       ...INITIAL_MOCK_PROFILES.map(host => ({
         id: host.id,
         email: host.email,
@@ -176,21 +176,28 @@ export const initMockDatabase = () => {
         name: host.name,
         role: 'showhost',
         isPaid: 'false',
+        isApproved: 'true',
         points: 0
       }))
     ]));
   } else {
-    // ✅ 마이그레이션: 기존 users에 points 필드가 없으면 자동 추가
+    // ✅ 마이그레이션: 기존 users에 points 및 isApproved 필드가 없으면 자동 추가
     const users = JSON.parse(localStorage.getItem('users') || '[]');
     let migrated = false;
     const updatedUsers = users.map(u => {
+      let updated = { ...u };
       if (u.points === undefined || u.points === null || u.points === '') {
         migrated = true;
         // client-1 테스트 계정은 기본 30크레딧 지급
         const defaultPoints = (u.id === 'client-1' || u.role === 'client') ? 30 : 0;
-        return { ...u, points: defaultPoints };
+        updated.points = defaultPoints;
       }
-      return u;
+      if (u.isApproved === undefined || u.isApproved === null || u.isApproved === '') {
+        migrated = true;
+        // client-1 이나 관리자/쇼호스트는 승인 완료, 신규 브랜드 계정은 대기
+        updated.isApproved = u.role === 'client' ? (u.id === 'client-1' ? 'true' : 'false') : 'true';
+      }
+      return updated;
     });
     if (migrated) {
       localStorage.setItem('users', JSON.stringify(updatedUsers));
@@ -199,8 +206,12 @@ export const initMockDatabase = () => {
       if (savedUser) {
         const parsed = JSON.parse(savedUser);
         const fresh = updatedUsers.find(u => u.id === parsed.id);
-        if (fresh && (parsed.points === undefined || parsed.points === null)) {
-          localStorage.setItem('currentUser', JSON.stringify({ ...parsed, points: parseInt(fresh.points) || 0 }));
+        if (fresh) {
+          localStorage.setItem('currentUser', JSON.stringify({
+            ...parsed,
+            points: parseInt(fresh.points) || 0,
+            isApproved: fresh.isApproved || (fresh.role === 'client' ? 'false' : 'true')
+          }));
         }
       }
     }
@@ -246,7 +257,8 @@ export const mockDb = {
     if (users.find(u => u.email === email)) {
       throw new Error('이미 존재하는 이메일입니다.');
     }
-    const newUser = { id: 'user-' + Date.now(), email, password, name, role, isPaid: 'false', points: 0 };
+    const isApprovedVal = role === 'client' ? 'false' : 'true';
+    const newUser = { id: 'user-' + Date.now(), email, password, name, role, isPaid: 'false', isApproved: isApprovedVal, points: 0 };
     users.push(newUser);
     localStorage.setItem('users', JSON.stringify(users));
 
@@ -279,7 +291,7 @@ export const mockDb = {
       localStorage.setItem('profiles', JSON.stringify(profiles));
     }
     
-    return { user: { id: newUser.id, email: newUser.email, name: newUser.name, role: newUser.role, points: newUser.points } };
+    return { user: { id: newUser.id, email: newUser.email, name: newUser.name, role: newUser.role, points: newUser.points, isApproved: newUser.isApproved } };
   },
 
   signIn: async (email, password) => {
@@ -289,7 +301,7 @@ export const mockDb = {
     if (!user) {
       throw new Error('이메일 또는 비밀번호가 올바르지 않습니다.');
     }
-    return { user: { id: user.id, email: user.email, name: user.name, role: user.role, isPaid: user.isPaid || 'false', points: parseInt(user.points) || 0 } };
+    return { user: { id: user.id, email: user.email, name: user.name, role: user.role, isPaid: user.isPaid || 'false', isApproved: user.isApproved || (user.role === 'client' ? 'false' : 'true'), points: parseInt(user.points) || 0 } };
   },
 
   // 프로필 조회 및 수정
@@ -554,6 +566,7 @@ export const mockDb = {
 export const api = {
   auth: {
     signUp: async (email, password, name, role) => {
+      const isApprovedVal = role === 'client' ? 'false' : 'true';
       if (isSheetdbActive) {
         // 이메일 중복 검증
         const existingUsers = await sheetdbSearch("users", { email });
@@ -563,7 +576,7 @@ export const api = {
         
         const newUserId = "user-" + Date.now();
         // users 테이블에 추가
-        await sheetdbPost("users", [{ id: newUserId, email, password, name, role, isPaid: "false", points: 0 }]);
+        await sheetdbPost("users", [{ id: newUserId, email, password, name, role, isPaid: "false", isApproved: isApprovedVal, points: 0 }]);
         
         // 쇼호스트일 경우 profiles 테이블에도 초기 데이터 생성
         if (role === "showhost") {
@@ -588,11 +601,11 @@ export const api = {
             reviews: 0
           }]);
         }
-        return { user: { id: newUserId, email, name, role, isPaid: "false", points: 0 } };
+        return { user: { id: newUserId, email, name, role, isPaid: "false", isApproved: isApprovedVal, points: 0 } };
       } else if (isRealSupabase) {
-        const { data, error } = await supabase.auth.signUp({ email, password, options: { data: { name, role } } });
+        const { data, error } = await supabase.auth.signUp({ email, password, options: { data: { name, role, isApproved: isApprovedVal } } });
         if (error) throw error;
-        return { user: { id: data.user.id, email: data.user.email, name, role } };
+        return { user: { id: data.user.id, email: data.user.email, name, role, isApproved: isApprovedVal } };
       } else {
         return mockDb.signUp(email, password, name, role);
       }
@@ -604,13 +617,14 @@ export const api = {
           throw new Error("이메일 또는 비밀번호가 올바르지 않습니다.");
         }
         const user = res[0];
-        return { user: { id: user.id, email: user.email, name: user.name, role: user.role, isPaid: user.isPaid || 'false', points: parseInt(user.points) || 0 } };
+        return { user: { id: user.id, email: user.email, name: user.name, role: user.role, isPaid: user.isPaid || 'false', isApproved: user.isApproved || (user.role === 'client' ? 'false' : 'true'), points: parseInt(user.points) || 0 } };
       } else if (isRealSupabase) {
         const { data, error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
         const name = data.user.user_metadata?.name || '';
         const role = data.user.user_metadata?.role || 'client';
-        return { user: { id: data.user.id, email: data.user.email, name, role } };
+        const isApproved = data.user.user_metadata?.isApproved || (role === 'client' ? 'false' : 'true');
+        return { user: { id: data.user.id, email: data.user.email, name, role, isApproved } };
       } else {
         return mockDb.signIn(email, password);
       }
@@ -823,6 +837,33 @@ export const api = {
         return newTotal;
       }
       return mockDb.chargePoints(userId, amount, memo);
+    },
+    approve: async (userId, isApproved = "true") => {
+      if (isSheetdbActive) {
+        await sheetdbPatch("users", "id", userId, { isApproved });
+        const res = await sheetdbSearch("users", { id: userId });
+        if (!res || res.length === 0) throw new Error("사용자를 찾을 수 없습니다.");
+        return res[0];
+      } else if (isRealSupabase) {
+        return { id: userId, isApproved };
+      } else {
+        const users = JSON.parse(localStorage.getItem('users') || '[]');
+        const index = users.findIndex(u => u.id === userId);
+        if (index === -1) throw new Error("사용자를 찾을 수 없습니다.");
+        users[index].isApproved = isApproved;
+        localStorage.setItem('users', JSON.stringify(users));
+        
+        // 로그인된 currentUser 세션 정보도 실시간 업데이트 대응
+        const savedUser = localStorage.getItem('currentUser');
+        if (savedUser) {
+          const parsed = JSON.parse(savedUser);
+          if (parsed.id === userId) {
+            parsed.isApproved = isApproved;
+            localStorage.setItem('currentUser', JSON.stringify(parsed));
+          }
+        }
+        return users[index];
+      }
     }
   },
   campaigns: {

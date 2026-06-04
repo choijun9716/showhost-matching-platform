@@ -74,6 +74,14 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const updateUserApprovalStatus = (isApprovedStatus) => {
+    if (user) {
+      const updatedUser = { ...user, isApproved: isApprovedStatus };
+      setUser(updatedUser);
+      localStorage.setItem('currentUser', JSON.stringify(updatedUser));
+    }
+  };
+
   // 크레딧 업데이트 (차감 또는 충전 후 호출)
   const updateCredits = (newCredits) => {
     if (user) {
@@ -84,7 +92,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, signup, logout, updateCurrentUserProfile, updateUserPaidStatus, updateCredits }}>
+    <AuthContext.Provider value={{ user, loading, login, signup, logout, updateCurrentUserProfile, updateUserPaidStatus, updateUserApprovalStatus, updateCredits }}>
       {!loading && children}
     </AuthContext.Provider>
   );
