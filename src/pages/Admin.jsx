@@ -420,7 +420,7 @@ const Admin = ({ onNavigateToCampaignCreate }) => {
 
                     {/* 가입 승인 관리 */}
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: '180px' }}>
-                      {client.isApproved === 'true' ? (
+                      {String(client.isApproved).toLowerCase() === 'true' ? (
                         <>
                           <span style={{
                             padding: '6px 12px',
