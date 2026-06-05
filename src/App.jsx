@@ -25,7 +25,7 @@ function AppContent() {
 
   const renderPage = () => {
     // 가입 승인 대기중인 파트너사는 홈 화면만 이용 가능하도록 가드
-    if (user?.role === 'client' && user.isApproved === 'false' && activeTab !== 'home' && activeTab !== 'login') {
+    if (user?.role === 'client' && String(user.isApproved).toLowerCase() === 'false' && activeTab !== 'home' && activeTab !== 'login') {
       return (
         <Home
           onNavigateToLogin={handleNavigateToLogin}

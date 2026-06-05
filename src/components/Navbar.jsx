@@ -65,7 +65,7 @@ const Navbar = ({ activeTab, setActiveTab }) => {
 
         {/* Navigation Menu */}
         <nav style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-          {user && !(user.role === 'client' && user.isApproved === 'false') && (
+          {user && !(user.role === 'client' && String(user.isApproved).toLowerCase() === 'false') && (
             <button 
               onClick={() => setActiveTab('dashboard')}
               className="btn"
@@ -144,7 +144,7 @@ const Navbar = ({ activeTab, setActiveTab }) => {
           {user ? (
             <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
               {/* 크레딧 배지 - 브랜드 계정만 (승인 완료된 경우만 표시) */}
-              {user.role === 'client' && user.isApproved !== 'false' && (
+              {user.role === 'client' && String(user.isApproved).toLowerCase() !== 'false' && (
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <div style={{
                     display: 'flex',

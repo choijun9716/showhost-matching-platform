@@ -23,7 +23,7 @@ const Home = ({ onNavigateToLogin, onNavigateToCampaignCreate }) => {
 
   // 파트너사의 승인 여부를 실시간 감지하여 화면을 자동 전환
   useEffect(() => {
-    if (user && user.role === 'client' && user.isApproved === 'false') {
+    if (user && user.role === 'client' && String(user.isApproved).toLowerCase() === 'false') {
       const checkApprovalStatus = async () => {
         try {
           const users = await api.users.list();
@@ -294,7 +294,7 @@ const Home = ({ onNavigateToLogin, onNavigateToCampaignCreate }) => {
                       </p>
                     </div>
                   </div>
-                ) : user.isApproved === 'false' ? (
+                ) : String(user.isApproved).toLowerCase() === 'false' ? (
                   /* 2-1. 승인 대기중인 파트너사 리스트 차단 및 대기 안내 노출 */
                   <div className="glass-panel animate-scale-in" style={{
                     maxWidth: '580px',
