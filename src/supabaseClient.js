@@ -617,7 +617,9 @@ export const api = {
           throw new Error("이메일 또는 비밀번호가 올바르지 않습니다.");
         }
         const user = res[0];
-        return { user: { id: user.id, email: user.email, name: user.name, role: user.role, isPaid: user.isPaid || 'false', isApproved: user.isApproved || (user.role === 'client' ? 'false' : 'true'), points: parseInt(user.points) || 0 } };
+        const rawApproval = user.isApproved !== undefined && user.isApproved !== '' ? user.isApproved : (user.isapproved !== undefined && user.isapproved !== '' ? user.isapproved : undefined);
+        const finalApproved = rawApproval !== undefined ? String(rawApproval).toLowerCase() : (user.role === 'client' ? 'false' : 'true');
+        return { user: { id: user.id, email: user.email, name: user.name, role: user.role, isPaid: user.isPaid || 'false', isApproved: finalApproved, points: parseInt(user.points) || 0 } };
       } else if (isRealSupabase) {
         const { data, error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
@@ -822,11 +824,15 @@ export const api = {
         const allUsers = await sheetdbGet("users");
         return allUsers
           .filter(u => u.role === 'client')
-          .map(u => ({ 
-            ...u, 
-            isApproved: u.isApproved || u.isapproved,
-            points: parseInt(u.points || u.points) || 0 
-          }));
+          .map(u => {
+            const rawApproval = u.isApproved !== undefined && u.isApproved !== '' ? u.isApproved : (u.isapproved !== undefined && u.isapproved !== '' ? u.isapproved : undefined);
+            const finalApproved = rawApproval !== undefined ? String(rawApproval).toLowerCase() : 'false';
+            return { 
+              ...u, 
+              isApproved: finalApproved,
+              points: parseInt(u.points || u.points) || 0 
+            };
+          });
       }
       return mockDb.getAllUsers();
     },
@@ -844,11 +850,11 @@ export const api = {
     },
     approve: async (userId, isApproved = "true") => {
       if (isSheetdbActive) {
-        await sheetdbPatch("users", "id", userId, { isApproved });
+        await sheetdbPatch("users", "id", userId, { isApproved: String(isApproved).toLowerCase() });
         // Return optimistically to avoid SheetDB lowercase key issues
-        return { id: userId, isApproved };
+        return { id: userId, isApproved: String(isApproved).toLowerCase() };
       } else if (isRealSupabase) {
-        return { id: userId, isApproved };
+        return { id: userId, isApproved: String(isApproved).toLowerCase() };
       } else {
         const users = JSON.parse(localStorage.getItem('users') || '[]');
         const index = users.findIndex(u => u.id === userId);
