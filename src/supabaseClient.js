@@ -822,7 +822,11 @@ export const api = {
         const allUsers = await sheetdbGet("users");
         return allUsers
           .filter(u => u.role === 'client')
-          .map(u => ({ ...u, points: parseInt(u.points) || 0 }));
+          .map(u => ({ 
+            ...u, 
+            isApproved: u.isApproved || u.isapproved,
+            points: parseInt(u.points || u.points) || 0 
+          }));
       }
       return mockDb.getAllUsers();
     },
@@ -841,9 +845,8 @@ export const api = {
     approve: async (userId, isApproved = "true") => {
       if (isSheetdbActive) {
         await sheetdbPatch("users", "id", userId, { isApproved });
-        const res = await sheetdbSearch("users", { id: userId });
-        if (!res || res.length === 0) throw new Error("사용자를 찾을 수 없습니다.");
-        return res[0];
+        // Return optimistically to avoid SheetDB lowercase key issues
+        return { id: userId, isApproved };
       } else if (isRealSupabase) {
         return { id: userId, isApproved };
       } else {
