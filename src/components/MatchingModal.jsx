@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../supabaseClient';
 import { X, Send, AlertCircle, Star, Zap } from 'lucide-react';
+import { getOptimizedImageUrl } from '../utils/imageOptimizer';
 import CreditTopUpModal from './CreditTopUpModal';
 
 const MATCH_COST = 10; // 매칭 1건당 차감 크레딧
@@ -128,8 +129,9 @@ const MatchingModal = ({ host, onClose, onSuccess, onNavigateToLogin }) => {
             marginBottom: '20px'
           }}>
             <img 
-              src={host.profileImage} 
+              src={getOptimizedImageUrl(host.profileImage, 120)} 
               alt={host.name} 
+              loading="lazy"
               style={{ width: '60px', height: '60px', borderRadius: '10px', objectFit: 'cover' }}
             />
             <div>

@@ -1,5 +1,6 @@
 import React from 'react';
 import { ArrowLeft, Printer, Sparkles, Link as LinkIcon, ExternalLink } from 'lucide-react';
+import { getOptimizedImageUrl } from '../utils/imageOptimizer';
 
 const PortfolioView = ({ host, onClose, onSendProposal, isOwnProfile = false }) => {
   const birth = host.birth || '정보없음';
@@ -72,9 +73,10 @@ const PortfolioView = ({ host, onClose, onSendProposal, isOwnProfile = false }) 
             {/* 왼쪽: 프로필 메인 대형 이미지 */}
             <div className="profile-image-column">
               <img 
-                src={host.profileImage} 
+                src={getOptimizedImageUrl(host.profileImage, 600)} 
                 alt={host.name} 
                 className="main-profile-img"
+                loading="lazy"
               />
             </div>
             

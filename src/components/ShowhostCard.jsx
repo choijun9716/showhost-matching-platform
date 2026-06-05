@@ -1,5 +1,6 @@
 import React from 'react';
 import { Star, Award, Calendar, CircleDollarSign } from 'lucide-react';
+import { getOptimizedImageUrl } from '../utils/imageOptimizer';
 
 const ShowhostCard = ({ host, onSelect }) => {
   return (
@@ -17,8 +18,9 @@ const ShowhostCard = ({ host, onSelect }) => {
       {/* Host Avatar Image Container */}
       <div className="host-card-img-wrapper" style={{ position: 'relative', width: '100%', paddingTop: '110%', overflow: 'hidden' }}>
         <img 
-          src={host.profileImage} 
+          src={getOptimizedImageUrl(host.profileImage, 400)} 
           alt={host.name}
+          loading="lazy"
           style={{
             position: 'absolute',
             top: 0,
@@ -26,7 +28,8 @@ const ShowhostCard = ({ host, onSelect }) => {
             width: '100%',
             height: '100%',
             objectFit: 'cover',
-            transition: 'transform 0.5s ease'
+            transition: 'transform 0.5s ease',
+            backgroundColor: 'rgba(255,255,255,0.05)'
           }}
           className="host-image-hover"
         />
