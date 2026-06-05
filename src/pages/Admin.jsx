@@ -157,6 +157,8 @@ const Admin = ({ onNavigateToCampaignCreate }) => {
       const isApprovedStr = isApproved ? 'true' : 'false';
       const updatedUser = await api.users.approve(client.id, isApprovedStr);
       setClients(prev => prev.map(c => c.id === client.id ? { ...c, isApproved: updatedUser.isApproved } : c));
+      alert(`[${client.name}] 파트너사의 승인 상태가 변경되었습니다.`);
+      await fetchData(); // 최신 상태 확실히 동기화
     } catch (error) {
       alert('승인 처리 실패: ' + error.message);
     }
