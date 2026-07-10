@@ -6,6 +6,11 @@ const AuthContext = createContext(null);
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [demoTimeLeft, setDemoTimeLeft] = useState(null);
+
+  const isDemoUser = (u) => {
+    return u && (u.email === 'subadmin@test.com' || u.email === 'client@test.com');
+  };
 
   useEffect(() => {
     // 앱 초기화 시 Mock DB 초기 세팅
@@ -26,8 +31,44 @@ export const AuthProvider = ({ children }) => {
     setLoading(false);
   }, []);
 
+  useEffect(() => {
+    if (!user || !isDemoUser(user)) {
+      setDemoTimeLeft(null);
+      localStorage.removeItem('demoStartTime');
+      return;
+    }
+
+    let startTime = localStorage.getItem('demoStartTime');
+    if (!startTime) {
+      startTime = Date.now().toString();
+      localStorage.setItem('demoStartTime', startTime);
+    }
+
+    const startTimestamp = parseInt(startTime, 10);
+    const LIMIT = 30 * 60 * 1000; // 30분
+
+    const updateTimer = () => {
+      const elapsed = Date.now() - startTimestamp;
+      const remaining = Math.max(0, Math.floor((LIMIT - elapsed) / 1000));
+      
+      setDemoTimeLeft(remaining);
+
+      if (remaining <= 0) {
+        clearInterval(intervalId);
+        logout();
+        alert('⚠️ 데모 체험 시간(30분)이 만료되어 자동으로 로그아웃되었습니다.');
+      }
+    };
+
+    updateTimer();
+    const intervalId = setInterval(updateTimer, 1000);
+
+    return () => clearInterval(intervalId);
+  }, [user]);
+
   const login = async (email, password) => {
     try {
+      localStorage.removeItem('demoStartTime');
       const response = await api.auth.signIn(email, password);
       setUser(response.user);
       localStorage.setItem('currentUser', JSON.stringify(response.user));
@@ -53,6 +94,8 @@ export const AuthProvider = ({ children }) => {
       await api.auth.signOut();
       setUser(null);
       localStorage.removeItem('currentUser');
+      localStorage.removeItem('demoStartTime');
+      setDemoTimeLeft(null);
     } catch (error) {
       console.error('Logout error:', error);
     }
@@ -92,7 +135,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, signup, logout, updateCurrentUserProfile, updateUserPaidStatus, updateUserApprovalStatus, updateCredits }}>
+    <AuthContext.Provider value={{ user, loading, login, signup, logout, updateCurrentUserProfile, updateUserPaidStatus, updateUserApprovalStatus, updateCredits, demoTimeLeft }}>
       {!loading && children}
     </AuthContext.Provider>
   );

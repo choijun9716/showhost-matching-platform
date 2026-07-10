@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { api } from '../supabaseClient';
 import { useAuth } from '../context/AuthContext';
-import { Shield, Eye, EyeOff, Trash2, Star, Zap, Plus, Users, UserCheck, Search, Filter, ChevronDown, ChevronUp, Clock, Calendar, MapPin, Tag, Award, BarChart3, DollarSign } from 'lucide-react';
+import { Shield, Eye, EyeOff, Trash2, Star, Zap, Plus, Users, UserCheck, Search, Filter, ChevronDown, ChevronUp, Clock, Calendar, MapPin, Tag, Award, BarChart3, DollarSign, Video, Megaphone } from 'lucide-react';
 import AdminStats from '../components/AdminStats';
 import AdminSettlement from '../components/AdminSettlement';
+import AdminLiveBroadcast from '../components/AdminLiveBroadcast';
+import AdminMarketingMessage from '../components/AdminMarketingMessage';
 
 const Admin = ({ onNavigateToCampaignCreate }) => {
   const { user } = useAuth();
@@ -64,7 +66,7 @@ const Admin = ({ onNavigateToCampaignCreate }) => {
 
   useEffect(() => {
     if (user?.role === 'subadmin') {
-      if (activeTab === 'hosts' || activeTab === 'stats' || activeTab === 'settlement') {
+      if (activeTab === 'hosts' || activeTab === 'stats' || activeTab === 'settlement' || activeTab === 'live' || activeTab === 'marketing') {
         setActiveTab('matches');
       }
     }
@@ -232,32 +234,62 @@ const Admin = ({ onNavigateToCampaignCreate }) => {
             <>
               <button
                 onClick={() => setActiveTab('stats')}
-            className="btn"
-            style={{
-              padding: '10px 20px',
-              display: 'flex', alignItems: 'center', gap: '6px',
-              background: activeTab === 'stats' ? 'rgba(245, 158, 11, 0.15)' : 'transparent',
-              border: activeTab === 'stats' ? '1px solid rgba(245, 158, 11, 0.3)' : '1px solid transparent',
-              color: activeTab === 'stats' ? '#f59e0b' : 'inherit',
-              fontWeight: activeTab === 'stats' ? 700 : 400
-            }}
-          >
-            <BarChart3 size={16} />
-            통계 및 리포트
-          </button>
-          <button
-            onClick={() => setActiveTab('settlement')}
-            className="btn"
-            style={{
-              padding: '10px 20px',
-              display: 'flex', alignItems: 'center', gap: '6px',
-              background: activeTab === 'settlement' ? 'rgba(255,255,255,0.1)' : 'transparent',
-              border: activeTab === 'settlement' ? '1px solid rgba(255,255,255,0.2)' : '1px solid transparent',
-              fontWeight: activeTab === 'settlement' ? 700 : 400
-            }}
-          >
-            <DollarSign size={16} />
-              정산 관리
+                className="btn"
+                style={{
+                  padding: '10px 20px',
+                  display: 'flex', alignItems: 'center', gap: '6px',
+                  background: activeTab === 'stats' ? 'rgba(245, 158, 11, 0.15)' : 'transparent',
+                  border: activeTab === 'stats' ? '1px solid rgba(245, 158, 11, 0.3)' : '1px solid transparent',
+                  color: activeTab === 'stats' ? '#f59e0b' : 'inherit',
+                  fontWeight: activeTab === 'stats' ? 700 : 400
+                }}
+              >
+                <BarChart3 size={16} />
+                통계 및 리포트
+              </button>
+              <button
+                onClick={() => setActiveTab('settlement')}
+                className="btn"
+                style={{
+                  padding: '10px 20px',
+                  display: 'flex', alignItems: 'center', gap: '6px',
+                  background: activeTab === 'settlement' ? 'rgba(255,255,255,0.1)' : 'transparent',
+                  border: activeTab === 'settlement' ? '1px solid rgba(255,255,255,0.2)' : '1px solid transparent',
+                  fontWeight: activeTab === 'settlement' ? 700 : 400
+                }}
+              >
+                <DollarSign size={16} />
+                정산 관리
+              </button>
+              <button
+                onClick={() => setActiveTab('live')}
+                className="btn"
+                style={{
+                  padding: '10px 20px',
+                  display: 'flex', alignItems: 'center', gap: '6px',
+                  background: activeTab === 'live' ? 'rgba(239, 68, 68, 0.15)' : 'transparent',
+                  border: activeTab === 'live' ? '1px solid rgba(239, 68, 68, 0.3)' : '1px solid transparent',
+                  color: activeTab === 'live' ? '#ef4444' : 'inherit',
+                  fontWeight: activeTab === 'live' ? 700 : 400
+                }}
+              >
+                <Video size={16} />
+                라이브 송출관리
+              </button>
+              <button
+                onClick={() => setActiveTab('marketing')}
+                className="btn"
+                style={{
+                  padding: '10px 20px',
+                  display: 'flex', alignItems: 'center', gap: '6px',
+                  background: activeTab === 'marketing' ? 'rgba(16, 185, 129, 0.15)' : 'transparent',
+                  border: activeTab === 'marketing' ? '1px solid rgba(16, 185, 129, 0.3)' : '1px solid transparent',
+                  color: activeTab === 'marketing' ? '#10b981' : 'inherit',
+                  fontWeight: activeTab === 'marketing' ? 700 : 400
+                }}
+              >
+                <Megaphone size={16} />
+                마케팅메세지
               </button>
             </>
           )}
@@ -280,6 +312,14 @@ const Admin = ({ onNavigateToCampaignCreate }) => {
 
       {user.role === 'admin' && activeTab === 'settlement' && (
         <AdminSettlement allMatches={allMatches} campaigns={allCampaigns} hosts={hosts} onUpdateMatch={handleUpdateMatch} />
+      )}
+
+      {user.role === 'admin' && activeTab === 'live' && (
+        <AdminLiveBroadcast />
+      )}
+
+      {user.role === 'admin' && activeTab === 'marketing' && (
+        <AdminMarketingMessage />
       )}
 
       {user.role === 'admin' && activeTab === 'hosts' && (

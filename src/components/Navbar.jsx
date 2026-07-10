@@ -1,13 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../supabaseClient';
-import { LogOut, User, LayoutDashboard, Shield, Zap, Megaphone, Bell } from 'lucide-react';
+import { LogOut, User, LayoutDashboard, Shield, Zap, Megaphone, Bell, Clock } from 'lucide-react';
 import CreditTopUpModal from './CreditTopUpModal';
 
 const Navbar = ({ activeTab, setActiveTab }) => {
-  const { user, logout } = useAuth();
+  const { user, logout, demoTimeLeft } = useAuth();
   const [pendingCount, setPendingCount] = useState(0);
   const [isTopUpOpen, setIsTopUpOpen] = useState(false);
+
+  const formatTime = (seconds) => {
+    if (seconds === null || seconds === undefined) return '';
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${m}:${String(s).padStart(2, '0')}`;
+  };
 
   useEffect(() => {
     if (user && user.role === 'showhost') {
@@ -187,6 +194,31 @@ const Navbar = ({ activeTab, setActiveTab }) => {
                   >
                     충전하기
                   </button>
+                </div>
+              )}
+
+              {/* 데모 타이머 표시 */}
+              {demoTimeLeft !== null && (
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  padding: '5px 12px',
+                  borderRadius: '20px',
+                  background: 'linear-gradient(90deg, rgba(239, 68, 68, 0.15), rgba(245, 158, 11, 0.15))',
+                  border: `1px solid ${demoTimeLeft < 60 ? '#ef4444' : 'rgba(245, 158, 11, 0.3)'}`,
+                  animation: demoTimeLeft < 60 ? 'pulse 1s infinite' : 'none',
+                  whiteSpace: 'nowrap'
+                }}>
+                  <Clock size={13} color={demoTimeLeft < 60 ? '#ef4444' : '#f59e0b'} className={demoTimeLeft < 60 ? 'animate-pulse' : ''} />
+                  <span style={{
+                    fontSize: '0.78rem',
+                    fontWeight: 800,
+                    color: demoTimeLeft < 60 ? '#ef4444' : '#f59e0b',
+                    fontFamily: 'monospace'
+                  }}>
+                    ⏱️ {formatTime(demoTimeLeft)}
+                  </span>
                 </div>
               )}
 
